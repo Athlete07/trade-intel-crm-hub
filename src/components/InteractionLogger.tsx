@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,10 +17,17 @@ import {
   Star,
   Filter,
   Save,
-  X
+  X,
+  Eye,
+  Edit
 } from "lucide-react";
 
-export function InteractionLogger() {
+interface InteractionLoggerProps {
+  onViewDetails?: (interactionId: string) => void;
+  onEditInteraction?: (interactionId: string) => void;
+}
+
+export function InteractionLogger({ onViewDetails, onEditInteraction }: InteractionLoggerProps) {
   const [isAddingInteraction, setIsAddingInteraction] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -140,6 +146,22 @@ export function InteractionLogger() {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleViewDetails = (interactionId: string) => {
+    if (onViewDetails) {
+      onViewDetails(interactionId);
+    } else {
+      alert(`Viewing details for interaction ${interactionId}`);
+    }
+  };
+
+  const handleEditInteraction = (interactionId: string) => {
+    if (onEditInteraction) {
+      onEditInteraction(interactionId);
+    } else {
+      alert(`Editing interaction ${interactionId}`);
+    }
   };
 
   const handleSaveInteraction = () => {
@@ -512,9 +534,15 @@ export function InteractionLogger() {
                       Product: <span className="font-medium">{interaction.productService}</span>
                     </span>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm text-gray-500">Follow-up:</p>
-                    <p className="text-sm font-medium">{interaction.followUpDate}</p>
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" variant="outline" onClick={() => handleViewDetails(interaction.id)}>
+                      <Eye className="w-3 h-3 mr-1" />
+                      View
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => handleEditInteraction(interaction.id)}>
+                      <Edit className="w-3 h-3 mr-1" />
+                      Edit
+                    </Button>
                   </div>
                 </div>
               </CardContent>

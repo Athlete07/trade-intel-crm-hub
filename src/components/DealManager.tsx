@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,7 +20,12 @@ import {
   FileText
 } from "lucide-react";
 
-export function DealManager() {
+interface DealManagerProps {
+  onViewDetails?: (dealId: string) => void;
+  onEditDeal?: (dealId: string) => void;
+}
+
+export function DealManager({ onViewDetails, onEditDeal }: DealManagerProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStage, setFilterStage] = useState("all");
   const [isCreatingDeal, setIsCreatingDeal] = useState(false);
@@ -147,12 +151,20 @@ export function DealManager() {
   };
 
   const handleEditDeal = (dealId: string) => {
-    alert(`Edit Deal ${dealId} form would open here with pre-filled deal information.`);
+    if (onEditDeal) {
+      onEditDeal(dealId);
+    } else {
+      alert(`Edit Deal ${dealId} form would open here with pre-filled deal information.`);
+    }
   };
 
-  const handleViewDeal = (dealId: string) => {
-    setSelectedDeal(dealId);
-    alert(`Deal ${dealId} detailed view would open here showing complete deal history, documents, and timeline.`);
+  const handleViewDetails = (dealId: string) => {
+    if (onViewDetails) {
+      onViewDetails(dealId);
+    } else {
+      setSelectedDeal(dealId);
+      alert(`Deal ${dealId} detailed view would open here showing complete deal history, documents, and timeline.`);
+    }
   };
 
   const handleGenerateContract = (dealId: string) => {
@@ -354,7 +366,7 @@ export function DealManager() {
                 {/* Action Buttons */}
                 <div className="flex items-center justify-between pt-3 border-t border-gray-200">
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={() => handleViewDeal(deal.id)}>
+                    <Button size="sm" variant="outline" onClick={() => handleViewDetails(deal.id)}>
                       <Eye className="w-3 h-3 mr-1" />
                       View
                     </Button>

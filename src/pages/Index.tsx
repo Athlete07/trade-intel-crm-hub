@@ -28,23 +28,33 @@ import { Dashboard } from "@/components/Dashboard";
 import { CreateDealForm } from "@/components/CreateDealForm";
 import { ReportGenerator } from "@/components/ReportGenerator";
 import { NotificationCenter } from "@/components/NotificationCenter";
+import { AddCompanyForm } from "@/components/AddCompanyForm";
+import { DealDetails } from "@/components/DealDetails";
+import { InteractionDetails } from "@/components/InteractionDetails";
+import { ContactManager } from "@/components/ContactManager";
+import { DocumentManager } from "@/components/DocumentManager";
+import { TaskManager } from "@/components/TaskManager";
 
-type ViewType = 'dashboard' | 'companies' | 'deals' | 'interactions' | 'ai-insights' | 'create-deal' | 'reports' | 'notifications';
+type ViewType = 'dashboard' | 'companies' | 'deals' | 'interactions' | 'ai-insights' | 'create-deal' | 'reports' | 'notifications' | 'add-company' | 'deal-details' | 'interaction-details' | 'contacts' | 'documents' | 'tasks';
 
 const Index = () => {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
+  const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
+  const [selectedInteractionId, setSelectedInteractionId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleNavigation = (view: ViewType) => {
     setCurrentView(view);
     setSelectedCompanyId(null);
+    setSelectedDealId(null);
+    setSelectedInteractionId(null);
   };
 
   const handleQuickAdd = () => {
     switch (currentView) {
       case 'companies':
-        // This will be handled by the CompanyProfile component
+        setCurrentView('add-company');
         break;
       case 'deals':
         setCurrentView('create-deal');
@@ -54,16 +64,22 @@ const Index = () => {
         break;
       default:
         // Show options for what to add
-        const action = prompt('Quick Add:\n1. Company\n2. Deal\n3. Interaction\nEnter your choice (1-3):');
+        const action = prompt('Quick Add:\n1. Company\n2. Deal\n3. Interaction\n4. Task\n5. Contact\nEnter your choice (1-5):');
         switch (action) {
           case '1':
-            setCurrentView('companies');
+            setCurrentView('add-company');
             break;
           case '2':
             setCurrentView('create-deal');
             break;
           case '3':
             setCurrentView('interactions');
+            break;
+          case '4':
+            setCurrentView('tasks');
+            break;
+          case '5':
+            setCurrentView('contacts');
             break;
         }
         break;
@@ -87,6 +103,36 @@ const Index = () => {
     setCurrentView('deals');
   };
 
+  const handleAddCompany = (companyData: any) => {
+    console.log('Company added:', companyData);
+    alert('Company added successfully!');
+    setCurrentView('companies');
+  };
+
+  const handleCancelCompanyCreation = () => {
+    setCurrentView('companies');
+  };
+
+  const handleViewDealDetails = (dealId: string) => {
+    setSelectedDealId(dealId);
+    setCurrentView('deal-details');
+  };
+
+  const handleEditDeal = (dealId: string) => {
+    // This would open the deal for editing
+    setCurrentView('create-deal');
+  };
+
+  const handleViewInteractionDetails = (interactionId: string) => {
+    setSelectedInteractionId(interactionId);
+    setCurrentView('interaction-details');
+  };
+
+  const handleEditInteraction = (interactionId: string) => {
+    // This would open the interaction for editing
+    alert(`Editing interaction ${interactionId}`);
+  };
+
   const renderMainContent = () => {
     switch (currentView) {
       case 'dashboard':
@@ -94,17 +140,41 @@ const Index = () => {
       case 'companies':
         return <CompanyProfile selectedId={selectedCompanyId} onSelectCompany={setSelectedCompanyId} />;
       case 'deals':
-        return <DealManager />;
+        return <DealManager onViewDetails={handleViewDealDetails} onEditDeal={handleEditDeal} />;
       case 'create-deal':
         return <CreateDealForm onSave={handleCreateDeal} onCancel={handleCancelDealCreation} />;
       case 'interactions':
-        return <InteractionLogger />;
+        return <InteractionLogger onViewDetails={handleViewInteractionDetails} onEditInteraction={handleEditInteraction} />;
       case 'ai-insights':
         return <AIInsights />;
       case 'reports':
         return <ReportGenerator onBack={() => setCurrentView('dashboard')} />;
       case 'notifications':
         return <NotificationCenter onBack={() => setCurrentView('dashboard')} />;
+      case 'add-company':
+        return <AddCompanyForm onSave={handleAddCompany} onCancel={handleCancelCompanyCreation} />;
+      case 'deal-details':
+        return selectedDealId ? (
+          <DealDetails 
+            dealId={selectedDealId} 
+            onBack={() => setCurrentView('deals')} 
+            onEdit={handleEditDeal}
+          />
+        ) : <DealManager onViewDetails={handleViewDealDetails} onEditDeal={handleEditDeal} />;
+      case 'interaction-details':
+        return selectedInteractionId ? (
+          <InteractionDetails 
+            interactionId={selectedInteractionId} 
+            onBack={() => setCurrentView('interactions')} 
+            onEdit={handleEditInteraction}
+          />
+        ) : <InteractionLogger onViewDetails={handleViewInteractionDetails} onEditInteraction={handleEditInteraction} />;
+      case 'contacts':
+        return <ContactManager />;
+      case 'documents':
+        return <DocumentManager />;
+      case 'tasks':
+        return <TaskManager />;
       default:
         return <Dashboard onNavigate={handleNavigation} />;
     }
@@ -128,6 +198,18 @@ const Index = () => {
         return 'Report Generator';
       case 'notifications':
         return 'Notification Center';
+      case 'add-company':
+        return 'Add New Company';
+      case 'deal-details':
+        return 'Deal Details';
+      case 'interaction-details':
+        return 'Interaction Details';
+      case 'contacts':
+        return 'Contact Management';
+      case 'documents':
+        return 'Document Management';
+      case 'tasks':
+        return 'Task Management';
       default:
         return 'EXIM Intelligence CRM';
     }

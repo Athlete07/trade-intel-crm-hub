@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -9,10 +10,13 @@ import {
   Home,
   Settings,
   Bell,
-  FileText
+  FileText,
+  Users,
+  Calendar,
+  FolderOpen
 } from "lucide-react";
 
-type ViewType = 'dashboard' | 'companies' | 'deals' | 'interactions' | 'ai-insights' | 'create-deal' | 'reports' | 'notifications' | 'add-company';
+type ViewType = 'dashboard' | 'companies' | 'deals' | 'interactions' | 'ai-insights' | 'create-deal' | 'reports' | 'notifications' | 'add-company' | 'deal-details' | 'interaction-details' | 'contacts' | 'documents' | 'tasks';
 
 interface SidebarProps {
   currentView: ViewType;
@@ -27,6 +31,9 @@ export function Sidebar({ currentView, onViewChange, onNotificationClick, onRepo
     { id: 'companies' as const, label: 'Companies', icon: Building2, badge: '127' },
     { id: 'deals' as const, label: 'Deals', icon: Handshake, badge: '23' },
     { id: 'interactions' as const, label: 'Interactions', icon: MessageSquare, badge: '8' },
+    { id: 'contacts' as const, label: 'Contacts', icon: Users, badge: '245' },
+    { id: 'tasks' as const, label: 'Tasks', icon: Calendar, badge: '12' },
+    { id: 'documents' as const, label: 'Documents', icon: FolderOpen, badge: '156' },
     { id: 'ai-insights' as const, label: 'AI Insights', icon: Brain, badge: 'New' },
   ];
 
