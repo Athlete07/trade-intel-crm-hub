@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -13,7 +12,7 @@ import {
   FileText
 } from "lucide-react";
 
-type ViewType = 'dashboard' | 'companies' | 'deals' | 'interactions' | 'ai-insights';
+type ViewType = 'dashboard' | 'companies' | 'deals' | 'interactions' | 'ai-insights' | 'create-deal' | 'reports' | 'notifications' | 'add-company';
 
 interface SidebarProps {
   currentView: ViewType;
