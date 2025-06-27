@@ -15,12 +15,17 @@ import {
   Filter,
   Calendar,
   Building2,
-  Globe
+  Globe,
+  Edit,
+  Eye,
+  FileText
 } from "lucide-react";
 
 export function DealManager() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStage, setFilterStage] = useState("all");
+  const [isCreatingDeal, setIsCreatingDeal] = useState(false);
+  const [selectedDeal, setSelectedDeal] = useState<string | null>(null);
 
   const deals = [
     {
@@ -136,11 +141,46 @@ export function DealManager() {
   const avgProbability = deals.filter(deal => deal.status === 'Live')
     .reduce((sum, deal) => sum + deal.probability, 0) / activeDeals || 0;
 
+  const handleCreateDeal = () => {
+    setIsCreatingDeal(true);
+    alert('Create Deal form would open here with fields for all deal parameters including buyer, seller, product details, financial terms, etc.');
+  };
+
+  const handleEditDeal = (dealId: string) => {
+    alert(`Edit Deal ${dealId} form would open here with pre-filled deal information.`);
+  };
+
+  const handleViewDeal = (dealId: string) => {
+    setSelectedDeal(dealId);
+    alert(`Deal ${dealId} detailed view would open here showing complete deal history, documents, and timeline.`);
+  };
+
+  const handleGenerateContract = (dealId: string) => {
+    alert(`Contract generation for Deal ${dealId} would start here. This would create a PDF contract based on deal terms.`);
+  };
+
+  const handleDealAction = (dealId: string, action: string) => {
+    switch (action) {
+      case 'approve':
+        alert(`Deal ${dealId} has been approved and moved to confirmed stage.`);
+        break;
+      case 'reject':
+        alert(`Deal ${dealId} has been rejected and moved to lost stage.`);
+        break;
+      case 'negotiate':
+        alert(`Opening negotiation panel for Deal ${dealId}.`);
+        break;
+      case 'clone':
+        alert(`Creating a copy of Deal ${dealId} with same parameters.`);
+        break;
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Deal Management</h1>
-        <Button>
+        <Button onClick={handleCreateDeal}>
           <Plus className="w-4 h-4 mr-2" />
           Create Deal
         </Button>
@@ -148,7 +188,7 @@ export function DealManager() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
               <DollarSign className="w-8 h-8 text-green-600" />
@@ -159,7 +199,7 @@ export function DealManager() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
               <TrendingUp className="w-8 h-8 text-blue-600" />
@@ -170,7 +210,7 @@ export function DealManager() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
               <CheckCircle className="w-8 h-8 text-purple-600" />
@@ -181,7 +221,7 @@ export function DealManager() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
               <Calendar className="w-8 h-8 text-orange-600" />
@@ -218,6 +258,10 @@ export function DealManager() {
               <option value="confirmed">Confirmed</option>
               <option value="lost">Lost</option>
             </select>
+            <Button variant="outline">
+              <Filter className="w-4 h-4 mr-2" />
+              Advanced
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -240,10 +284,12 @@ export function DealManager() {
                       <p className="text-sm text-gray-500">Deal ID: {deal.id}</p>
                     </div>
                   </div>
-                  <Badge variant={getStageColor(deal.stage)} className="flex items-center gap-1">
-                    <StageIcon className="w-3 h-3" />
-                    {deal.stage}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={getStageColor(deal.stage)} className="flex items-center gap-1">
+                      <StageIcon className="w-3 h-3" />
+                      {deal.stage}
+                    </Badge>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -303,6 +349,38 @@ export function DealManager() {
                     className="bg-blue-600 h-2 rounded-full transition-all"
                     style={{ width: `${deal.probability}%` }}
                   />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => handleViewDeal(deal.id)}>
+                      <Eye className="w-3 h-3 mr-1" />
+                      View
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => handleEditDeal(deal.id)}>
+                      <Edit className="w-3 h-3 mr-1" />
+                      Edit
+                    </Button>
+                  </div>
+                  <div className="flex gap-2">
+                    {deal.stage === 'Confirmed' && (
+                      <Button size="sm" onClick={() => handleGenerateContract(deal.id)}>
+                        <FileText className="w-3 h-3 mr-1" />
+                        Contract
+                      </Button>
+                    )}
+                    {deal.stage === 'Negotiation' && (
+                      <>
+                        <Button size="sm" variant="outline" onClick={() => handleDealAction(deal.id, 'approve')}>
+                          Approve
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleDealAction(deal.id, 'reject')}>
+                          Reject
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>

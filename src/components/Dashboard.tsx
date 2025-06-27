@@ -15,7 +15,11 @@ import {
   AlertTriangle
 } from "lucide-react";
 
-export function Dashboard() {
+interface DashboardProps {
+  onNavigate?: (view: string) => void;
+}
+
+export function Dashboard({ onNavigate }: DashboardProps) {
   const stats = [
     {
       title: "Total Companies",
@@ -105,6 +109,23 @@ export function Dashboard() {
     }
   ];
 
+  const handleQuickAction = (action: string) => {
+    switch (action) {
+      case 'add-company':
+        onNavigate?.('companies');
+        break;
+      case 'log-interaction':
+        onNavigate?.('interactions');
+        break;
+      case 'create-deal':
+        onNavigate?.('deals');
+        break;
+      case 'generate-report':
+        alert('Report generation feature coming soon!');
+        break;
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
@@ -148,13 +169,15 @@ export function Dashboard() {
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               Recent Interactions
-              <Button variant="outline" size="sm">View All</Button>
+              <Button variant="outline" size="sm" onClick={() => onNavigate?.('interactions')}>
+                View All
+              </Button>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {recentInteractions.map((interaction, index) => (
-                <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" onClick={() => onNavigate?.('interactions')}>
                   <div className="flex-1">
                     <h4 className="font-semibold text-gray-900">{interaction.company}</h4>
                     <p className="text-sm text-gray-600">{interaction.contact}</p>
@@ -185,13 +208,15 @@ export function Dashboard() {
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               Deal Pipeline
-              <Button variant="outline" size="sm">Manage</Button>
+              <Button variant="outline" size="sm" onClick={() => onNavigate?.('deals')}>
+                Manage
+              </Button>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {topDeals.map((deal, index) => (
-                <div key={index} className="p-4 border border-gray-200 rounded-lg">
+                <div key={index} className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => onNavigate?.('deals')}>
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold text-gray-900">{deal.company}</h4>
                     <span className="text-lg font-bold text-green-600">{deal.value}</span>
@@ -228,25 +253,40 @@ export function Dashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Button className="h-16 flex flex-col items-center gap-2">
+            <Button 
+              className="h-16 flex flex-col items-center gap-2"
+              onClick={() => handleQuickAction('add-company')}
+            >
               <Users className="w-5 h-5" />
               Add Company
             </Button>
-            <Button variant="outline" className="h-16 flex flex-col items-center gap-2">
+            <Button 
+              variant="outline" 
+              className="h-16 flex flex-col items-center gap-2"
+              onClick={() => handleQuickAction('log-interaction')}
+            >
               <Handshake className="w-5 h-5" />
               Log Interaction
             </Button>
-            <Button variant="outline" className="h-16 flex flex-col items-center gap-2">
+            <Button 
+              variant="outline" 
+              className="h-16 flex flex-col items-center gap-2"
+              onClick={() => handleQuickAction('create-deal')}
+            >
               <DollarSign className="w-5 h-5" />
               Create Deal
             </Button>
-            <Button variant="outline" className="h-16 flex flex-col items-center gap-2">
+            <Button 
+              variant="outline" 
+              className="h-16 flex flex-col items-center gap-2"
+              onClick={() => handleQuickAction('generate-report')}
+            >
               <Globe className="w-5 h-5" />
               Generate Report
             </Button>
           </div>
         </CardContent>
-      </Card>
+      </div>
     </div>
   );
 }

@@ -16,12 +16,29 @@ import {
   User,
   Building2,
   Star,
-  Filter
+  Filter,
+  Save,
+  X
 } from "lucide-react";
 
 export function InteractionLogger() {
   const [isAddingInteraction, setIsAddingInteraction] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [formData, setFormData] = useState({
+    company: '',
+    date: '',
+    contactName: '',
+    contactDesignation: '',
+    contactEmail: '',
+    contactPhone: '',
+    salesperson: '',
+    department: '',
+    channel: '',
+    product: '',
+    notes: '',
+    hasOpportunity: false
+  });
 
   const interactions = [
     {
@@ -118,12 +135,71 @@ export function InteractionLogger() {
     interaction.productService.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleInputChange = (field: string, value: string | boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSaveInteraction = () => {
+    // Validate required fields
+    if (!formData.company || !formData.contactName || !formData.channel || !formData.notes) {
+      alert('Please fill in all required fields (Company, Contact Name, Channel, and Notes)');
+      return;
+    }
+    
+    alert('Interaction saved successfully! In a real app, this would save to the database.');
+    
+    // Reset form
+    setFormData({
+      company: '',
+      date: '',
+      contactName: '',
+      contactDesignation: '',
+      contactEmail: '',
+      contactPhone: '',
+      salesperson: '',
+      department: '',
+      channel: '',
+      product: '',
+      notes: '',
+      hasOpportunity: false
+    });
+    
+    setIsAddingInteraction(false);
+  };
+
+  const handleSaveAndAddAnother = () => {
+    handleSaveInteraction();
+    setIsAddingInteraction(true);
+  };
+
+  const handleCancel = () => {
+    setIsAddingInteraction(false);
+    setFormData({
+      company: '',
+      date: '',
+      contactName: '',
+      contactDesignation: '',
+      contactEmail: '',
+      contactPhone: '',
+      salesperson: '',
+      department: '',
+      channel: '',
+      product: '',
+      notes: '',
+      hasOpportunity: false
+    });
+  };
+
   if (isAddingInteraction) {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900">Log New Interaction</h1>
-          <Button variant="outline" onClick={() => setIsAddingInteraction(false)}>
+          <Button variant="outline" onClick={handleCancel}>
+            <X className="w-4 h-4 mr-2" />
             Cancel
           </Button>
         </div>
@@ -138,55 +214,92 @@ export function InteractionLogger() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Company Name *
                 </label>
-                <Input placeholder="Select or type company name" />
+                <Input 
+                  placeholder="Select or type company name" 
+                  value={formData.company}
+                  onChange={(e) => handleInputChange('company', e.target.value)}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Date & Time *
                 </label>
-                <Input type="datetime-local" />
+                <Input 
+                  type="datetime-local" 
+                  value={formData.date}
+                  onChange={(e) => handleInputChange('date', e.target.value)}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Contact Name *
                 </label>
-                <Input placeholder="Full name of contact person" />
+                <Input 
+                  placeholder="Full name of contact person" 
+                  value={formData.contactName}
+                  onChange={(e) => handleInputChange('contactName', e.target.value)}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Contact Designation
                 </label>
-                <Input placeholder="e.g., Procurement Manager" />
+                <Input 
+                  placeholder="e.g., Procurement Manager" 
+                  value={formData.contactDesignation}
+                  onChange={(e) => handleInputChange('contactDesignation', e.target.value)}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Contact Email
                 </label>
-                <Input type="email" placeholder="contact@company.com" />
+                <Input 
+                  type="email" 
+                  placeholder="contact@company.com" 
+                  value={formData.contactEmail}
+                  onChange={(e) => handleInputChange('contactEmail', e.target.value)}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Contact Phone
                 </label>
-                <Input placeholder="+1 234 567 8900" />
+                <Input 
+                  placeholder="+1 234 567 8900" 
+                  value={formData.contactPhone}
+                  onChange={(e) => handleInputChange('contactPhone', e.target.value)}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Salesperson Name *
                 </label>
-                <Input placeholder="Your name" />
+                <Input 
+                  placeholder="Your name" 
+                  value={formData.salesperson}
+                  onChange={(e) => handleInputChange('salesperson', e.target.value)}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Department & Region
                 </label>
-                <Input placeholder="Sales Department, North Region" />
+                <Input 
+                  placeholder="Sales Department, North Region" 
+                  value={formData.department}
+                  onChange={(e) => handleInputChange('department', e.target.value)}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Communication Channel *
                 </label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <select 
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={formData.channel}
+                  onChange={(e) => handleInputChange('channel', e.target.value)}
+                >
                   <option value="">Select channel</option>
                   <option value="Call">Phone Call</option>
                   <option value="Email">Email</option>
@@ -199,7 +312,11 @@ export function InteractionLogger() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Potential Product/Service
                 </label>
-                <Input placeholder="What product or service was discussed?" />
+                <Input 
+                  placeholder="What product or service was discussed?" 
+                  value={formData.product}
+                  onChange={(e) => handleInputChange('product', e.target.value)}
+                />
               </div>
             </div>
 
@@ -210,12 +327,19 @@ export function InteractionLogger() {
               <Textarea 
                 placeholder="Describe what was discussed, key points, client requirements, next steps..."
                 rows={6}
+                value={formData.notes}
+                onChange={(e) => handleInputChange('notes', e.target.value)}
               />
             </div>
 
             <div className="flex items-center gap-4">
               <label className="flex items-center gap-2">
-                <input type="checkbox" className="w-4 h-4 text-blue-600" />
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 text-blue-600"
+                  checked={formData.hasOpportunity}
+                  onChange={(e) => handleInputChange('hasOpportunity', e.target.checked)}
+                />
                 <span className="text-sm font-medium text-gray-700">
                   Business Opportunity Identified
                 </span>
@@ -223,10 +347,11 @@ export function InteractionLogger() {
             </div>
 
             <div className="flex items-center gap-4">
-              <Button className="bg-blue-600 hover:bg-blue-700">
+              <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleSaveInteraction}>
+                <Save className="w-4 h-4 mr-2" />
                 Save Interaction
               </Button>
-              <Button variant="outline">
+              <Button variant="outline" onClick={handleSaveAndAddAnother}>
                 Save & Add Another
               </Button>
             </div>
@@ -248,7 +373,7 @@ export function InteractionLogger() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
               <MessageSquare className="w-8 h-8 text-blue-600" />
@@ -259,7 +384,7 @@ export function InteractionLogger() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
               <Star className="w-8 h-8 text-green-600" />
@@ -272,7 +397,7 @@ export function InteractionLogger() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
               <Phone className="w-8 h-8 text-purple-600" />
@@ -285,7 +410,7 @@ export function InteractionLogger() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
               <Calendar className="w-8 h-8 text-orange-600" />
@@ -311,11 +436,16 @@ export function InteractionLogger() {
                 className="pl-10"
               />
             </div>
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => setShowFilters(!showFilters)}>
               <Filter className="w-4 h-4 mr-2" />
               Filters
             </Button>
           </div>
+          {showFilters && (
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+              <p className="text-sm text-gray-600">Advanced filters would be implemented here (channel, date range, sentiment, etc.)</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -325,7 +455,7 @@ export function InteractionLogger() {
           const ChannelIcon = getChannelIcon(interaction.channel);
           
           return (
-            <Card key={interaction.id} className="hover:shadow-lg transition-shadow">
+            <Card key={interaction.id} className="hover:shadow-lg transition-shadow cursor-pointer">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-4">
