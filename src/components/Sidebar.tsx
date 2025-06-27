@@ -12,18 +12,20 @@ import {
   Bell
 } from "lucide-react";
 
+type ViewType = 'dashboard' | 'companies' | 'deals' | 'interactions' | 'ai-insights';
+
 interface SidebarProps {
-  currentView: string;
-  onViewChange: (view: string) => void;
+  currentView: ViewType;
+  onViewChange: (view: ViewType) => void;
 }
 
 export function Sidebar({ currentView, onViewChange }: SidebarProps) {
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home, badge: null },
-    { id: 'companies', label: 'Companies', icon: Building2, badge: '127' },
-    { id: 'deals', label: 'Deals', icon: Handshake, badge: '23' },
-    { id: 'interactions', label: 'Interactions', icon: MessageSquare, badge: '8' },
-    { id: 'ai-insights', label: 'AI Insights', icon: Brain, badge: 'New' },
+    { id: 'dashboard' as const, label: 'Dashboard', icon: Home, badge: null },
+    { id: 'companies' as const, label: 'Companies', icon: Building2, badge: '127' },
+    { id: 'deals' as const, label: 'Deals', icon: Handshake, badge: '23' },
+    { id: 'interactions' as const, label: 'Interactions', icon: MessageSquare, badge: '8' },
+    { id: 'ai-insights' as const, label: 'AI Insights', icon: Brain, badge: 'New' },
   ];
 
   return (
