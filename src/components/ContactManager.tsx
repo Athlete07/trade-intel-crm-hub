@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,13 +16,18 @@ import {
   Filter,
   Edit,
   Star,
-  Globe
+  Globe,
+  Eye,
+  Trash2
 } from "lucide-react";
+import { ContactForm } from "./ContactForm";
 
 export function ContactManager() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
   const [isAddingContact, setIsAddingContact] = useState(false);
+  const [editingContactId, setEditingContactId] = useState<string | null>(null);
+  const [viewingContactId, setViewingContactId] = useState<string | null>(null);
 
   const contacts = [
     {
@@ -88,6 +92,48 @@ export function ContactManager() {
     }
   ];
 
+  const handleAddContact = () => {
+    setIsAddingContact(true);
+    setEditingContactId(null);
+  };
+
+  const handleEditContact = (contactId: string) => {
+    setEditingContactId(contactId);
+    setIsAddingContact(true);
+  };
+
+  const handleViewContact = (contactId: string) => {
+    setViewingContactId(contactId);
+  };
+
+  const handleSaveContact = (contactData: any) => {
+    console.log('Contact saved:', contactData);
+    alert(`Contact ${contactData.name} saved successfully!`);
+    setIsAddingContact(false);
+    setEditingContactId(null);
+  };
+
+  const handleCancelContactForm = () => {
+    setIsAddingContact(false);
+    setEditingContactId(null);
+  };
+
+  const handleDeleteContact = (contactId: string) => {
+    if (confirm('Are you sure you want to delete this contact?')) {
+      alert(`Contact ${contactId} deleted successfully!`);
+    }
+  };
+
+  if (isAddingContact) {
+    return (
+      <ContactForm
+        contactId={editingContactId}
+        onSave={handleSaveContact}
+        onCancel={handleCancelContactForm}
+      />
+    );
+  }
+
   const categories = ["all", "Buyer", "Seller", "Technical", "Finance", "Logistics"];
 
   const filteredContacts = contacts.filter(contact => {
@@ -116,11 +162,6 @@ export function ContactManager() {
       case 'Logistics': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
-  };
-
-  const handleAddContact = () => {
-    setIsAddingContact(true);
-    alert('Contact form would open here with fields for all contact information, company details, preferences, etc.');
   };
 
   const handleContactAction = (contactId: string, action: string) => {
@@ -322,30 +363,36 @@ export function ContactManager() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-between pt-3 border-t border-gray-200">
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => handleContactAction(contact.id, 'call')}>
-                    <Phone className="w-3 h-3 mr-1" />
-                    Call
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleContactAction(contact.id, 'email')}>
-                    <Mail className="w-3 h-3 mr-1" />
-                    Email
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleContactAction(contact.id, 'whatsapp')}>
-                    <MessageSquare className="w-3 h-3 mr-1" />
-                    Chat
-                  </Button>
-                </div>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => handleContactAction(contact.id, 'view-deals')}>
-                    Deals
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleContactAction(contact.id, 'view-interactions')}>
-                    History
-                  </Button>
-                </div>
-              </div>
+              
+        
+        <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => handleContactAction(contact.id, 'call')}>
+              <Phone className="w-3 h-3 mr-1" />
+              Call
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => handleContactAction(contact.id, 'email')}>
+              <Mail className="w-3 h-3 mr-1" />
+              Email
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => handleContactAction(contact.id, 'whatsapp')}>
+              <MessageSquare className="w-3 h-3 mr-1" />
+              Chat
+            </Button>
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => handleViewContact(contact.id)}>
+              <Eye className="w-3 h-3" />
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => handleEditContact(contact.id)}>
+              <Edit className="w-3 h-3" />
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => handleDeleteContact(contact.id)} className="text-red-600">
+              <Trash2 className="w-3 h-3" />
+            </Button>
+          </div>
+        </div>
+      
             </CardContent>
           </Card>
         ))}

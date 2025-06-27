@@ -1,9 +1,7 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { 
   Calendar, 
@@ -16,23 +14,22 @@ import {
   Search,
   Filter,
   Star,
-  Bell
+  Bell,
+  Edit,
+  Eye,
+  Trash2,
+  Play,
+  Pause
 } from "lucide-react";
+import { TaskForm } from "./TaskForm";
 
 export function TaskManager() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterPriority, setFilterPriority] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [isAddingTask, setIsAddingTask] = useState(false);
-  const [newTask, setNewTask] = useState({
-    title: '',
-    description: '',
-    dueDate: '',
-    priority: 'Medium',
-    assignee: '',
-    company: '',
-    dealId: ''
-  });
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [viewingTaskId, setViewingTaskId] = useState<string | null>(null);
 
   const tasks = [
     {
@@ -164,38 +161,52 @@ export function TaskManager() {
   };
 
   const handleAddTask = () => {
-    if (!newTask.title || !newTask.dueDate) {
-      alert('Please fill in title and due date');
-      return;
-    }
-    alert(`Task "${newTask.title}" created successfully!`);
-    setNewTask({
-      title: '',
-      description: '',
-      dueDate: '',
-      priority: 'Medium',
-      assignee: '',
-      company: '',
-      dealId: ''
-    });
+    setIsAddingTask(true);
+    setEditingTaskId(null);
+  };
+
+  const handleEditTask = (taskId: string) => {
+    setEditingTaskId(taskId);
+    setIsAddingTask(true);
+  };
+
+  const handleSaveTask = (taskData: any) => {
+    console.log('Task saved:', taskData);
+    alert(`Task "${taskData.title}" saved successfully!`);
     setIsAddingTask(false);
+    setEditingTaskId(null);
+  };
+
+  const handleCancelTaskForm = () => {
+    setIsAddingTask(false);
+    setEditingTaskId(null);
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+    if (confirm('Are you sure you want to delete this task?')) {
+      alert(`Task ${taskId} deleted successfully!`);
+    }
   };
 
   const handleTaskAction = (taskId: string, action: string) => {
     switch (action) {
-      case 'complete':
-        alert(`Task ${taskId} marked as completed`);
-        break;
       case 'start':
         alert(`Task ${taskId} started`);
         break;
+      case 'pause':
+        alert(`Task ${taskId} paused`);
+        break;
+      case 'complete':
+        alert(`Task ${taskId} marked as completed`);
+        break;
+      case 'view':
+        setViewingTaskId(taskId);
+        break;
       case 'edit':
-        alert(`Opening task ${taskId} for editing`);
+        handleEditTask(taskId);
         break;
       case 'delete':
-        if (confirm('Are you sure you want to delete this task?')) {
-          alert(`Task ${taskId} deleted`);
-        }
+        handleDeleteTask(taskId);
         break;
       case 'remind':
         alert(`Reminder set for task ${taskId}`);
@@ -203,110 +214,13 @@ export function TaskManager() {
     }
   };
 
-  const isOverdue = (dueDate: string) => {
-    return new Date(dueDate) < new Date() && !['Completed'].includes(dueDate);
-  };
-
   if (isAddingTask) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Create New Task</h1>
-          <Button variant="outline" onClick={() => setIsAddingTask(false)}>
-            Cancel
-          </Button>
-        </div>
-
-        <Card>
-          <CardContent className="p-6 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Task Title *
-                </label>
-                <Input 
-                  placeholder="Enter task title" 
-                  value={newTask.title}
-                  onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Due Date *
-                </label>
-                <Input 
-                  type="datetime-local"
-                  value={newTask.dueDate}
-                  onChange={(e) => setNewTask(prev => ({ ...prev, dueDate: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Priority
-                </label>
-                <select 
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={newTask.priority}
-                  onChange={(e) => setNewTask(prev => ({ ...prev, priority: e.target.value }))}
-                >
-                  <option value="High">High</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Low">Low</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Assignee
-                </label>
-                <Input 
-                  placeholder="Assign to team member" 
-                  value={newTask.assignee}
-                  onChange={(e) => setNewTask(prev => ({ ...prev, assignee: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Company
-                </label>
-                <Input 
-                  placeholder="Related company" 
-                  value={newTask.company}
-                  onChange={(e) => setNewTask(prev => ({ ...prev, company: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Deal ID (Optional)
-                </label>
-                <Input 
-                  placeholder="Related deal ID" 
-                  value={newTask.dealId}
-                  onChange={(e) => setNewTask(prev => ({ ...prev, dealId: e.target.value }))}
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description
-              </label>
-              <Textarea 
-                placeholder="Task description and details"
-                rows={4}
-                value={newTask.description}
-                onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={handleAddTask} className="bg-blue-600 hover:bg-blue-700">
-                Create Task
-              </Button>
-              <Button variant="outline" onClick={() => setIsAddingTask(false)}>
-                Cancel
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <TaskForm
+        taskId={editingTaskId}
+        onSave={handleSaveTask}
+        onCancel={handleCancelTaskForm}
+      />
     );
   }
 
@@ -495,20 +409,36 @@ export function TaskManager() {
                   <div className="flex flex-col gap-2 ml-4">
                     {task.status === 'Pending' && (
                       <Button size="sm" onClick={() => handleTaskAction(task.id, 'start')}>
+                        <Play className="w-3 h-3 mr-1" />
                         Start
                       </Button>
                     )}
                     {task.status === 'In Progress' && (
-                      <Button size="sm" onClick={() => handleTaskAction(task.id, 'complete')}>
-                        Complete
-                      </Button>
+                      <>
+                        <Button size="sm" onClick={() => handleTaskAction(task.id, 'pause')}>
+                          <Pause className="w-3 h-3 mr-1" />
+                          Pause
+                        </Button>
+                        <Button size="sm" onClick={() => handleTaskAction(task.id, 'complete')} className="bg-green-600 hover:bg-green-700">
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Complete
+                        </Button>
+                      </>
                     )}
-                    <Button size="sm" variant="outline" onClick={() => handleTaskAction(task.id, 'edit')}>
-                      Edit
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => handleTaskAction(task.id, 'remind')}>
-                      <Bell className="w-3 h-3" />
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button size="sm" variant="outline" onClick={() => handleTaskAction(task.id, 'view')}>
+                        <Eye className="w-3 h-3" />
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => handleTaskAction(task.id, 'edit')}>
+                        <Edit className="w-3 h-3" />
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => handleTaskAction(task.id, 'remind')}>
+                        <Bell className="w-3 h-3" />
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => handleTaskAction(task.id, 'delete')} className="text-red-600">
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </CardContent>

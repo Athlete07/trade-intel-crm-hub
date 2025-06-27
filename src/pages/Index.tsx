@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -34,8 +33,11 @@ import { InteractionDetails } from "@/components/InteractionDetails";
 import { ContactManager } from "@/components/ContactManager";
 import { DocumentManager } from "@/components/DocumentManager";
 import { TaskManager } from "@/components/TaskManager";
+import { ContactForm } from "@/components/ContactForm";
+import { TaskForm } from "@/components/TaskForm";
+import { DocumentForm } from "@/components/DocumentForm";
 
-type ViewType = 'dashboard' | 'companies' | 'deals' | 'interactions' | 'ai-insights' | 'create-deal' | 'reports' | 'notifications' | 'add-company' | 'deal-details' | 'interaction-details' | 'contacts' | 'documents' | 'tasks';
+type ViewType = 'dashboard' | 'companies' | 'deals' | 'interactions' | 'ai-insights' | 'create-deal' | 'reports' | 'notifications' | 'add-company' | 'deal-details' | 'interaction-details' | 'contacts' | 'documents' | 'tasks' | 'add-contact' | 'edit-contact' | 'add-task' | 'edit-task' | 'add-document' | 'edit-document';
 
 const Index = () => {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -43,6 +45,9 @@ const Index = () => {
   const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
   const [selectedInteractionId, setSelectedInteractionId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
 
   const handleNavigation = (view: ViewType) => {
     setCurrentView(view);
@@ -133,6 +138,39 @@ const Index = () => {
     alert(`Editing interaction ${interactionId}`);
   };
 
+  const handleAddContact = (contactData: any) => {
+    console.log('Contact added:', contactData);
+    alert('Contact added successfully!');
+    setCurrentView('contacts');
+  };
+
+  const handleEditContact = (contactId: string) => {
+    setSelectedContactId(contactId);
+    setCurrentView('edit-contact');
+  };
+
+  const handleAddTask = (taskData: any) => {
+    console.log('Task added:', taskData);
+    alert('Task created successfully!');
+    setCurrentView('tasks');
+  };
+
+  const handleEditTask = (taskId: string) => {
+    setSelectedTaskId(taskId);
+    setCurrentView('edit-task');
+  };
+
+  const handleAddDocument = (documentData: any) => {
+    console.log('Document added:', documentData);
+    alert('Document uploaded successfully!');
+    setCurrentView('documents');
+  };
+
+  const handleEditDocument = (documentId: string) => {
+    setSelectedDocumentId(documentId);
+    setCurrentView('edit-document');
+  };
+
   const renderMainContent = () => {
     switch (currentView) {
       case 'dashboard':
@@ -175,6 +213,36 @@ const Index = () => {
         return <DocumentManager />;
       case 'tasks':
         return <TaskManager />;
+      case 'add-contact':
+        return <ContactForm onSave={handleAddContact} onCancel={() => setCurrentView('contacts')} />;
+      case 'edit-contact':
+        return selectedContactId ? (
+          <ContactForm 
+            contactId={selectedContactId}
+            onSave={handleAddContact} 
+            onCancel={() => setCurrentView('contacts')} 
+          />
+        ) : <ContactManager />;
+      case 'add-task':
+        return <TaskForm onSave={handleAddTask} onCancel={() => setCurrentView('tasks')} />;
+      case 'edit-task':
+        return selectedTaskId ? (
+          <TaskForm 
+            taskId={selectedTaskId}
+            onSave={handleAddTask} 
+            onCancel={() => setCurrentView('tasks')} 
+          />
+        ) : <TaskManager />;
+      case 'add-document':
+        return <DocumentForm onSave={handleAddDocument} onCancel={() => setCurrentView('documents')} />;
+      case 'edit-document':
+        return selectedDocumentId ? (
+          <DocumentForm 
+            documentId={selectedDocumentId}
+            onSave={handleAddDocument} 
+            onCancel={() => setCurrentView('documents')} 
+          />
+        ) : <DocumentManager />;
       default:
         return <Dashboard onNavigate={handleNavigation} />;
     }
@@ -210,6 +278,18 @@ const Index = () => {
         return 'Document Management';
       case 'tasks':
         return 'Task Management';
+      case 'add-contact':
+        return 'Add New Contact';
+      case 'edit-contact':
+        return 'Edit Contact';
+      case 'add-task':
+        return 'Create New Task';
+      case 'edit-task':
+        return 'Edit Task';
+      case 'add-document':
+        return 'Upload New Document';
+      case 'edit-document':
+        return 'Edit Document';
       default:
         return 'EXIM Intelligence CRM';
     }

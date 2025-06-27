@@ -105,16 +105,6 @@ export function Sidebar({ currentView, onViewChange, onNotificationClick, onRepo
           </Button>
         </div>
       </nav>
-
-      <div className="absolute bottom-4 left-4 right-4">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-4 text-white">
-          <h3 className="font-semibold text-sm mb-1">AI Premium</h3>
-          <p className="text-xs opacity-90 mb-3">Get advanced insights and predictions</p>
-          <Button variant="secondary" size="sm" className="w-full">
-            Upgrade Now
-          </Button>
-        </div>
-      </div>
     </div>
   );
 }
