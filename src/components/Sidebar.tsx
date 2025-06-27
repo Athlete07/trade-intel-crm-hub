@@ -9,7 +9,8 @@ import {
   Brain,
   Home,
   Settings,
-  Bell
+  Bell,
+  FileText
 } from "lucide-react";
 
 type ViewType = 'dashboard' | 'companies' | 'deals' | 'interactions' | 'ai-insights';
@@ -17,9 +18,11 @@ type ViewType = 'dashboard' | 'companies' | 'deals' | 'interactions' | 'ai-insig
 interface SidebarProps {
   currentView: ViewType;
   onViewChange: (view: ViewType) => void;
+  onNotificationClick?: () => void;
+  onReportClick?: () => void;
 }
 
-export function Sidebar({ currentView, onViewChange }: SidebarProps) {
+export function Sidebar({ currentView, onViewChange, onNotificationClick, onReportClick }: SidebarProps) {
   const menuItems = [
     { id: 'dashboard' as const, label: 'Dashboard', icon: Home, badge: null },
     { id: 'companies' as const, label: 'Companies', icon: Building2, badge: '127' },
@@ -73,10 +76,22 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
         </div>
 
         <div className="mt-8 pt-6 border-t border-gray-200">
-          <Button variant="ghost" className="w-full justify-start h-12">
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start h-12"
+            onClick={onNotificationClick}
+          >
             <Bell className="w-5 h-5 mr-3" />
             Notifications
             <Badge variant="destructive" className="ml-auto">3</Badge>
+          </Button>
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start h-12"
+            onClick={onReportClick}
+          >
+            <FileText className="w-5 h-5 mr-3" />
+            Reports
           </Button>
           <Button variant="ghost" className="w-full justify-start h-12">
             <Settings className="w-5 h-5 mr-3" />

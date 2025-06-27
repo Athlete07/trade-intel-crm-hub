@@ -25,8 +25,11 @@ import { DealManager } from "@/components/DealManager";
 import { InteractionLogger } from "@/components/InteractionLogger";
 import { AIInsights } from "@/components/AIInsights";
 import { Dashboard } from "@/components/Dashboard";
+import { CreateDealForm } from "@/components/CreateDealForm";
+import { ReportGenerator } from "@/components/ReportGenerator";
+import { NotificationCenter } from "@/components/NotificationCenter";
 
-type ViewType = 'dashboard' | 'companies' | 'deals' | 'interactions' | 'ai-insights';
+type ViewType = 'dashboard' | 'companies' | 'deals' | 'interactions' | 'ai-insights' | 'create-deal' | 'reports' | 'notifications';
 
 const Index = () => {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -35,29 +38,29 @@ const Index = () => {
 
   const handleNavigation = (view: ViewType) => {
     setCurrentView(view);
-    setSelectedCompanyId(null); // Reset company selection when changing views
+    setSelectedCompanyId(null);
   };
 
   const handleQuickAdd = () => {
     switch (currentView) {
       case 'companies':
-        alert('Add Company dialog would open here');
+        // This will be handled by the CompanyProfile component
         break;
       case 'deals':
-        alert('Add Deal dialog would open here');
+        setCurrentView('create-deal');
         break;
       case 'interactions':
-        alert('Add Interaction dialog would open here');
+        // This will be handled by the InteractionLogger component
         break;
       default:
-        // Show a menu of quick add options
+        // Show options for what to add
         const action = prompt('Quick Add:\n1. Company\n2. Deal\n3. Interaction\nEnter your choice (1-3):');
         switch (action) {
           case '1':
             setCurrentView('companies');
             break;
           case '2':
-            setCurrentView('deals');
+            setCurrentView('create-deal');
             break;
           case '3':
             setCurrentView('interactions');
@@ -74,6 +77,16 @@ const Index = () => {
     }
   };
 
+  const handleCreateDeal = (dealData: any) => {
+    console.log('Deal created:', dealData);
+    alert('Deal created successfully!');
+    setCurrentView('deals');
+  };
+
+  const handleCancelDealCreation = () => {
+    setCurrentView('deals');
+  };
+
   const renderMainContent = () => {
     switch (currentView) {
       case 'dashboard':
@@ -82,10 +95,16 @@ const Index = () => {
         return <CompanyProfile selectedId={selectedCompanyId} onSelectCompany={setSelectedCompanyId} />;
       case 'deals':
         return <DealManager />;
+      case 'create-deal':
+        return <CreateDealForm onSave={handleCreateDeal} onCancel={handleCancelDealCreation} />;
       case 'interactions':
         return <InteractionLogger />;
       case 'ai-insights':
         return <AIInsights />;
+      case 'reports':
+        return <ReportGenerator onBack={() => setCurrentView('dashboard')} />;
+      case 'notifications':
+        return <NotificationCenter onBack={() => setCurrentView('dashboard')} />;
       default:
         return <Dashboard onNavigate={handleNavigation} />;
     }
@@ -99,10 +118,16 @@ const Index = () => {
         return 'Company Management';
       case 'deals':
         return 'Deal Pipeline';
+      case 'create-deal':
+        return 'Create New Deal';
       case 'interactions':
         return 'Sales Interactions';
       case 'ai-insights':
         return 'AI Insights & Recommendations';
+      case 'reports':
+        return 'Report Generator';
+      case 'notifications':
+        return 'Notification Center';
       default:
         return 'EXIM Intelligence CRM';
     }
@@ -111,7 +136,12 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <div className="flex">
-        <Sidebar currentView={currentView} onViewChange={handleNavigation} />
+        <Sidebar 
+          currentView={currentView} 
+          onViewChange={handleNavigation}
+          onNotificationClick={() => setCurrentView('notifications')}
+          onReportClick={() => setCurrentView('reports')}
+        />
         
         <main className="flex-1 p-6">
           <div className="max-w-7xl mx-auto">
