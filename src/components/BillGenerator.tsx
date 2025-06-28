@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,6 +26,16 @@ import {
   Printer
 } from "lucide-react";
 import { billTemplates } from "./BillTemplates";
+
+interface FieldType {
+  label: string;
+  required: boolean;
+  type?: string;
+  placeholder?: string;
+  section: string;
+  options?: string[];
+  default?: string;
+}
 
 export function BillGenerator() {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
@@ -95,7 +104,7 @@ export function BillGenerator() {
     if (!template) return [];
     
     const sections = new Set<string>();
-    Object.values(template.fields).forEach(field => {
+    Object.values(template.fields).forEach((field: FieldType) => {
       if (field.section) {
         sections.add(field.section);
       }
@@ -161,7 +170,7 @@ export function BillGenerator() {
     const template = billTemplates[selectedTemplate as keyof typeof billTemplates];
     const sections = getSectionsForTemplate(selectedTemplate);
     const currentSectionFields = Object.entries(template.fields).filter(
-      ([_, field]) => field.section === currentSection
+      ([_, field]) => (field as FieldType).section === currentSection
     );
 
     return (
@@ -223,7 +232,7 @@ export function BillGenerator() {
                       >
                         <div className="font-medium">{getSectionTitle(section)}</div>
                         <div className="text-xs opacity-75 mt-1">
-                          {Object.values(template.fields).filter(f => f.section === section).length} fields
+                          {Object.values(template.fields).filter((f: FieldType) => f.section === section).length} fields
                         </div>
                       </button>
                     ))}
@@ -242,47 +251,50 @@ export function BillGenerator() {
                 </CardHeader>
                 <CardContent className="p-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {currentSectionFields.map(([fieldKey, field]) => (
-                      <div key={fieldKey} className={field.type === 'textarea' ? 'md:col-span-2' : ''}>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          {field.label}
-                          {field.required && <span className="text-red-500 ml-1">*</span>}
-                        </label>
-                        
-                        {field.type === 'textarea' ? (
-                          <Textarea
-                            value={formData[fieldKey] || ''}
-                            onChange={(e) => handleInputChange(fieldKey, e.target.value)}
-                            placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
-                            rows={4}
-                            className="w-full border-2 border-gray-200 focus:border-blue-500 rounded-lg"
-                          />
-                        ) : field.type === 'select' ? (
-                          <select
-                            value={formData[fieldKey] || ''}
-                            onChange={(e) => handleInputChange(fieldKey, e.target.value)}
-                            className="w-full h-12 px-4 border-2 border-gray-200 focus:border-blue-500 rounded-lg focus:outline-none"
-                          >
-                            <option value="">Select {field.label}</option>
-                            {field.options?.map((option: string) => (
-                              <option key={option} value={option}>{option}</option>
-                            ))}
-                          </select>
-                        ) : (
-                          <Input
-                            type={field.type || 'text'}
-                            value={formData[fieldKey] || ''}
-                            onChange={(e) => handleInputChange(fieldKey, e.target.value)}
-                            placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
-                            className="h-12 border-2 border-gray-200 focus:border-blue-500 rounded-lg"
-                          />
-                        )}
-                        
-                        {field.default && !formData[fieldKey] && (
-                          <p className="text-xs text-gray-500 mt-1">Default: {field.default}</p>
-                        )}
-                      </div>
-                    ))}
+                    {currentSectionFields.map(([fieldKey, field]) => {
+                      const fieldData = field as FieldType;
+                      return (
+                        <div key={fieldKey} className={fieldData.type === 'textarea' ? 'md:col-span-2' : ''}>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {fieldData.label}
+                            {fieldData.required && <span className="text-red-500 ml-1">*</span>}
+                          </label>
+                          
+                          {fieldData.type === 'textarea' ? (
+                            <Textarea
+                              value={formData[fieldKey] || ''}
+                              onChange={(e) => handleInputChange(fieldKey, e.target.value)}
+                              placeholder={fieldData.placeholder || `Enter ${fieldData.label.toLowerCase()}`}
+                              rows={4}
+                              className="w-full border-2 border-gray-200 focus:border-blue-500 rounded-lg"
+                            />
+                          ) : fieldData.type === 'select' ? (
+                            <select
+                              value={formData[fieldKey] || ''}
+                              onChange={(e) => handleInputChange(fieldKey, e.target.value)}
+                              className="w-full h-12 px-4 border-2 border-gray-200 focus:border-blue-500 rounded-lg focus:outline-none"
+                            >
+                              <option value="">Select {fieldData.label}</option>
+                              {fieldData.options?.map((option: string) => (
+                                <option key={option} value={option}>{option}</option>
+                              ))}
+                            </select>
+                          ) : (
+                            <Input
+                              type={fieldData.type || 'text'}
+                              value={formData[fieldKey] || ''}
+                              onChange={(e) => handleInputChange(fieldKey, e.target.value)}
+                              placeholder={fieldData.placeholder || `Enter ${fieldData.label.toLowerCase()}`}
+                              className="h-12 border-2 border-gray-200 focus:border-blue-500 rounded-lg"
+                            />
+                          )}
+                          
+                          {fieldData.default && !formData[fieldKey] && (
+                            <p className="text-xs text-gray-500 mt-1">Default: {fieldData.default}</p>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
 
                   {/* Section Navigation */}

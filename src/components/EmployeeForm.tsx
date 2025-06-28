@@ -27,8 +27,54 @@ interface EmployeeFormProps {
   onCancel: () => void;
 }
 
+interface FormData {
+  personalInfo: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    personalPhone: string;
+    dateOfBirth: string;
+    address: string;
+    emergencyContact: string;
+    emergencyPhone: string;
+  };
+  jobInfo: {
+    employeeId: string;
+    role: string;
+    department: string;
+    manager: string;
+    location: string;
+    workLocation: string;
+    employmentType: string;
+    joinDate: string;
+    probationEndDate: string;
+    status: string;
+  };
+  compensation: {
+    salary: string;
+    currency: string;
+    payFrequency: string;
+    bonus: string;
+    benefits: string;
+  };
+  access: {
+    systemAccess: string[];
+    permissions: string[];
+    securityClearance: string;
+  };
+  documents: {
+    resume: string;
+    offerLetter: string;
+    contract: string;
+    idProof: string;
+    addressProof: string;
+  };
+  notes: string;
+}
+
 export function EmployeeForm({ employeeId, onSave, onCancel }: EmployeeFormProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     personalInfo: {
       firstName: '',
       lastName: '',
@@ -115,19 +161,20 @@ export function EmployeeForm({ employeeId, onSave, onCancel }: EmployeeFormProps
     onSave(employeeData);
   };
 
-  const updateField = (section: string, field: string, value: any) => {
+  const updateField = (section: keyof FormData, field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       [section]: {
-        ...prev[section as keyof typeof prev],
+        ...prev[section],
         [field]: value
       }
     }));
   };
 
-  const toggleArrayField = (section: string, field: string, value: string) => {
+  const toggleArrayField = (section: keyof FormData, field: string, value: string) => {
     setFormData(prev => {
-      const currentArray = prev[section as keyof typeof prev][field] as string[];
+      const sectionData = prev[section] as any;
+      const currentArray = sectionData[field] as string[];
       const newArray = currentArray.includes(value)
         ? currentArray.filter(item => item !== value)
         : [...currentArray, value];
@@ -135,7 +182,7 @@ export function EmployeeForm({ employeeId, onSave, onCancel }: EmployeeFormProps
       return {
         ...prev,
         [section]: {
-          ...prev[section as keyof typeof prev],
+          ...sectionData,
           [field]: newArray
         }
       };
