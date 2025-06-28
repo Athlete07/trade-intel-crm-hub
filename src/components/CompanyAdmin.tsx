@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,7 +32,13 @@ import {
   Target
 } from "lucide-react";
 
-export function CompanyAdmin() {
+type ViewType = 'dashboard' | 'companies' | 'deals' | 'interactions' | 'ai-insights' | 'create-deal' | 'reports' | 'notifications' | 'add-company' | 'deal-details' | 'interaction-details' | 'contacts' | 'documents' | 'tasks' | 'add-contact' | 'edit-contact' | 'add-task' | 'edit-task' | 'add-document' | 'edit-document' | 'bills' | 'company-admin';
+
+interface CompanyAdminProps {
+  onNavigate: (view: ViewType) => void;
+}
+
+export function CompanyAdmin({ onNavigate }: CompanyAdminProps) {
   const [activeTab, setActiveTab] = useState("overview");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -569,7 +574,7 @@ export function CompanyAdmin() {
                 <CardContent className="p-6">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                      <User className="w-6 h-6 text-blue-600" />
+                      <Users className="w-6 h-6 text-blue-600" />
                     </div>
                     <div>
                       <h3 className="font-bold text-lg text-gray-900">{employee.name}</h3>
