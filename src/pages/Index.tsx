@@ -16,7 +16,10 @@ import {
   Filter,
   Globe,
   Target,
-  Handshake
+  Handshake,
+  Menu,
+  Bell,
+  Settings
 } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
 import { CompanyProfile } from "@/components/CompanyProfile";
@@ -38,8 +41,9 @@ import { TaskForm } from "@/components/TaskForm";
 import { DocumentForm } from "@/components/DocumentForm";
 import { BillGenerator } from "@/components/BillGenerator";
 import { CompanyAdmin } from "@/components/CompanyAdmin";
+import { EmployeeForm } from "@/components/EmployeeForm";
 
-type ViewType = 'dashboard' | 'companies' | 'deals' | 'interactions' | 'ai-insights' | 'create-deal' | 'reports' | 'notifications' | 'add-company' | 'deal-details' | 'interaction-details' | 'contacts' | 'documents' | 'tasks' | 'add-contact' | 'edit-contact' | 'add-task' | 'edit-task' | 'add-document' | 'edit-document' | 'bills' | 'company-admin';
+type ViewType = 'dashboard' | 'companies' | 'deals' | 'interactions' | 'ai-insights' | 'create-deal' | 'reports' | 'notifications' | 'add-company' | 'deal-details' | 'interaction-details' | 'contacts' | 'documents' | 'tasks' | 'add-contact' | 'edit-contact' | 'add-task' | 'edit-task' | 'add-document' | 'edit-document' | 'bills' | 'company-admin' | 'add-employee' | 'edit-employee';
 
 const Index = () => {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -50,6 +54,8 @@ const Index = () => {
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const handleNavigation = (view: ViewType) => {
     setCurrentView(view);
@@ -66,12 +72,14 @@ const Index = () => {
       case 'deals':
         setCurrentView('create-deal');
         break;
-      case 'interactions':
-        // This will be handled by the InteractionLogger component
+      case 'tasks':
+        setCurrentView('add-task');
+        break;
+      case 'contacts':
+        setCurrentView('add-contact');
         break;
       default:
-        // Show options for what to add
-        const action = prompt('Quick Add:\n1. Company\n2. Deal\n3. Interaction\n4. Task\n5. Contact\nEnter your choice (1-5):');
+        const action = prompt('Quick Add:\n1. Company\n2. Deal\n3. Task\n4. Contact\n5. Employee\nEnter your choice (1-5):');
         switch (action) {
           case '1':
             setCurrentView('add-company');
@@ -80,13 +88,13 @@ const Index = () => {
             setCurrentView('create-deal');
             break;
           case '3':
-            setCurrentView('interactions');
+            setCurrentView('add-task');
             break;
           case '4':
-            setCurrentView('tasks');
+            setCurrentView('add-contact');
             break;
           case '5':
-            setCurrentView('contacts');
+            setCurrentView('add-employee');
             break;
         }
         break;
@@ -96,7 +104,6 @@ const Index = () => {
   const handleSearch = () => {
     if (searchQuery.trim()) {
       alert(`Searching for: ${searchQuery}`);
-      // Implement global search functionality here
     }
   };
 
@@ -173,6 +180,17 @@ const Index = () => {
     setCurrentView('edit-document');
   };
 
+  const handleAddEmployee = (employeeData: any) => {
+    console.log('Employee added:', employeeData);
+    alert('Employee added successfully!');
+    setCurrentView('company-admin');
+  };
+
+  const handleEditEmployee = (employeeId: string) => {
+    setSelectedEmployeeId(employeeId);
+    setCurrentView('edit-employee');
+  };
+
   const renderMainContent = () => {
     switch (currentView) {
       case 'dashboard':
@@ -180,7 +198,7 @@ const Index = () => {
       case 'companies':
         return <CompanyProfile selectedId={selectedCompanyId} onSelectCompany={setSelectedCompanyId} />;
       case 'company-admin':
-        return <CompanyAdmin onNavigate={handleNavigation} />;
+        return <CompanyAdmin onNavigate={handleNavigation} onAddEmployee={() => setCurrentView('add-employee')} onEditEmployee={handleEditEmployee} />;
       case 'deals':
         return <DealManager onViewDetails={handleViewDealDetails} onEditDeal={handleEditDeal} />;
       case 'create-deal':
@@ -249,6 +267,16 @@ const Index = () => {
             onCancel={() => setCurrentView('documents')} 
           />
         ) : <DocumentManager />;
+      case 'add-employee':
+        return <EmployeeForm onSave={handleAddEmployee} onCancel={() => setCurrentView('company-admin')} />;
+      case 'edit-employee':
+        return selectedEmployeeId ? (
+          <EmployeeForm 
+            employeeId={selectedEmployeeId}
+            onSave={handleAddEmployee} 
+            onCancel={() => setCurrentView('company-admin')} 
+          />
+        ) : <CompanyAdmin onNavigate={handleNavigation} onAddEmployee={() => setCurrentView('add-employee')} onEditEmployee={handleEditEmployee} />;
       default:
         return <Dashboard onNavigate={handleNavigation} />;
     }
@@ -261,7 +289,7 @@ const Index = () => {
       case 'companies':
         return 'Company Management';
       case 'company-admin':
-        return 'Company Admin Hub';
+        return 'Company Administration';
       case 'deals':
         return 'Deal Pipeline';
       case 'create-deal':
@@ -300,13 +328,17 @@ const Index = () => {
         return 'Upload New Document';
       case 'edit-document':
         return 'Edit Document';
+      case 'add-employee':
+        return 'Add New Employee';
+      case 'edit-employee':
+        return 'Edit Employee';
       default:
         return 'EXIM Intelligence CRM';
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-[#f8f9fa] dark:bg-[#1a1d23]">
       <div className="flex">
         <Sidebar 
           currentView={currentView} 
@@ -315,41 +347,66 @@ const Index = () => {
           onReportClick={() => setCurrentView('reports')}
         />
         
-        <main className="flex-1 p-6">
-          <div className="max-w-7xl mx-auto">
-            <header className="mb-8">
-              <div className="flex items-center justify-between">
+        <main className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+          {/* ServiceNow-inspired Header */}
+          <header className="bg-white dark:bg-[#2c3e50] border-b border-gray-200 dark:border-gray-700 px-6 py-4 sticky top-0 z-50">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                  className="p-2"
+                >
+                  <Menu className="w-4 h-4" />
+                </Button>
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                  <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
                     {getViewTitle()}
                   </h1>
-                  <p className="text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     Smart Export-Import Business Management Platform
                   </p>
                 </div>
-                <div className="flex gap-3">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      placeholder="Search companies, deals, contacts..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                      className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
-                    />
-                    <Button variant="outline" size="sm" onClick={handleSearch}>
-                      <Search className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700" onClick={handleQuickAdd}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Quick Add
-                  </Button>
-                </div>
               </div>
-            </header>
+              
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search across platform..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                    className="pl-10 pr-4 py-2 w-80 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  />
+                </div>
+                
+                <Button variant="ghost" size="sm" className="p-2">
+                  <Bell className="w-4 h-4" />
+                </Button>
+                
+                <Button variant="ghost" size="sm" className="p-2">
+                  <Settings className="w-4 h-4" />
+                </Button>
+                
+                <Button 
+                  size="sm" 
+                  className="bg-[#0073e6] hover:bg-[#005bb5] text-white px-4 py-2 rounded-lg font-medium" 
+                  onClick={handleQuickAdd}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create
+                </Button>
+              </div>
+            </div>
+          </header>
 
-            {renderMainContent()}
+          <div className="p-6">
+            <div className="max-w-full">
+              {renderMainContent()}
+            </div>
           </div>
         </main>
       </div>
