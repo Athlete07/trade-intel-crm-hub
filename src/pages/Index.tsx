@@ -36,8 +36,10 @@ import { TaskManager } from "@/components/TaskManager";
 import { ContactForm } from "@/components/ContactForm";
 import { TaskForm } from "@/components/TaskForm";
 import { DocumentForm } from "@/components/DocumentForm";
+import { BillGenerator } from "@/components/BillGenerator";
+import { CompanyAdmin } from "@/components/CompanyAdmin";
 
-type ViewType = 'dashboard' | 'companies' | 'deals' | 'interactions' | 'ai-insights' | 'create-deal' | 'reports' | 'notifications' | 'add-company' | 'deal-details' | 'interaction-details' | 'contacts' | 'documents' | 'tasks' | 'add-contact' | 'edit-contact' | 'add-task' | 'edit-task' | 'add-document' | 'edit-document';
+type ViewType = 'dashboard' | 'companies' | 'deals' | 'interactions' | 'ai-insights' | 'create-deal' | 'reports' | 'notifications' | 'add-company' | 'deal-details' | 'interaction-details' | 'contacts' | 'documents' | 'tasks' | 'add-contact' | 'edit-contact' | 'add-task' | 'edit-task' | 'add-document' | 'edit-document' | 'bills' | 'company-admin';
 
 const Index = () => {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -177,6 +179,8 @@ const Index = () => {
         return <Dashboard onNavigate={handleNavigation} />;
       case 'companies':
         return <CompanyProfile selectedId={selectedCompanyId} onSelectCompany={setSelectedCompanyId} />;
+      case 'company-admin':
+        return <CompanyAdmin onNavigate={handleNavigation} />;
       case 'deals':
         return <DealManager onViewDetails={handleViewDealDetails} onEditDeal={handleEditDeal} />;
       case 'create-deal':
@@ -213,6 +217,8 @@ const Index = () => {
         return <DocumentManager />;
       case 'tasks':
         return <TaskManager />;
+      case 'bills':
+        return <BillGenerator />;
       case 'add-contact':
         return <ContactForm onSave={handleAddContact} onCancel={() => setCurrentView('contacts')} />;
       case 'edit-contact':
@@ -254,6 +260,8 @@ const Index = () => {
         return 'Dashboard Overview';
       case 'companies':
         return 'Company Management';
+      case 'company-admin':
+        return 'Company Admin Hub';
       case 'deals':
         return 'Deal Pipeline';
       case 'create-deal':
@@ -278,6 +286,8 @@ const Index = () => {
         return 'Document Management';
       case 'tasks':
         return 'Task Management';
+      case 'bills':
+        return 'Bill Generator';
       case 'add-contact':
         return 'Add New Contact';
       case 'edit-contact':

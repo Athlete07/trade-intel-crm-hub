@@ -27,13 +27,15 @@ interface SidebarProps {
 export function Sidebar({ currentView, onViewChange, onNotificationClick, onReportClick }: SidebarProps) {
   const menuItems = [
     { id: 'dashboard' as const, label: 'Dashboard', icon: Home, badge: null },
+    { id: 'company-admin' as const, label: 'Company Admin', icon: Building2, badge: 'New' },
     { id: 'companies' as const, label: 'Companies', icon: Building2, badge: '127' },
     { id: 'deals' as const, label: 'Deals', icon: Handshake, badge: '23' },
     { id: 'interactions' as const, label: 'Interactions', icon: MessageSquare, badge: '8' },
     { id: 'contacts' as const, label: 'Contacts', icon: Users, badge: '245' },
     { id: 'tasks' as const, label: 'Tasks', icon: Calendar, badge: '12' },
     { id: 'documents' as const, label: 'Documents', icon: FolderOpen, badge: '156' },
-    { id: 'ai-insights' as const, label: 'AI Insights', icon: Brain, badge: 'New' },
+    { id: 'bills' as const, label: 'Bill Generator', icon: FileText, badge: 'Pro' },
+    { id: 'ai-insights' as const, label: 'AI Insights', icon: Brain, badge: null },
   ];
 
   return (

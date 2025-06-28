@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { 
   FileText, 
@@ -18,20 +19,36 @@ import {
   Plus,
   Star,
   Check,
-  AlertTriangle
+  AlertTriangle,
+  FolderOpen,
+  Grid,
+  List,
+  Edit,
+  Share2
 } from "lucide-react";
 
 export function DocumentManager() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState("all");
+  const [filterCategory, setFilterCategory] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [viewMode, setViewMode] = useState("grid");
+  const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
+
+  const documentCategories = [
+    { id: "legal", name: "Legal", icon: "⚖️", count: 12, color: "blue" },
+    { id: "financial", name: "Financial", icon: "💰", count: 28, color: "green" },
+    { id: "shipping", name: "Shipping & Logistics", icon: "🚢", count: 15, color: "purple" },
+    { id: "quality", name: "Quality & Compliance", icon: "✅", count: 8, color: "orange" },
+    { id: "insurance", name: "Insurance", icon: "🛡️", count: 6, color: "red" },
+    { id: "customs", name: "Customs & Trade", icon: "🌍", count: 19, color: "cyan" }
+  ];
 
   const documents = [
     {
       id: "DOC001",
       name: "Export_License_ABC_Textiles.pdf",
       type: "Export License",
-      category: "Legal",
+      category: "legal",
       size: "2.3 MB",
       uploadDate: "2024-11-20",
       expiryDate: "2025-11-20",
@@ -42,13 +59,15 @@ export function DocumentManager() {
       description: "Export license for textile products to Europe",
       tags: ["Legal", "Export", "Europe"],
       version: "1.0",
-      approvalStatus: "Approved"
+      approvalStatus: "Approved",
+      thumbnail: "/api/placeholder/150/200",
+      aiSuggestions: ["Critical compliance document", "Renewal due in 365 days"]
     },
     {
       id: "DOC002", 
-      name: "Bill_of_Lading_GE001.pdf",
-      type: "Bill of Lading",
-      category: "Shipping",
+      name: "Commercial_Invoice_GE001.pdf",
+      type: "Commercial Invoice",
+      category: "financial",
       size: "1.8 MB",
       uploadDate: "2024-11-18",
       expiryDate: null,
@@ -56,94 +75,42 @@ export function DocumentManager() {
       company: "Global Electronics Inc",
       deal: "D002",
       uploadedBy: "Sarah Chen",
-      description: "Bill of lading for electronic components shipment",
-      tags: ["Shipping", "Electronics", "USA"],
+      description: "Commercial invoice for electronic components shipment",
+      tags: ["Invoice", "Electronics", "USA"],
       version: "1.0",
-      approvalStatus: "Approved"
+      approvalStatus: "Approved",
+      thumbnail: "/api/placeholder/150/200",
+      aiSuggestions: ["Amount: $45,000", "Payment due in 30 days"]
     },
     {
       id: "DOC003",
-      name: "Quality_Certificate_Steel.pdf", 
-      type: "Quality Certificate",
-      category: "Quality",
+      name: "Bill_of_Lading_Shipment_001.pdf", 
+      type: "Bill of Lading",
+      category: "shipping",
       size: "945 KB",
       uploadDate: "2024-11-15",
-      expiryDate: "2025-05-15",
-      status: "Expiring Soon",
+      expiryDate: null,
+      status: "Active",
       company: "Steel Components Inc",
       deal: "D001",
       uploadedBy: "Hans Mueller",
-      description: "ISO quality certificate for steel components",
-      tags: ["Quality", "ISO", "Steel"],
-      version: "2.1",
-      approvalStatus: "Approved"
-    },
-    {
-      id: "DOC004",
-      name: "Insurance_Certificate_Draft.pdf",
-      type: "Insurance Certificate", 
-      category: "Insurance",
-      size: "1.2 MB",
-      uploadDate: "2024-11-25",
-      expiryDate: "2025-06-25",
-      status: "Draft",
-      company: "Indo-German Motors",
-      deal: "D003",
-      uploadedBy: "Klaus Weber",
-      description: "Marine insurance certificate for machinery shipment",
-      tags: ["Insurance", "Marine", "Machinery"],
-      version: "0.1",
-      approvalStatus: "Pending"
+      description: "Bill of lading for steel components to Germany",
+      tags: ["Shipping", "Steel", "Germany"],
+      version: "1.0",
+      approvalStatus: "Approved",
+      thumbnail: "/api/placeholder/150/200",
+      aiSuggestions: ["Vessel: MV EUROPA", "ETA: Dec 15, 2024"]
     }
   ];
-
-  const documentTypes = [
-    "all", "Export License", "Import License", "Bill of Lading", "Commercial Invoice",
-    "Packing List", "Certificate of Origin", "Quality Certificate", "Insurance Certificate",
-    "Letter of Credit", "Customs Declaration", "Inspection Certificate"
-  ];
-
-  const documentStatuses = ["all", "Active", "Draft", "Expiring Soon", "Expired", "Archived"];
 
   const filteredDocuments = documents.filter(doc => {
     const matchesSearch = doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          doc.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          doc.type.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = filterType === "all" || doc.type === filterType;
+    const matchesCategory = filterCategory === "all" || doc.category === filterCategory;
     const matchesStatus = filterStatus === "all" || doc.status === filterStatus;
-    return matchesSearch && matchesType && matchesStatus;
+    return matchesSearch && matchesCategory && matchesStatus;
   });
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Active': return 'bg-green-100 text-green-800';
-      case 'Draft': return 'bg-yellow-100 text-yellow-800';
-      case 'Expiring Soon': return 'bg-orange-100 text-orange-800';
-      case 'Expired': return 'bg-red-100 text-red-800';
-      case 'Archived': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getApprovalStatusIcon = (status: string) => {
-    switch (status) {
-      case 'Approved': return <Check className="w-4 h-4 text-green-600" />;
-      case 'Pending': return <AlertTriangle className="w-4 h-4 text-yellow-600" />;
-      case 'Rejected': return <Trash2 className="w-4 h-4 text-red-600" />;
-      default: return <AlertTriangle className="w-4 h-4 text-gray-600" />;
-    }
-  };
-
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'Legal': return '⚖️';
-      case 'Shipping': return '🚢';
-      case 'Quality': return '✅';
-      case 'Insurance': return '🛡️';
-      case 'Financial': return '💰';
-      default: return '📄';
-    }
-  };
 
   const handleDocumentAction = (docId: string, action: string) => {
     switch (action) {
@@ -161,226 +128,288 @@ export function DocumentManager() {
           alert(`Document ${docId} deleted`);
         }
         break;
-      case 'approve':
-        alert(`Document ${docId} approved`);
-        break;
-      case 'reject':
-        alert(`Document ${docId} rejected`);
+      case 'share':
+        alert(`Sharing document ${docId}`);
         break;
     }
   };
 
-  const handleUploadDocument = () => {
-    alert('Document upload form would open here with fields for document type, category, expiry date, etc.');
+  const handleBulkAction = (action: string) => {
+    if (selectedDocuments.length === 0) {
+      alert('Please select documents first');
+      return;
+    }
+    alert(`Performing ${action} on ${selectedDocuments.length} documents`);
+  };
+
+  const toggleDocumentSelection = (docId: string) => {
+    setSelectedDocuments(prev => 
+      prev.includes(docId) 
+        ? prev.filter(id => id !== docId)
+        : [...prev, docId]
+    );
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Document Management</h1>
-        <Button onClick={handleUploadDocument}>
-          <Upload className="w-4 h-4 mr-2" />
-          Upload Document
-        </Button>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Document Management</h1>
+          <p className="text-gray-600">Organize and manage all your EXIM documents</p>
+        </div>
+        <div className="flex gap-3">
+          <Button variant="outline">
+            <Share2 className="w-4 h-4 mr-2" />
+            Bulk Actions
+          </Button>
+          <Button>
+            <Upload className="w-4 h-4 mr-2" />
+            Upload Documents
+          </Button>
+        </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <FileText className="w-6 h-6 text-blue-600" />
-              <div>
-                <p className="text-xl font-bold">{documents.length}</p>
-                <p className="text-xs text-gray-500">Total Documents</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <Check className="w-6 h-6 text-green-600" />
-              <div>
-                <p className="text-xl font-bold">{documents.filter(d => d.status === 'Active').length}</p>
-                <p className="text-xs text-gray-500">Active</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="w-6 h-6 text-orange-600" />
-              <div>
-                <p className="text-xl font-bold">{documents.filter(d => d.status === 'Expiring Soon').length}</p>
-                <p className="text-xs text-gray-500">Expiring Soon</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <Star className="w-6 h-6 text-yellow-600" />
-              <div>
-                <p className="text-xl font-bold">{documents.filter(d => d.approvalStatus === 'Pending').length}</p>
-                <p className="text-xs text-gray-500">Pending Approval</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <Building2 className="w-6 h-6 text-purple-600" />
-              <div>
-                <p className="text-xl font-bold">{new Set(documents.map(d => d.company)).size}</p>
-                <p className="text-xs text-gray-500">Companies</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Category Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        {documentCategories.map((category) => (
+          <Card 
+            key={category.id} 
+            className={`hover:shadow-lg transition-all cursor-pointer ${
+              filterCategory === category.id ? 'ring-2 ring-blue-500' : ''
+            }`}
+            onClick={() => setFilterCategory(filterCategory === category.id ? 'all' : category.id)}
+          >
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl mb-2">{category.icon}</div>
+              <h3 className="font-semibold text-sm">{category.name}</h3>
+              <p className="text-lg font-bold text-blue-600">{category.count}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* Search and Filter */}
+      {/* Search and Filters */}
       <Card>
         <CardContent className="p-6">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 mb-4">
             <div className="relative flex-1">
               <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <Input
-                placeholder="Search documents..."
+                placeholder="Search documents, companies, or types..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>
             <select 
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {documentTypes.map(type => (
-                <option key={type} value={type}>
-                  {type === 'all' ? 'All Types' : type}
-                </option>
-              ))}
-            </select>
-            <select 
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              {documentStatuses.map(status => (
-                <option key={status} value={status}>
-                  {status === 'all' ? 'All Status' : status}
-                </option>
-              ))}
+              <option value="all">All Status</option>
+              <option value="Active">Active</option>
+              <option value="Draft">Draft</option>
+              <option value="Expiring Soon">Expiring Soon</option>
+              <option value="Expired">Expired</option>
             </select>
-            <Button variant="outline">
-              <Filter className="w-4 h-4 mr-2" />
-              Advanced
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant={viewMode === 'grid' ? 'default' : 'outline'} 
+                size="sm"
+                onClick={() => setViewMode('grid')}
+              >
+                <Grid className="w-4 h-4" />
+              </Button>
+              <Button 
+                variant={viewMode === 'list' ? 'default' : 'outline'} 
+                size="sm"
+                onClick={() => setViewMode('list')}
+              >
+                <List className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
+
+          {selectedDocuments.length > 0 && (
+            <div className="flex items-center gap-4 p-3 bg-blue-50 rounded-lg">
+              <span className="text-sm text-blue-800">
+                {selectedDocuments.length} documents selected
+              </span>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={() => handleBulkAction('download')}>Download</Button>
+                <Button size="sm" variant="outline" onClick={() => handleBulkAction('move')}>Move</Button>
+                <Button size="sm" variant="outline" onClick={() => handleBulkAction('delete')}>Delete</Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* Documents List */}
-      <div className="space-y-4">
-        {filteredDocuments.map((doc) => (
-          <Card key={doc.id} className="hover:shadow-lg transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-4 flex-1">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <span className="text-xl">{getCategoryIcon(doc.category)}</span>
+      {/* Documents Display */}
+      {viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredDocuments.map((doc) => (
+            <Card key={doc.id} className="hover:shadow-lg transition-shadow group">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <input
+                    type="checkbox"
+                    checked={selectedDocuments.includes(doc.id)}
+                    onChange={() => toggleDocumentSelection(doc.id)}
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <Badge variant={doc.status === 'Active' ? 'default' : 'secondary'} className="text-xs">
+                    {doc.status}
+                  </Badge>
+                </div>
+
+                <div className="mb-4">
+                  <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center mb-3">
+                    <FileText className="w-8 h-8 text-gray-400" />
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-semibold text-gray-900">{doc.name}</h3>
-                      <div className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(doc.status)}`}>
-                        {doc.status}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        {getApprovalStatusIcon(doc.approvalStatus)}
-                        <span className="text-xs text-gray-500">{doc.approvalStatus}</span>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
-                      <div>
-                        <p className="text-xs text-gray-500">Type</p>
-                        <p className="text-sm font-medium">{doc.type}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Company</p>
-                        <p className="text-sm font-medium">{doc.company}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Size</p>
-                        <p className="text-sm font-medium">{doc.size}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Version</p>
-                        <p className="text-sm font-medium">v{doc.version}</p>
-                      </div>
-                    </div>
+                  <h3 className="font-semibold text-sm text-gray-900 truncate" title={doc.name}>
+                    {doc.name}
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-1">{doc.type}</p>
+                </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-3">
-                      <div className="flex items-center gap-2 text-sm">
-                        <Calendar className="w-4 h-4 text-gray-400" />
-                        <span>Uploaded: {doc.uploadDate}</span>
-                      </div>
-                      {doc.expiryDate && (
-                        <div className="flex items-center gap-2 text-sm">
-                          <AlertTriangle className="w-4 h-4 text-orange-400" />
-                          <span>Expires: {doc.expiryDate}</span>
-                        </div>
-                      )}
-                      <div className="flex items-center gap-2 text-sm">
-                        <User className="w-4 h-4 text-gray-400" />
-                        <span>{doc.uploadedBy}</span>
-                      </div>
-                    </div>
-
-                    <p className="text-sm text-gray-600 mb-3">{doc.description}</p>
-
-                    <div className="flex flex-wrap gap-2">
-                      {doc.tags.map((tag, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-500">Size:</span>
+                    <span>{doc.size}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-500">Company:</span>
+                    <span className="truncate ml-2">{doc.company}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-500">Uploaded:</span>
+                    <span>{doc.uploadDate}</span>
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-2 ml-4">
+                {doc.aiSuggestions && (
+                  <div className="mb-4 p-2 bg-blue-50 rounded text-xs">
+                    <div className="flex items-center gap-1 mb-1">
+                      <Star className="w-3 h-3 text-blue-600" />
+                      <span className="font-medium text-blue-800">AI Insights</span>
+                    </div>
+                    {doc.aiSuggestions.map((suggestion, index) => (
+                      <p key={index} className="text-blue-700">• {suggestion}</p>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button size="sm" variant="outline" onClick={() => handleDocumentAction(doc.id, 'view')}>
-                    <Eye className="w-3 h-3 mr-1" />
-                    View
+                    <Eye className="w-3 h-3" />
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => handleDocumentAction(doc.id, 'download')}>
-                    <Download className="w-3 h-3 mr-1" />
-                    Download
+                    <Download className="w-3 h-3" />
                   </Button>
-                  {doc.approvalStatus === 'Pending' && (
-                    <div className="flex gap-1">
-                      <Button size="sm" variant="outline" onClick={() => handleDocumentAction(doc.id, 'approve')} className="text-green-600">
-                        <Check className="w-3 h-3" />
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleDocumentAction(doc.id, 'reject')} className="text-red-600">
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  )}
+                  <Button size="sm" variant="outline" onClick={() => handleDocumentAction(doc.id, 'edit')}>
+                    <Edit className="w-3 h-3" />
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => handleDocumentAction(doc.id, 'delete')}>
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {filteredDocuments.map((doc) => (
+            <Card key={doc.id} className="hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-4 flex-1">
+                    <input
+                      type="checkbox"
+                      checked={selectedDocuments.includes(doc.id)}
+                      onChange={() => toggleDocumentSelection(doc.id)}
+                      className="w-4 h-4 text-blue-600 mt-1"
+                    />
+                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <FileText className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="font-semibold text-gray-900">{doc.name}</h3>
+                        <Badge variant={doc.status === 'Active' ? 'default' : 'secondary'}>
+                          {doc.status}
+                        </Badge>
+                        <Badge variant="outline">{doc.type}</Badge>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
+                        <div>
+                          <p className="text-xs text-gray-500">Company</p>
+                          <p className="text-sm font-medium">{doc.company}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Size</p>
+                          <p className="text-sm font-medium">{doc.size}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Uploaded</p>
+                          <p className="text-sm font-medium">{doc.uploadDate}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Version</p>
+                          <p className="text-sm font-medium">v{doc.version}</p>
+                        </div>
+                      </div>
+
+                      <p className="text-sm text-gray-600 mb-3">{doc.description}</p>
+
+                      {doc.aiSuggestions && (
+                        <div className="mb-3 p-3 bg-blue-50 rounded-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Star className="w-4 h-4 text-blue-600" />
+                            <span className="font-medium text-blue-800 text-sm">AI Insights</span>
+                          </div>
+                          {doc.aiSuggestions.map((suggestion, index) => (
+                            <p key={index} className="text-sm text-blue-700">• {suggestion}</p>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="flex flex-wrap gap-2">
+                        {doc.tags.map((tag, index) => (
+                          <Badge key={index} variant="outline" className="text-xs">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 ml-4">
+                    <Button size="sm" variant="outline" onClick={() => handleDocumentAction(doc.id, 'view')}>
+                      <Eye className="w-3 h-3 mr-1" />
+                      View
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => handleDocumentAction(doc.id, 'download')}>
+                      <Download className="w-3 h-3 mr-1" />
+                      Download
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => handleDocumentAction(doc.id, 'edit')}>
+                      <Edit className="w-3 h-3 mr-1" />
+                      Edit
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => handleDocumentAction(doc.id, 'delete')}>
+                      <Trash2 className="w-3 h-3 mr-1" />
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
