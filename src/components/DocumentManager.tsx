@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { DocumentUploader } from "./DocumentUploader";
 import { 
   FileText, 
   Upload, 
@@ -13,18 +12,15 @@ import {
   Trash2, 
   Search, 
   Filter,
-  Calendar,
   Building2,
-  User,
   Plus,
   Star,
-  Check,
-  AlertTriangle,
-  FolderOpen,
   Grid,
   List,
   Edit,
-  Share2
+  Share2,
+  Folder,
+  CheckSquare
 } from "lucide-react";
 
 export function DocumentManager() {
@@ -33,17 +29,8 @@ export function DocumentManager() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [viewMode, setViewMode] = useState("grid");
   const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
-
-  const documentCategories = [
-    { id: "legal", name: "Legal", icon: "⚖️", count: 12, color: "blue" },
-    { id: "financial", name: "Financial", icon: "💰", count: 28, color: "green" },
-    { id: "shipping", name: "Shipping & Logistics", icon: "🚢", count: 15, color: "purple" },
-    { id: "quality", name: "Quality & Compliance", icon: "✅", count: 8, color: "orange" },
-    { id: "insurance", name: "Insurance", icon: "🛡️", count: 6, color: "red" },
-    { id: "customs", name: "Customs & Trade", icon: "🌍", count: 19, color: "cyan" }
-  ];
-
-  const documents = [
+  const [showUploader, setShowUploader] = useState(false);
+  const [documents, setDocuments] = useState([
     {
       id: "DOC001",
       name: "Export_License_ABC_Textiles.pdf",
@@ -51,17 +38,11 @@ export function DocumentManager() {
       category: "legal",
       size: "2.3 MB",
       uploadDate: "2024-11-20",
-      expiryDate: "2025-11-20",
       status: "Active",
       company: "ABC Textiles Ltd",
-      deal: "D001",
       uploadedBy: "Rajesh Kumar",
       description: "Export license for textile products to Europe",
-      tags: ["Legal", "Export", "Europe"],
-      version: "1.0",
-      approvalStatus: "Approved",
-      thumbnail: "/api/placeholder/150/200",
-      aiSuggestions: ["Critical compliance document", "Renewal due in 365 days"]
+      tags: ["Legal", "Export", "Europe"]
     },
     {
       id: "DOC002", 
@@ -70,37 +51,21 @@ export function DocumentManager() {
       category: "financial",
       size: "1.8 MB",
       uploadDate: "2024-11-18",
-      expiryDate: null,
       status: "Active",
       company: "Global Electronics Inc",
-      deal: "D002",
       uploadedBy: "Sarah Chen",
       description: "Commercial invoice for electronic components shipment",
-      tags: ["Invoice", "Electronics", "USA"],
-      version: "1.0",
-      approvalStatus: "Approved",
-      thumbnail: "/api/placeholder/150/200",
-      aiSuggestions: ["Amount: $45,000", "Payment due in 30 days"]
-    },
-    {
-      id: "DOC003",
-      name: "Bill_of_Lading_Shipment_001.pdf", 
-      type: "Bill of Lading",
-      category: "shipping",
-      size: "945 KB",
-      uploadDate: "2024-11-15",
-      expiryDate: null,
-      status: "Active",
-      company: "Steel Components Inc",
-      deal: "D001",
-      uploadedBy: "Hans Mueller",
-      description: "Bill of lading for steel components to Germany",
-      tags: ["Shipping", "Steel", "Germany"],
-      version: "1.0",
-      approvalStatus: "Approved",
-      thumbnail: "/api/placeholder/150/200",
-      aiSuggestions: ["Vessel: MV EUROPA", "ETA: Dec 15, 2024"]
+      tags: ["Invoice", "Electronics", "USA"]
     }
+  ]);
+
+  const documentCategories = [
+    { id: "legal", name: "Legal", icon: "⚖️", count: documents.filter(d => d.category === "legal").length, color: "blue" },
+    { id: "financial", name: "Financial", icon: "💰", count: documents.filter(d => d.category === "financial").length, color: "green" },
+    { id: "shipping", name: "Shipping & Logistics", icon: "🚢", count: documents.filter(d => d.category === "shipping").length, color: "purple" },
+    { id: "quality", name: "Quality & Compliance", icon: "✅", count: documents.filter(d => d.category === "quality").length, color: "orange" },
+    { id: "insurance", name: "Insurance", icon: "🛡️", count: documents.filter(d => d.category === "insurance").length, color: "red" },
+    { id: "customs", name: "Customs & Trade", icon: "🌍", count: documents.filter(d => d.category === "customs").length, color: "cyan" }
   ];
 
   const filteredDocuments = documents.filter(doc => {
@@ -112,26 +77,9 @@ export function DocumentManager() {
     return matchesSearch && matchesCategory && matchesStatus;
   });
 
-  const handleDocumentAction = (docId: string, action: string) => {
-    switch (action) {
-      case 'view':
-        alert(`Opening document ${docId} for viewing`);
-        break;
-      case 'download':
-        alert(`Downloading document ${docId}`);
-        break;
-      case 'edit':
-        alert(`Opening document ${docId} for editing`);
-        break;
-      case 'delete':
-        if (confirm('Are you sure you want to delete this document?')) {
-          alert(`Document ${docId} deleted`);
-        }
-        break;
-      case 'share':
-        alert(`Sharing document ${docId}`);
-        break;
-    }
+  const handleDocumentUpload = (newDocuments: any[]) => {
+    setDocuments([...documents, ...newDocuments]);
+    alert(`${newDocuments.length} document(s) uploaded successfully!`);
   };
 
   const handleBulkAction = (action: string) => {
@@ -139,7 +87,53 @@ export function DocumentManager() {
       alert('Please select documents first');
       return;
     }
-    alert(`Performing ${action} on ${selectedDocuments.length} documents`);
+
+    switch (action) {
+      case 'download':
+        alert(`Downloading ${selectedDocuments.length} selected documents...`);
+        // Implement actual download logic here
+        break;
+      case 'move':
+        const category = prompt('Move to category (legal/financial/shipping/quality/insurance/customs):');
+        if (category) {
+          setDocuments(documents.map(doc => 
+            selectedDocuments.includes(doc.id) ? {...doc, category} : doc
+          ));
+          alert(`${selectedDocuments.length} documents moved to ${category}`);
+        }
+        break;
+      case 'delete':
+        if (confirm(`Are you sure you want to delete ${selectedDocuments.length} documents?`)) {
+          setDocuments(documents.filter(doc => !selectedDocuments.includes(doc.id)));
+          setSelectedDocuments([]);
+          alert(`${selectedDocuments.length} documents deleted`);
+        }
+        break;
+      case 'export':
+        alert(`Exporting ${selectedDocuments.length} documents metadata to CSV...`);
+        break;
+    }
+  };
+
+  const handleDocumentAction = (docId: string, action: string) => {
+    const doc = documents.find(d => d.id === docId);
+    switch (action) {
+      case 'view':
+        alert(`Opening document ${doc?.name} for viewing`);
+        break;
+      case 'download':
+        alert(`Downloading document ${doc?.name}`);
+        break;
+      case 'edit':
+        alert(`Opening document ${doc?.name} for editing`);
+        break;
+      case 'delete':
+        if (confirm('Are you sure you want to delete this document?')) {
+          setDocuments(documents.filter(d => d.id !== docId));
+          alert(`Document ${doc?.name} deleted`);
+        }
+        break;
+    }
   };
 
   const toggleDocumentSelection = (docId: string) => {
@@ -150,6 +144,14 @@ export function DocumentManager() {
     );
   };
 
+  const toggleSelectAll = () => {
+    if (selectedDocuments.length === filteredDocuments.length) {
+      setSelectedDocuments([]);
+    } else {
+      setSelectedDocuments(filteredDocuments.map(doc => doc.id));
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -158,11 +160,15 @@ export function DocumentManager() {
           <p className="text-gray-600">Organize and manage all your EXIM documents</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline">
+          <Button 
+            variant="outline"
+            onClick={() => handleBulkAction('export')}
+            disabled={selectedDocuments.length === 0}
+          >
             <Share2 className="w-4 h-4 mr-2" />
-            Bulk Actions
+            Export Selected ({selectedDocuments.length})
           </Button>
-          <Button>
+          <Button onClick={() => setShowUploader(true)}>
             <Upload className="w-4 h-4 mr-2" />
             Upload Documents
           </Button>
@@ -209,7 +215,6 @@ export function DocumentManager() {
               <option value="all">All Status</option>
               <option value="Active">Active</option>
               <option value="Draft">Draft</option>
-              <option value="Expiring Soon">Expiring Soon</option>
               <option value="Expired">Expired</option>
             </select>
             <div className="flex gap-2">
@@ -230,16 +235,41 @@ export function DocumentManager() {
             </div>
           </div>
 
-          {selectedDocuments.length > 0 && (
-            <div className="flex items-center gap-4 p-3 bg-blue-50 rounded-lg">
-              <span className="text-sm text-blue-800">
-                {selectedDocuments.length} documents selected
-              </span>
-              <div className="flex gap-2">
-                <Button size="sm" onClick={() => handleBulkAction('download')}>Download</Button>
-                <Button size="sm" variant="outline" onClick={() => handleBulkAction('move')}>Move</Button>
-                <Button size="sm" variant="outline" onClick={() => handleBulkAction('delete')}>Delete</Button>
+          {/* Bulk Actions */}
+          {filteredDocuments.length > 0 && (
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedDocuments.length === filteredDocuments.length}
+                    onChange={toggleSelectAll}
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <span className="text-sm">
+                    {selectedDocuments.length > 0 
+                      ? `${selectedDocuments.length} selected` 
+                      : 'Select all'
+                    }
+                  </span>
+                </label>
               </div>
+              {selectedDocuments.length > 0 && (
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={() => handleBulkAction('download')}>
+                    <Download className="w-3 h-3 mr-1" />
+                    Download
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => handleBulkAction('move')}>
+                    <Folder className="w-3 h-3 mr-1" />
+                    Move
+                  </Button>
+                  <Button size="sm" variant="destructive" onClick={() => handleBulkAction('delete')}>
+                    <Trash2 className="w-3 h-3 mr-1" />
+                    Delete
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </CardContent>
@@ -288,18 +318,6 @@ export function DocumentManager() {
                   </div>
                 </div>
 
-                {doc.aiSuggestions && (
-                  <div className="mb-4 p-2 bg-blue-50 rounded text-xs">
-                    <div className="flex items-center gap-1 mb-1">
-                      <Star className="w-3 h-3 text-blue-600" />
-                      <span className="font-medium text-blue-800">AI Insights</span>
-                    </div>
-                    {doc.aiSuggestions.map((suggestion, index) => (
-                      <p key={index} className="text-blue-700">• {suggestion}</p>
-                    ))}
-                  </div>
-                )}
-
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button size="sm" variant="outline" onClick={() => handleDocumentAction(doc.id, 'view')}>
                     <Eye className="w-3 h-3" />
@@ -319,6 +337,7 @@ export function DocumentManager() {
           ))}
         </div>
       ) : (
+        
         <div className="space-y-4">
           {filteredDocuments.map((doc) => (
             <Card key={doc.id} className="hover:shadow-lg transition-shadow">
@@ -357,24 +376,12 @@ export function DocumentManager() {
                           <p className="text-sm font-medium">{doc.uploadDate}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500">Version</p>
-                          <p className="text-sm font-medium">v{doc.version}</p>
+                          <p className="text-xs text-gray-500">Category</p>
+                          <p className="text-sm font-medium capitalize">{doc.category}</p>
                         </div>
                       </div>
 
                       <p className="text-sm text-gray-600 mb-3">{doc.description}</p>
-
-                      {doc.aiSuggestions && (
-                        <div className="mb-3 p-3 bg-blue-50 rounded-lg">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Star className="w-4 h-4 text-blue-600" />
-                            <span className="font-medium text-blue-800 text-sm">AI Insights</span>
-                          </div>
-                          {doc.aiSuggestions.map((suggestion, index) => (
-                            <p key={index} className="text-sm text-blue-700">• {suggestion}</p>
-                          ))}
-                        </div>
-                      )}
 
                       <div className="flex flex-wrap gap-2">
                         {doc.tags.map((tag, index) => (
@@ -410,6 +417,12 @@ export function DocumentManager() {
           ))}
         </div>
       )}
+
+      <DocumentUploader 
+        isOpen={showUploader}
+        onClose={() => setShowUploader(false)}
+        onUpload={handleDocumentUpload}
+      />
     </div>
   );
 }

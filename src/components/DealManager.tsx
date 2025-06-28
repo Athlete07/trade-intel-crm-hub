@@ -1,8 +1,10 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { 
   DollarSign, 
   TrendingUp, 
@@ -17,7 +19,10 @@ import {
   Globe,
   Edit,
   Eye,
-  FileText
+  FileText,
+  Settings,
+  Download,
+  X
 } from "lucide-react";
 
 interface DealManagerProps {
@@ -28,10 +33,11 @@ interface DealManagerProps {
 export function DealManager({ onViewDetails, onEditDeal }: DealManagerProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStage, setFilterStage] = useState("all");
-  const [isCreatingDeal, setIsCreatingDeal] = useState(false);
-  const [selectedDeal, setSelectedDeal] = useState<string | null>(null);
+  const [showCreateDeal, setShowCreateDeal] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [selectedDeals, setSelectedDeals] = useState<string[]>([]);
 
-  const deals = [
+  const [deals, setDeals] = useState([
     {
       id: "D001",
       company: "MegaCorp Industries",
@@ -48,7 +54,12 @@ export function DealManager({ onViewDetails, onEditDeal }: DealManagerProps) {
       assignedTo: "Rajesh Kumar",
       expectedClosure: "2024-12-15",
       status: "Live",
-      createdDate: "2024-11-01"
+      createdDate: "2024-11-01",
+      hsCode: "7208.51.00",
+      portOfLoading: "Mumbai, India",
+      portOfDischarge: "Hamburg, Germany",
+      countryOfOrigin: "India",
+      destinationCountry: "Germany"
     },
     {
       id: "D002", 
@@ -66,45 +77,125 @@ export function DealManager({ onViewDetails, onEditDeal }: DealManagerProps) {
       assignedTo: "Priya Singh",
       expectedClosure: "2025-01-20",
       status: "Live",
-      createdDate: "2024-11-15"
-    },
-    {
-      id: "D003",
-      company: "Sunrise Exports", 
-      buyer: "Indo-German Motors",
-      seller: "Machinery World",
-      product: "Textile Machinery",
-      quantity: "2 units",
-      value: 190000,
-      currency: "EUR",
-      stage: "Inquiry",
-      probability: 40,
-      incoterm: "DDP",
-      paymentTerm: "50% Advance, 50% on delivery",
-      assignedTo: "Hans Mueller",
-      expectedClosure: "2025-02-10",
-      status: "Live",
-      createdDate: "2024-11-20"
-    },
-    {
-      id: "D004",
-      company: "TechFlow Solutions",
-      buyer: "Innovation Labs",
-      seller: "Software Systems Ltd",
-      product: "Software Licenses", 
-      quantity: "100 licenses",
-      value: 75000,
-      currency: "USD",
-      stage: "Lost",
-      probability: 0,
-      incoterm: "N/A",
-      paymentTerm: "Annual License",
-      assignedTo: "Sarah Chen",
-      expectedClosure: "2024-11-30",
-      status: "Closed",
-      createdDate: "2024-10-15"
+      createdDate: "2024-11-15",
+      hsCode: "8542.31.00",
+      portOfLoading: "Shenzhen, China",
+      portOfDischarge: "Los Angeles, USA",
+      countryOfOrigin: "China",
+      destinationCountry: "USA"
     }
-  ];
+  ]);
+
+  const [newDeal, setNewDeal] = useState({
+    company: "",
+    buyer: "",
+    seller: "",
+    product: "",
+    quantity: "",
+    value: 0,
+    currency: "USD",
+    incoterm: "FOB",
+    paymentTerm: "",
+    assignedTo: "",
+    expectedClosure: "",
+    hsCode: "",
+    portOfLoading: "",
+    portOfDischarge: "",
+    countryOfOrigin: "",
+    destinationCountry: "",
+    productCategory: "",
+    qualityStandards: "",
+    packagingRequirements: "",
+    inspectionRequirements: "",
+    insuranceRequirements: "",
+    specialTerms: ""
+  });
+
+  const filteredDeals = deals.filter(deal => {
+    const matchesSearch = deal.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         deal.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         deal.buyer.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = filterStage === "all" || deal.stage.toLowerCase() === filterStage;
+    return matchesSearch && matchesFilter;
+  });
+
+  const totalValue = deals.reduce((sum, deal) => {
+    if (deal.status === 'Live') {
+      return sum + (deal.value * deal.probability / 100);
+    }
+    return sum;
+  }, 0);
+
+  const activeDeals = deals.filter(deal => deal.status === 'Live').length;
+
+  const handleCreateDeal = () => {
+    if (!newDeal.company || !newDeal.buyer || !newDeal.product || !newDeal.value) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    const deal = {
+      ...newDeal,
+      id: `D${String(deals.length + 1).padStart(3, '0')}`,
+      stage: "Inquiry",
+      probability: 30,
+      status: "Live",
+      createdDate: new Date().toISOString().split('T')[0]
+    };
+    
+    setDeals([...deals, deal]);
+    setNewDeal({
+      company: "",
+      buyer: "",
+      seller: "",
+      product: "",
+      quantity: "",
+      value: 0,
+      currency: "USD",
+      incoterm: "FOB",
+      paymentTerm: "",
+      assignedTo: "",
+      expectedClosure: "",
+      hsCode: "",
+      portOfLoading: "",
+      portOfDischarge: "",
+      countryOfOrigin: "",
+      destinationCountry: "",
+      productCategory: "",
+      qualityStandards: "",
+      packagingRequirements: "",
+      inspectionRequirements: "",
+      insuranceRequirements: "",
+      specialTerms: ""
+    });
+    setShowCreateDeal(false);
+    alert(`Deal ${deal.id} created successfully!`);
+  };
+
+  const handleExportData = () => {
+    const selectedData = selectedDeals.length > 0 
+      ? deals.filter(deal => selectedDeals.includes(deal.id))
+      : deals;
+    
+    const csvContent = [
+      'Deal ID,Company,Buyer,Seller,Product,Value,Currency,Stage,Status,Created Date',
+      ...selectedData.map(deal => 
+        `${deal.id},${deal.company},${deal.buyer},${deal.seller},${deal.product},${deal.value},${deal.currency},${deal.stage},${deal.status},${deal.createdDate}`
+      )
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `deals_export_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    alert(`Exported ${selectedData.length} deals to CSV`);
+  };
 
   const getStageColor = (stage: string) => {
     switch (stage) {
@@ -126,76 +217,24 @@ export function DealManager({ onViewDetails, onEditDeal }: DealManagerProps) {
     }
   };
 
-  const filteredDeals = deals.filter(deal => {
-    const matchesSearch = deal.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         deal.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         deal.buyer.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStage === "all" || deal.stage.toLowerCase() === filterStage;
-    return matchesSearch && matchesFilter;
-  });
-
-  const totalValue = deals.reduce((sum, deal) => {
-    if (deal.status === 'Live') {
-      return sum + (deal.value * deal.probability / 100);
-    }
-    return sum;
-  }, 0);
-
-  const activeDeals = deals.filter(deal => deal.status === 'Live').length;
-  const avgProbability = deals.filter(deal => deal.status === 'Live')
-    .reduce((sum, deal) => sum + deal.probability, 0) / activeDeals || 0;
-
-  const handleCreateDeal = () => {
-    setIsCreatingDeal(true);
-    alert('Create Deal form would open here with fields for all deal parameters including buyer, seller, product details, financial terms, etc.');
-  };
-
-  const handleEditDeal = (dealId: string) => {
-    if (onEditDeal) {
-      onEditDeal(dealId);
-    } else {
-      alert(`Edit Deal ${dealId} form would open here with pre-filled deal information.`);
-    }
-  };
-
-  const handleViewDetails = (dealId: string) => {
-    if (onViewDetails) {
-      onViewDetails(dealId);
-    } else {
-      setSelectedDeal(dealId);
-      alert(`Deal ${dealId} detailed view would open here showing complete deal history, documents, and timeline.`);
-    }
-  };
-
-  const handleGenerateContract = (dealId: string) => {
-    alert(`Contract generation for Deal ${dealId} would start here. This would create a PDF contract based on deal terms.`);
-  };
-
-  const handleDealAction = (dealId: string, action: string) => {
-    switch (action) {
-      case 'approve':
-        alert(`Deal ${dealId} has been approved and moved to confirmed stage.`);
-        break;
-      case 'reject':
-        alert(`Deal ${dealId} has been rejected and moved to lost stage.`);
-        break;
-      case 'negotiate':
-        alert(`Opening negotiation panel for Deal ${dealId}.`);
-        break;
-      case 'clone':
-        alert(`Creating a copy of Deal ${dealId} with same parameters.`);
-        break;
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Deal Management</h1>
-        <Button onClick={handleCreateDeal}>
-          <Plus className="w-4 h-4 mr-2" />
-          Create Deal
-        </Button>
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={() => setShowSettings(true)}>
+            <Settings className="w-4 h-4 mr-2" />
+            Settings
+          </Button>
+          <Button variant="outline" onClick={handleExportData}>
+            <Download className="w-4 h-4 mr-2" />
+            Export Data
+          </Button>
+          <Button onClick={() => setShowCreateDeal(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Create Deal
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -227,8 +266,8 @@ export function DealManager({ onViewDetails, onEditDeal }: DealManagerProps) {
             <div className="flex items-center gap-3">
               <CheckCircle className="w-8 h-8 text-purple-600" />
               <div>
-                <p className="text-2xl font-bold">{avgProbability.toFixed(0)}%</p>
-                <p className="text-sm text-gray-500">Avg Probability</p>
+                <p className="text-2xl font-bold">{deals.filter(d => d.stage === 'Confirmed').length}</p>
+                <p className="text-sm text-gray-500">Confirmed</p>
               </div>
             </div>
           </CardContent>
@@ -238,8 +277,8 @@ export function DealManager({ onViewDetails, onEditDeal }: DealManagerProps) {
             <div className="flex items-center gap-3">
               <Calendar className="w-8 h-8 text-orange-600" />
               <div>
-                <p className="text-2xl font-bold">5</p>
-                <p className="text-sm text-gray-500">Due This Month</p>
+                <p className="text-2xl font-bold">{deals.filter(d => d.stage === 'Negotiation').length}</p>
+                <p className="text-sm text-gray-500">In Negotiation</p>
               </div>
             </div>
           </CardContent>
@@ -270,10 +309,20 @@ export function DealManager({ onViewDetails, onEditDeal }: DealManagerProps) {
               <option value="confirmed">Confirmed</option>
               <option value="lost">Lost</option>
             </select>
-            <Button variant="outline">
-              <Filter className="w-4 h-4 mr-2" />
-              Advanced
-            </Button>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setSelectedDeals(filteredDeals.map(d => d.id));
+                  } else {
+                    setSelectedDeals([]);
+                  }
+                }}
+                className="w-4 h-4 text-blue-600"
+              />
+              <span className="text-sm">Select All ({selectedDeals.length})</span>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -288,6 +337,18 @@ export function DealManager({ onViewDetails, onEditDeal }: DealManagerProps) {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedDeals.includes(deal.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedDeals([...selectedDeals, deal.id]);
+                        } else {
+                          setSelectedDeals(selectedDeals.filter(id => id !== deal.id));
+                        }
+                      }}
+                      className="w-4 h-4 text-blue-600"
+                    />
                     <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                       <Building2 className="w-5 h-5 text-white" />
                     </div>
@@ -296,12 +357,10 @@ export function DealManager({ onViewDetails, onEditDeal }: DealManagerProps) {
                       <p className="text-sm text-gray-500">Deal ID: {deal.id}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant={getStageColor(deal.stage)} className="flex items-center gap-1">
-                      <StageIcon className="w-3 h-3" />
-                      {deal.stage}
-                    </Badge>
-                  </div>
+                  <Badge variant={getStageColor(deal.stage)} className="flex items-center gap-1">
+                    <StageIcon className="w-3 h-3" />
+                    {deal.stage}
+                  </Badge>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -363,34 +422,23 @@ export function DealManager({ onViewDetails, onEditDeal }: DealManagerProps) {
                   />
                 </div>
 
-                {/* Action Buttons */}
                 <div className="flex items-center justify-between pt-3 border-t border-gray-200">
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={() => handleViewDetails(deal.id)}>
+                    <Button size="sm" variant="outline" onClick={() => onViewDetails?.(deal.id)}>
                       <Eye className="w-3 h-3 mr-1" />
                       View
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => handleEditDeal(deal.id)}>
+                    <Button size="sm" variant="outline" onClick={() => onEditDeal?.(deal.id)}>
                       <Edit className="w-3 h-3 mr-1" />
                       Edit
                     </Button>
                   </div>
                   <div className="flex gap-2">
                     {deal.stage === 'Confirmed' && (
-                      <Button size="sm" onClick={() => handleGenerateContract(deal.id)}>
+                      <Button size="sm">
                         <FileText className="w-3 h-3 mr-1" />
                         Contract
                       </Button>
-                    )}
-                    {deal.stage === 'Negotiation' && (
-                      <>
-                        <Button size="sm" variant="outline" onClick={() => handleDealAction(deal.id, 'approve')}>
-                          Approve
-                        </Button>
-                        <Button size="sm" variant="destructive" onClick={() => handleDealAction(deal.id, 'reject')}>
-                          Reject
-                        </Button>
-                      </>
                     )}
                   </div>
                 </div>
@@ -399,6 +447,285 @@ export function DealManager({ onViewDetails, onEditDeal }: DealManagerProps) {
           );
         })}
       </div>
+
+      {/* Create Deal Modal */}
+      {showCreateDeal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Create New Deal</CardTitle>
+                <Button variant="ghost" size="sm" onClick={() => setShowCreateDeal(false)}>
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Basic Information */}
+              <div>
+                <h3 className="font-semibold mb-4">Basic Information</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Company Name *</label>
+                    <Input
+                      value={newDeal.company}
+                      onChange={(e) => setNewDeal({...newDeal, company: e.target.value})}
+                      placeholder="Company facilitating the deal"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Product *</label>
+                    <Input
+                      value={newDeal.product}
+                      onChange={(e) => setNewDeal({...newDeal, product: e.target.value})}
+                      placeholder="Product description"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Buyer *</label>
+                    <Input
+                      value={newDeal.buyer}
+                      onChange={(e) => setNewDeal({...newDeal, buyer: e.target.value})}
+                      placeholder="Buying company"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Seller *</label>
+                    <Input
+                      value={newDeal.seller}
+                      onChange={(e) => setNewDeal({...newDeal, seller: e.target.value})}
+                      placeholder="Selling company"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Commercial Terms */}
+              <div>
+                <h3 className="font-semibold mb-4">Commercial Terms</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Quantity *</label>
+                    <Input
+                      value={newDeal.quantity}
+                      onChange={(e) => setNewDeal({...newDeal, quantity: e.target.value})}
+                      placeholder="e.g., 500 MT, 10,000 units"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Value *</label>
+                    <Input
+                      type="number"
+                      value={newDeal.value}
+                      onChange={(e) => setNewDeal({...newDeal, value: Number(e.target.value)})}
+                      placeholder="Deal value"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Currency</label>
+                    <select
+                      value={newDeal.currency}
+                      onChange={(e) => setNewDeal({...newDeal, currency: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    >
+                      <option value="USD">USD</option>
+                      <option value="EUR">EUR</option>
+                      <option value="GBP">GBP</option>
+                      <option value="INR">INR</option>
+                      <option value="CNY">CNY</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Incoterm</label>
+                    <select
+                      value={newDeal.incoterm}
+                      onChange={(e) => setNewDeal({...newDeal, incoterm: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    >
+                      <option value="FOB">FOB - Free On Board</option>
+                      <option value="CIF">CIF - Cost, Insurance & Freight</option>
+                      <option value="CFR">CFR - Cost & Freight</option>
+                      <option value="EXW">EXW - Ex Works</option>
+                      <option value="DDP">DDP - Delivered Duty Paid</option>
+                      <option value="FCA">FCA - Free Carrier</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Payment Terms</label>
+                    <Input
+                      value={newDeal.paymentTerm}
+                      onChange={(e) => setNewDeal({...newDeal, paymentTerm: e.target.value})}
+                      placeholder="e.g., LC 30 days, 100% Advance"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">HS Code</label>
+                    <Input
+                      value={newDeal.hsCode}
+                      onChange={(e) => setNewDeal({...newDeal, hsCode: e.target.value})}
+                      placeholder="Harmonized System Code"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Logistics Information */}
+              <div>
+                <h3 className="font-semibold mb-4">Logistics Information</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Port of Loading</label>
+                    <Input
+                      value={newDeal.portOfLoading}
+                      onChange={(e) => setNewDeal({...newDeal, portOfLoading: e.target.value})}
+                      placeholder="e.g., Mumbai, India"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Port of Discharge</label>
+                    <Input
+                      value={newDeal.portOfDischarge}
+                      onChange={(e) => setNewDeal({...newDeal, portOfDischarge: e.target.value})}
+                      placeholder="e.g., Hamburg, Germany"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Country of Origin</label>
+                    <Input
+                      value={newDeal.countryOfOrigin}
+                      onChange={(e) => setNewDeal({...newDeal, countryOfOrigin: e.target.value})}
+                      placeholder="Manufacturing country"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Destination Country</label>
+                    <Input
+                      value={newDeal.destinationCountry}
+                      onChange={(e) => setNewDeal({...newDeal, destinationCountry: e.target.value})}
+                      placeholder="Final destination"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Quality & Compliance */}
+              <div>
+                <h3 className="font-semibold mb-4">Quality & Compliance</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Quality Standards</label>
+                    <Input
+                      value={newDeal.qualityStandards}
+                      onChange={(e) => setNewDeal({...newDeal, qualityStandards: e.target.value})}
+                      placeholder="e.g., ISO 9001, CE marking"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Inspection Requirements</label>
+                    <Input
+                      value={newDeal.inspectionRequirements}
+                      onChange={(e) => setNewDeal({...newDeal, inspectionRequirements: e.target.value})}
+                      placeholder="Third-party inspection requirements"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Management */}
+              <div>
+                <h3 className="font-semibold mb-4">Deal Management</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Assigned To</label>
+                    <Input
+                      value={newDeal.assignedTo}
+                      onChange={(e) => setNewDeal({...newDeal, assignedTo: e.target.value})}
+                      placeholder="Responsible person"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Expected Closure</label>
+                    <Input
+                      type="date"
+                      value={newDeal.expectedClosure}
+                      onChange={(e) => setNewDeal({...newDeal, expectedClosure: e.target.value})}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Special Terms */}
+              <div>
+                <label className="block text-sm font-medium mb-2">Special Terms & Conditions</label>
+                <Textarea
+                  value={newDeal.specialTerms}
+                  onChange={(e) => setNewDeal({...newDeal, specialTerms: e.target.value})}
+                  placeholder="Any special conditions, terms, or requirements"
+                  rows={3}
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <Button variant="outline" onClick={() => setShowCreateDeal(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleCreateDeal}>
+                  Create Deal
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Deal Settings</CardTitle>
+                <Button variant="ghost" size="sm" onClick={() => setShowSettings(false)}>
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h4 className="font-medium mb-2">Default Currency</h4>
+                <select className="w-full px-3 py-2 border border-gray-300 rounded-md">
+                  <option value="USD">USD - US Dollar</option>
+                  <option value="EUR">EUR - Euro</option>
+                  <option value="INR">INR - Indian Rupee</option>
+                </select>
+              </div>
+              <div>
+                <h4 className="font-medium mb-2">Default Incoterm</h4>
+                <select className="w-full px-3 py-2 border border-gray-300 rounded-md">
+                  <option value="FOB">FOB - Free On Board</option>
+                  <option value="CIF">CIF - Cost, Insurance & Freight</option>
+                  <option value="EXW">EXW - Ex Works</option>
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
+                <input type="checkbox" id="auto-assign" className="w-4 h-4 text-blue-600" />
+                <label htmlFor="auto-assign" className="text-sm">Auto-assign deals to available team members</label>
+              </div>
+              <div className="flex items-center gap-2">
+                <input type="checkbox" id="email-notifications" className="w-4 h-4 text-blue-600" />
+                <label htmlFor="email-notifications" className="text-sm">Send email notifications for deal updates</label>
+              </div>
+              <div className="flex justify-end gap-3 pt-4">
+                <Button variant="outline" onClick={() => setShowSettings(false)}>Cancel</Button>
+                <Button onClick={() => {
+                  alert('Settings saved successfully!');
+                  setShowSettings(false);
+                }}>Save Settings</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
