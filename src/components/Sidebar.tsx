@@ -1,111 +1,132 @@
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
 import { 
-  BarChart3, 
-  Building2, 
+  LayoutDashboard, 
+  CheckSquare, 
   Handshake, 
-  MessageSquare, 
-  Brain,
-  Home,
+  Users, 
+  FileText, 
+  Receipt, 
+  Building2, 
+  BarChart3, 
+  Bell, 
+  Brain, 
+  MessageSquare,
   Settings,
-  Bell,
-  FileText,
-  Users,
-  Calendar,
-  FolderOpen
+  ChevronDown,
+  ChevronRight,
+  Globe
 } from "lucide-react";
-
-type ViewType = 'dashboard' | 'companies' | 'deals' | 'interactions' | 'ai-insights' | 'create-deal' | 'reports' | 'notifications' | 'add-company' | 'deal-details' | 'interaction-details' | 'contacts' | 'documents' | 'tasks' | 'add-contact' | 'edit-contact' | 'add-task' | 'edit-task' | 'add-document' | 'edit-document' | 'bills' | 'company-admin';
+import { Button } from "@/components/ui/button";
 
 interface SidebarProps {
-  currentView: ViewType;
-  onViewChange: (view: ViewType) => void;
-  onNotificationClick?: () => void;
-  onReportClick?: () => void;
+  currentView: string;
+  onViewChange: (view: any) => void;
 }
 
-export function Sidebar({ currentView, onViewChange, onNotificationClick, onReportClick }: SidebarProps) {
+export function Sidebar({ currentView, onViewChange }: SidebarProps) {
+  const [isDocumentsExpanded, setIsDocumentsExpanded] = useState(false);
+
   const menuItems = [
-    { id: 'dashboard' as const, label: 'Dashboard', icon: Home, badge: null },
-    { id: 'company-admin' as const, label: 'Company Admin', icon: Building2, badge: 'New' },
-    { id: 'companies' as const, label: 'Companies', icon: Building2, badge: '127' },
-    { id: 'deals' as const, label: 'Deals', icon: Handshake, badge: '23' },
-    { id: 'interactions' as const, label: 'Interactions', icon: MessageSquare, badge: '8' },
-    { id: 'contacts' as const, label: 'Contacts', icon: Users, badge: '245' },
-    { id: 'tasks' as const, label: 'Tasks', icon: Calendar, badge: '12' },
-    { id: 'documents' as const, label: 'Documents', icon: FolderOpen, badge: '156' },
-    { id: 'bills' as const, label: 'Bill Generator', icon: FileText, badge: 'Pro' },
-    { id: 'ai-insights' as const, label: 'AI Insights', icon: Brain, badge: null },
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "tasks", label: "Tasks", icon: CheckSquare },
+    { id: "deals", label: "Deals", icon: Handshake },
+    { id: "contacts", label: "Contacts", icon: Users },
+    { 
+      id: "documents", 
+      label: "Documents", 
+      icon: FileText,
+      hasSubmenu: true,
+      submenu: [
+        { id: "documents", label: "Document Manager", icon: FileText },
+        { id: "bills", label: "Bill Generator", icon: Receipt },
+        { id: "exim-bills", label: "EXIM Documents", icon: Globe }
+      ]
+    },
+    { id: "company-admin", label: "Company Admin", icon: Building2 },
+    { id: "reports", label: "Reports", icon: BarChart3 },
+    { id: "notifications", label: "Notifications", icon: Bell },
+    { id: "ai-insights", label: "AI Insights", icon: Brain },
+    { id: "interactions", label: "Interactions", icon: MessageSquare },
   ];
 
+  const handleMenuClick = (itemId: string) => {
+    if (itemId === "documents") {
+      setIsDocumentsExpanded(!isDocumentsExpanded);
+    } else {
+      onViewChange(itemId);
+    }
+  };
+
   return (
-    <div className="w-64 bg-white border-r border-gray-200 h-screen sticky top-0">
+    <div className="w-64 bg-white border-r border-gray-200 shadow-lg">
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-            <BarChart3 className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+            <Building2 className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h2 className="font-bold text-gray-900">EXIM CRM</h2>
-            <p className="text-xs text-gray-500">Trade Intelligence</p>
+            <h2 className="text-xl font-bold text-gray-900">EXIM CRM</h2>
+            <p className="text-sm text-gray-600">Trade Management</p>
           </div>
         </div>
       </div>
 
-      <nav className="p-4">
-        <div className="space-y-2">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = currentView === item.id;
-            
-            return (
+      <nav className="mt-6 px-4">
+        <div className="space-y-1">
+          {menuItems.map((item) => (
+            <div key={item.id}>
               <Button
-                key={item.id}
-                variant={isActive ? "secondary" : "ghost"}
-                className={`w-full justify-start h-12 ${
-                  isActive ? 'bg-blue-50 border-blue-200 text-blue-700' : 'hover:bg-gray-50'
+                variant="ghost"
+                className={`w-full justify-start text-left font-medium transition-all duration-200 ${
+                  currentView === item.id || (item.hasSubmenu && (currentView === "documents" || currentView === "bills" || currentView === "exim-bills"))
+                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl"
+                    : "text-gray-700 hover:bg-gray-100"
                 }`}
-                onClick={() => onViewChange(item.id)}
+                onClick={() => handleMenuClick(item.id)}
               >
-                <Icon className="w-5 h-5 mr-3" />
-                <span className="flex-1 text-left">{item.label}</span>
-                {item.badge && (
-                  <Badge 
-                    variant={item.badge === 'New' ? 'default' : 'secondary'}
-                    className="ml-2 text-xs"
-                  >
-                    {item.badge}
-                  </Badge>
+                <item.icon className="w-5 h-5 mr-3" />
+                {item.label}
+                {item.hasSubmenu && (
+                  <div className="ml-auto">
+                    {isDocumentsExpanded ? (
+                      <ChevronDown className="w-4 h-4" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4" />
+                    )}
+                  </div>
                 )}
               </Button>
-            );
-          })}
-        </div>
-
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <Button 
-            variant="ghost" 
-            className="w-full justify-start h-12"
-            onClick={onNotificationClick}
-          >
-            <Bell className="w-5 h-5 mr-3" />
-            Notifications
-            <Badge variant="destructive" className="ml-auto">3</Badge>
-          </Button>
-          <Button 
-            variant="ghost" 
-            className="w-full justify-start h-12"
-            onClick={onReportClick}
-          >
-            <FileText className="w-5 h-5 mr-3" />
-            Reports
-          </Button>
-          <Button variant="ghost" className="w-full justify-start h-12">
-            <Settings className="w-5 h-5 mr-3" />
-            Settings
-          </Button>
+              
+              {item.hasSubmenu && isDocumentsExpanded && (
+                <div className="ml-8 mt-2 space-y-1">
+                  {item.submenu?.map((subItem) => (
+                    <Button
+                      key={subItem.id}
+                      variant="ghost"
+                      className={`w-full justify-start text-left font-medium transition-all duration-200 ${
+                        currentView === subItem.id
+                          ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md"
+                          : "text-gray-600 hover:bg-gray-50"
+                      }`}
+                      onClick={() => onViewChange(subItem.id)}
+                    >
+                      <subItem.icon className="w-4 h-4 mr-3" />
+                      {subItem.label}
+                    </Button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </nav>
+
+      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-gray-50">
+        <div className="text-center">
+          <p className="text-xs text-gray-500">EXIM CRM v2.0</p>
+          <p className="text-xs text-gray-400 mt-1">Trade Solutions</p>
+        </div>
+      </div>
     </div>
   );
 }

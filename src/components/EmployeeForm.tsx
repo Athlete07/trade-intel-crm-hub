@@ -5,615 +5,281 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Users, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Building2, 
-  Calendar,
-  Save,
-  X,
-  User,
-  Briefcase,
-  DollarSign,
-  Clock,
-  Shield
-} from "lucide-react";
+import { ArrowLeft, Save, User, Building2, Mail, Phone, Calendar, MapPin, FileText } from "lucide-react";
+
+interface Employee {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  department: string;
+  position: string;
+  joinDate: string;
+  address: string;
+  emergencyContact: string;
+  skills: string[];
+  status: 'active' | 'inactive';
+}
 
 interface EmployeeFormProps {
-  employeeId?: string;
-  onSave: (employeeData: any) => void;
-  onCancel: () => void;
+  onBack: () => void;
+  onSave: (employee: Employee) => void;
+  employee?: Employee;
 }
 
-interface FormData {
-  personalInfo: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    personalPhone: string;
-    dateOfBirth: string;
-    address: string;
-    emergencyContact: string;
-    emergencyPhone: string;
-  };
-  jobInfo: {
-    employeeId: string;
-    role: string;
-    department: string;
-    manager: string;
-    location: string;
-    workLocation: string;
-    employmentType: string;
-    joinDate: string;
-    probationEndDate: string;
-    status: string;
-  };
-  compensation: {
-    salary: string;
-    currency: string;
-    payFrequency: string;
-    bonus: string;
-    benefits: string;
-  };
-  access: {
-    systemAccess: string[];
-    permissions: string[];
-    securityClearance: string;
-  };
-  documents: {
-    resume: string;
-    offerLetter: string;
-    contract: string;
-    idProof: string;
-    addressProof: string;
-  };
-  notes: string;
-}
-
-export function EmployeeForm({ employeeId, onSave, onCancel }: EmployeeFormProps) {
-  const [formData, setFormData] = useState<FormData>({
-    personalInfo: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      personalPhone: '',
-      dateOfBirth: '',
-      address: '',
-      emergencyContact: '',
-      emergencyPhone: ''
-    },
-    jobInfo: {
-      employeeId: '',
-      role: '',
-      department: '',
-      manager: '',
-      location: '',
-      workLocation: 'Office',
-      employmentType: 'Full-time',
-      joinDate: '',
-      probationEndDate: '',
-      status: 'Active'
-    },
-    compensation: {
-      salary: '',
-      currency: 'INR',
-      payFrequency: 'Monthly',
-      bonus: '',
-      benefits: ''
-    },
-    access: {
-      systemAccess: ['CRM'],
-      permissions: ['Read'],
-      securityClearance: 'Standard'
-    },
-    documents: {
-      resume: '',
-      offerLetter: '',
-      contract: '',
-      idProof: '',
-      addressProof: ''
-    },
-    notes: ''
+export function EmployeeForm({ onBack, onSave, employee }: EmployeeFormProps) {
+  const [formData, setFormData] = useState<Partial<Employee>>({
+    name: employee?.name || '',
+    email: employee?.email || '',
+    phone: employee?.phone || '',
+    department: employee?.department || '',
+    position: employee?.position || '',
+    joinDate: employee?.joinDate || '',
+    address: employee?.address || '',
+    emergencyContact: employee?.emergencyContact || '',
+    skills: employee?.skills || [],
+    status: employee?.status || 'active'
   });
 
-  const departments = [
-    'International Trade', 'Compliance', 'Quality Assurance', 'Finance', 
-    'Sales & Marketing', 'Operations', 'Legal', 'IT', 'HR', 'Admin'
-  ];
+  const handleInputChange = (field: keyof Employee, value: string | string[]) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
 
-  const roles = [
-    'Export Manager', 'Import Manager', 'Documentation Specialist', 'Quality Analyst',
-    'Compliance Officer', 'Sales Executive', 'Account Manager', 'Operations Manager',
-    'Legal Advisor', 'IT Specialist', 'HR Manager', 'Admin Assistant'
-  ];
-
-  const locations = [
-    'New Delhi', 'Mumbai', 'Bangalore', 'Chennai', 'Kolkata', 'Pune', 'Hyderabad', 'Remote'
-  ];
-
-  const systemAccess = [
-    'CRM', 'ERP', 'Document Management', 'Email', 'VPN', 'Trading Platform', 'Quality System'
-  ];
-
-  const permissions = [
-    'Read', 'Write', 'Delete', 'Admin', 'Export', 'Import', 'Financial'
-  ];
+  const handleSkillsChange = (value: string) => {
+    const skillsArray = value.split(',').map(skill => skill.trim()).filter(skill => skill);
+    handleInputChange('skills', skillsArray);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.personalInfo.firstName || !formData.personalInfo.lastName || !formData.personalInfo.email || !formData.jobInfo.role) {
-      alert('Please fill in all required fields');
-      return;
-    }
-    
-    const employeeData = {
-      ...formData,
-      id: employeeId || `EMP${Date.now().toString().slice(-3)}`,
-      name: `${formData.personalInfo.firstName} ${formData.personalInfo.lastName}`,
-      createdDate: new Date().toISOString().split('T')[0]
+    const employeeData: Employee = {
+      id: employee?.id || Date.now().toString(),
+      name: formData.name || '',
+      email: formData.email || '',
+      phone: formData.phone || '',
+      department: formData.department || '',
+      position: formData.position || '',
+      joinDate: formData.joinDate || '',
+      address: formData.address || '',
+      emergencyContact: formData.emergencyContact || '',
+      skills: formData.skills || [],
+      status: formData.status || 'active'
     };
-    
+
     onSave(employeeData);
   };
 
-  const updateField = (section: keyof FormData, field: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [field]: value
-      }
-    }));
-  };
-
-  const toggleArrayField = (section: keyof FormData, field: string, value: string) => {
-    setFormData(prev => {
-      const sectionData = prev[section] as any;
-      const currentArray = sectionData[field] as string[];
-      const newArray = currentArray.includes(value)
-        ? currentArray.filter(item => item !== value)
-        : [...currentArray, value];
-      
-      return {
-        ...prev,
-        [section]: {
-          ...sectionData,
-          [field]: newArray
-        }
-      };
-    });
-  };
-
   return (
-    <div className="min-h-screen bg-[#f8f9fa] p-6">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              {employeeId ? 'Edit Employee' : 'Add New Employee'}
-            </h1>
-            <p className="text-gray-600 mt-2">Manage employee information and access</p>
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              onClick={onBack}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {employee ? 'Edit Employee' : 'Add New Employee'}
+              </h1>
+              <p className="text-gray-600 mt-1">
+                {employee ? 'Update employee information' : 'Enter employee details to add to directory'}
+              </p>
+            </div>
           </div>
-          <Button variant="outline" onClick={onCancel} className="flex items-center gap-2">
-            <X className="w-4 h-4" />
-            Cancel
+          <Button 
+            onClick={handleSubmit}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          >
+            <Save className="w-4 h-4 mr-2" />
+            {employee ? 'Update Employee' : 'Add Employee'}
           </Button>
         </div>
 
+        {/* Form */}
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Personal Information */}
-            <Card className="bg-white shadow-lg border-0">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
-                <CardTitle className="flex items-center gap-3 text-lg">
-                  <User className="w-5 h-5 text-blue-600" />
+            <Card className="bg-white shadow-xl border-0">
+              <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-indigo-100">
+                <CardTitle className="flex items-center gap-2 text-xl font-bold text-gray-800">
+                  <User className="w-5 h-5" />
                   Personal Information
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
-                    <Input
-                      value={formData.personalInfo.firstName}
-                      onChange={(e) => updateField('personalInfo', 'firstName', e.target.value)}
-                      placeholder="Enter first name"
-                      required
-                      className="h-10"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
-                    <Input
-                      value={formData.personalInfo.lastName}
-                      onChange={(e) => updateField('personalInfo', 'lastName', e.target.value)}
-                      placeholder="Enter last name"
-                      required
-                      className="h-10"
-                    />
-                  </div>
-                </div>
-                
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    value={formData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    placeholder="Enter full name"
+                    className="h-12 border-2 border-gray-200 focus:border-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address <span className="text-red-500">*</span>
+                  </label>
                   <Input
                     type="email"
-                    value={formData.personalInfo.email}
-                    onChange={(e) => updateField('personalInfo', 'email', e.target.value)}
-                    placeholder="employee@company.com"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    placeholder="Enter email address"
+                    className="h-12 border-2 border-gray-200 focus:border-blue-500"
                     required
-                    className="h-10"
                   />
                 </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Work Phone</label>
-                    <Input
-                      value={formData.personalInfo.phone}
-                      onChange={(e) => updateField('personalInfo', 'phone', e.target.value)}
-                      placeholder="+91-XXXX-XXXXXX"
-                      className="h-10"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Personal Phone</label>
-                    <Input
-                      value={formData.personalInfo.personalPhone}
-                      onChange={(e) => updateField('personalInfo', 'personalPhone', e.target.value)}
-                      placeholder="+91-XXXX-XXXXXX"
-                      className="h-10"
-                    />
-                  </div>
-                </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number <span className="text-red-500">*</span>
+                  </label>
                   <Input
-                    type="date"
-                    value={formData.personalInfo.dateOfBirth}
-                    onChange={(e) => updateField('personalInfo', 'dateOfBirth', e.target.value)}
-                    className="h-10"
+                    value={formData.phone}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    placeholder="Enter phone number"
+                    className="h-12 border-2 border-gray-200 focus:border-blue-500"
+                    required
                   />
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Address
+                  </label>
                   <Textarea
-                    value={formData.personalInfo.address}
-                    onChange={(e) => updateField('personalInfo', 'address', e.target.value)}
+                    value={formData.address}
+                    onChange={(e) => handleInputChange('address', e.target.value)}
                     placeholder="Enter complete address"
                     rows={3}
+                    className="border-2 border-gray-200 focus:border-blue-500"
                   />
                 </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Emergency Contact</label>
-                    <Input
-                      value={formData.personalInfo.emergencyContact}
-                      onChange={(e) => updateField('personalInfo', 'emergencyContact', e.target.value)}
-                      placeholder="Contact person name"
-                      className="h-10"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Emergency Phone</label>
-                    <Input
-                      value={formData.personalInfo.emergencyPhone}
-                      onChange={(e) => updateField('personalInfo', 'emergencyPhone', e.target.value)}
-                      placeholder="+91-XXXX-XXXXXX"
-                      className="h-10"
-                    />
-                  </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Emergency Contact
+                  </label>
+                  <Input
+                    value={formData.emergencyContact}
+                    onChange={(e) => handleInputChange('emergencyContact', e.target.value)}
+                    placeholder="Emergency contact name and phone"
+                    className="h-12 border-2 border-gray-200 focus:border-blue-500"
+                  />
                 </div>
               </CardContent>
             </Card>
 
-            {/* Job Information */}
-            <Card className="bg-white shadow-lg border-0">
-              <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
-                <CardTitle className="flex items-center gap-3 text-lg">
-                  <Briefcase className="w-5 h-5 text-green-600" />
-                  Job Information
+            {/* Professional Information */}
+            <Card className="bg-white shadow-xl border-0">
+              <CardHeader className="border-b bg-gradient-to-r from-green-50 to-emerald-100">
+                <CardTitle className="flex items-center gap-2 text-xl font-bold text-gray-800">
+                  <Building2 className="w-5 h-5" />
+                  Professional Information
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Employee ID</label>
-                  <Input
-                    value={formData.jobInfo.employeeId}
-                    onChange={(e) => updateField('jobInfo', 'employeeId', e.target.value)}
-                    placeholder="EMP001"
-                    className="h-10"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Job Role *</label>
-                  <select 
-                    value={formData.jobInfo.role}
-                    onChange={(e) => updateField('jobInfo', 'role', e.target.value)}
-                    className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Department <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={formData.department}
+                    onChange={(e) => handleInputChange('department', e.target.value)}
+                    className="w-full h-12 px-4 border-2 border-gray-200 focus:border-blue-500 rounded-lg focus:outline-none"
                     required
                   >
-                    <option value="">Select Role</option>
-                    {roles.map(role => (
-                      <option key={role} value={role}>{role}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
-                  <select 
-                    value={formData.jobInfo.department}
-                    onChange={(e) => updateField('jobInfo', 'department', e.target.value)}
-                    className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
                     <option value="">Select Department</option>
-                    {departments.map(dept => (
-                      <option key={dept} value={dept}>{dept}</option>
-                    ))}
+                    <option value="Export">Export</option>
+                    <option value="Import">Import</option>
+                    <option value="Logistics">Logistics</option>
+                    <option value="Documentation">Documentation</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Operations">Operations</option>
+                    <option value="Compliance">Compliance</option>
+                    <option value="IT">IT</option>
+                    <option value="HR">HR</option>
+                    <option value="Management">Management</option>
                   </select>
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Reporting Manager</label>
-                  <Input
-                    value={formData.jobInfo.manager}
-                    onChange={(e) => updateField('jobInfo', 'manager', e.target.value)}
-                    placeholder="Manager name"
-                    className="h-10"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Work Location</label>
-                  <select 
-                    value={formData.jobInfo.location}
-                    onChange={(e) => updateField('jobInfo', 'location', e.target.value)}
-                    className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select Location</option>
-                    {locations.map(location => (
-                      <option key={location} value={location}>{location}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Work Type</label>
-                    <select 
-                      value={formData.jobInfo.workLocation}
-                      onChange={(e) => updateField('jobInfo', 'workLocation', e.target.value)}
-                      className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="Office">Office</option>
-                      <option value="Remote">Remote</option>
-                      <option value="Hybrid">Hybrid</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Employment Type</label>
-                    <select 
-                      value={formData.jobInfo.employmentType}
-                      onChange={(e) => updateField('jobInfo', 'employmentType', e.target.value)}
-                      className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="Full-time">Full-time</option>
-                      <option value="Part-time">Part-time</option>
-                      <option value="Contract">Contract</option>
-                      <option value="Intern">Intern</option>
-                    </select>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Join Date</label>
-                    <Input
-                      type="date"
-                      value={formData.jobInfo.joinDate}
-                      onChange={(e) => updateField('jobInfo', 'joinDate', e.target.value)}
-                      className="h-10"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Probation End Date</label>
-                    <Input
-                      type="date"
-                      value={formData.jobInfo.probationEndDate}
-                      onChange={(e) => updateField('jobInfo', 'probationEndDate', e.target.value)}
-                      className="h-10"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Employment Status</label>
-                  <select 
-                    value={formData.jobInfo.status}
-                    onChange={(e) => updateField('jobInfo', 'status', e.target.value)}
-                    className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                    <option value="On Leave">On Leave</option>
-                    <option value="Terminated">Terminated</option>
-                  </select>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
 
-          {/* Second Row */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mt-8">
-            {/* Compensation & Benefits */}
-            <Card className="bg-white shadow-lg border-0">
-              <CardHeader className="bg-gradient-to-r from-purple-50 to-violet-50 border-b">
-                <CardTitle className="flex items-center gap-3 text-lg">
-                  <DollarSign className="w-5 h-5 text-purple-600" />
-                  Compensation & Benefits
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Base Salary</label>
-                    <Input
-                      type="number"
-                      value={formData.compensation.salary}
-                      onChange={(e) => updateField('compensation', 'salary', e.target.value)}
-                      placeholder="Annual salary"
-                      className="h-10"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
-                    <select 
-                      value={formData.compensation.currency}
-                      onChange={(e) => updateField('compensation', 'currency', e.target.value)}
-                      className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="INR">INR</option>
-                      <option value="USD">USD</option>
-                      <option value="EUR">EUR</option>
-                      <option value="GBP">GBP</option>
-                    </select>
-                  </div>
-                </div>
-                
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Pay Frequency</label>
-                  <select 
-                    value={formData.compensation.payFrequency}
-                    onChange={(e) => updateField('compensation', 'payFrequency', e.target.value)}
-                    className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="Monthly">Monthly</option>
-                    <option value="Bi-weekly">Bi-weekly</option>
-                    <option value="Weekly">Weekly</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Annual Bonus</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Position/Title <span className="text-red-500">*</span>
+                  </label>
                   <Input
-                    type="number"
-                    value={formData.compensation.bonus}
-                    onChange={(e) => updateField('compensation', 'bonus', e.target.value)}
-                    placeholder="Bonus amount"
-                    className="h-10"
+                    value={formData.position}
+                    onChange={(e) => handleInputChange('position', e.target.value)}
+                    placeholder="Enter job title"
+                    className="h-12 border-2 border-gray-200 focus:border-blue-500"
+                    required
                   />
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Benefits</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Join Date <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    type="date"
+                    value={formData.joinDate}
+                    onChange={(e) => handleInputChange('joinDate', e.target.value)}
+                    className="h-12 border-2 border-gray-200 focus:border-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Skills & Expertise
+                  </label>
                   <Textarea
-                    value={formData.compensation.benefits}
-                    onChange={(e) => updateField('compensation', 'benefits', e.target.value)}
-                    placeholder="Health insurance, PF, gratuity, etc."
+                    value={formData.skills?.join(', ')}
+                    onChange={(e) => handleSkillsChange(e.target.value)}
+                    placeholder="Enter skills separated by commas (e.g., Export Documentation, Customs Clearance, Logistics)"
                     rows={3}
+                    className="border-2 border-gray-200 focus:border-blue-500"
                   />
+                  {formData.skills && formData.skills.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {formData.skills.map((skill, index) => (
+                        <Badge key={index} variant="secondary">
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </CardContent>
-            </Card>
 
-            {/* System Access & Permissions */}
-            <Card className="bg-white shadow-lg border-0">
-              <CardHeader className="bg-gradient-to-r from-orange-50 to-red-50 border-b">
-                <CardTitle className="flex items-center gap-3 text-lg">
-                  <Shield className="w-5 h-5 text-orange-600" />
-                  System Access & Permissions
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">System Access</label>
-                  <div className="space-y-2">
-                    {systemAccess.map(system => (
-                      <label key={system} className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={formData.access.systemAccess.includes(system)}
-                          onChange={() => toggleArrayField('access', 'systemAccess', system)}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{system}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Permissions</label>
-                  <div className="space-y-2">
-                    {permissions.map(permission => (
-                      <label key={permission} className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={formData.access.permissions.includes(permission)}
-                          onChange={() => toggleArrayField('access', 'permissions', permission)}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{permission}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Security Clearance</label>
-                  <select 
-                    value={formData.access.securityClearance}
-                    onChange={(e) => updateField('access', 'securityClearance', e.target.value)}
-                    className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Status
+                  </label>
+                  <select
+                    value={formData.status}
+                    onChange={(e) => handleInputChange('status', e.target.value as 'active' | 'inactive')}
+                    className="w-full h-12 px-4 border-2 border-gray-200 focus:border-blue-500 rounded-lg focus:outline-none"
                   >
-                    <option value="Standard">Standard</option>
-                    <option value="Elevated">Elevated</option>
-                    <option value="Administrative">Administrative</option>
-                    <option value="Executive">Executive</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
                   </select>
                 </div>
               </CardContent>
             </Card>
-          </div>
-
-          {/* Additional Notes */}
-          <Card className="mt-8 bg-white shadow-lg border-0">
-            <CardHeader className="bg-gradient-to-r from-gray-50 to-slate-50 border-b">
-              <CardTitle className="flex items-center gap-3 text-lg">
-                <Clock className="w-5 h-5 text-gray-600" />
-                Additional Notes
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <Textarea
-                value={formData.notes}
-                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                placeholder="Additional notes, special instructions, or comments about the employee..."
-                rows={4}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-4 mt-8">
-            <Button type="button" variant="outline" onClick={onCancel} className="px-6 py-2">
-              Cancel
-            </Button>
-            <Button type="submit" className="bg-[#0073e6] hover:bg-[#005bb5] px-6 py-2">
-              <Save className="w-4 h-4 mr-2" />
-              {employeeId ? 'Update Employee' : 'Add Employee'}
-            </Button>
           </div>
         </form>
       </div>
