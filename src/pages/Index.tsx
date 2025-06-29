@@ -12,6 +12,7 @@ import { ReportGenerator } from "@/components/ReportGenerator";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { AIInsights } from "@/components/AIInsights";
 import { InteractionLogger } from "@/components/InteractionLogger";
+import { EmployeeForm } from "@/components/EmployeeForm";
 import { Sidebar } from "@/components/Sidebar";
 
 type ViewType = 
@@ -26,10 +27,37 @@ type ViewType =
   | "reports" 
   | "notifications" 
   | "ai-insights" 
-  | "interactions";
+  | "interactions"
+  | "add-employee"
+  | "edit-employee";
 
 export default function Index() {
   const [currentView, setCurrentView] = useState<ViewType>("dashboard");
+  const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
+
+  const handleViewChange = (view: string) => {
+    setCurrentView(view as ViewType);
+  };
+
+  const handleAddEmployee = () => {
+    setSelectedEmployee(null);
+    setCurrentView("add-employee");
+  };
+
+  const handleEditEmployee = (employee: any) => {
+    setSelectedEmployee(employee);
+    setCurrentView("edit-employee");
+  };
+
+  const handleSaveEmployee = (employee: any) => {
+    // Handle employee save logic here
+    console.log("Saving employee:", employee);
+    setCurrentView("company-admin");
+  };
+
+  const handleBackToDashboard = () => {
+    setCurrentView("dashboard");
+  };
 
   const renderView = () => {
     switch (currentView) {
@@ -48,15 +76,36 @@ export default function Index() {
       case "exim-bills":
         return <EximBillGenerator />;
       case "company-admin":
-        return <CompanyAdmin />;
+        return (
+          <CompanyAdmin 
+            onNavigate={setCurrentView}
+            onAddEmployee={handleAddEmployee}
+            onEditEmployee={handleEditEmployee}
+          />
+        );
       case "reports":
-        return <ReportGenerator />;
+        return <ReportGenerator onBack={handleBackToDashboard} />;
       case "notifications":
-        return <NotificationCenter />;
+        return <NotificationCenter onBack={handleBackToDashboard} />;
       case "ai-insights":
         return <AIInsights />;
       case "interactions":
         return <InteractionLogger />;
+      case "add-employee":
+        return (
+          <EmployeeForm 
+            onBack={() => setCurrentView("company-admin")}
+            onSave={handleSaveEmployee}
+          />
+        );
+      case "edit-employee":
+        return (
+          <EmployeeForm 
+            onBack={() => setCurrentView("company-admin")}
+            onSave={handleSaveEmployee}
+            employee={selectedEmployee}
+          />
+        );
       default:
         return <Dashboard onNavigate={setCurrentView} />;
     }
@@ -64,7 +113,7 @@ export default function Index() {
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      <Sidebar currentView={currentView} onViewChange={setCurrentView} />
+      <Sidebar currentView={currentView} onViewChange={handleViewChange} />
       <main className="flex-1 overflow-hidden">
         <div className="h-full overflow-auto p-6">
           {renderView()}
