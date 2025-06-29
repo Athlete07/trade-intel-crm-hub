@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -313,8 +314,9 @@ export function TaskManager() {
               <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
                 <CheckCircle className="w-6 h-6 text-white" />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-0 shadow-lg">
           <CardContent className="p-6">

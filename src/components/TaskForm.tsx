@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,6 +63,8 @@ export function TaskForm({ taskId, onSave, onCancel }: TaskFormProps) {
     reviewDate: ''
   });
 
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
   const priorities = ['Low', 'Medium', 'High', 'Critical', 'Urgent'];
   const statuses = ['Pending', 'In Progress', 'Review', 'Completed', 'On Hold', 'Cancelled', 'Blocked'];
   const categories = [
@@ -75,10 +76,50 @@ export function TaskForm({ taskId, onSave, onCancel }: TaskFormProps) {
   const riskLevels = ['Low', 'Medium', 'High', 'Critical'];
   const currencies = ['USD', 'EUR', 'GBP', 'INR', 'JPY', 'CNY', 'AUD'];
 
+  // Load existing task data if editing
+  useEffect(() => {
+    if (taskId) {
+      // In a real app, you'd fetch the task data from your state management or API
+      // For now, we'll just keep the form empty for new tasks
+      console.log('Loading task data for editing:', taskId);
+    }
+  }, [taskId]);
+
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!formData.title.trim()) {
+      newErrors.title = 'Task title is required';
+    }
+
+    if (!formData.dueDate) {
+      newErrors.dueDate = 'Due date is required';
+    }
+
+    if (!formData.assignee.trim()) {
+      newErrors.assignee = 'Assignee is required';
+    }
+
+    if (formData.estimatedHours && isNaN(Number(formData.estimatedHours))) {
+      newErrors.estimatedHours = 'Estimated hours must be a valid number';
+    }
+
+    if (formData.actualHours && isNaN(Number(formData.actualHours))) {
+      newErrors.actualHours = 'Actual hours must be a valid number';
+    }
+
+    if (formData.budget && isNaN(Number(formData.budget))) {
+      newErrors.budget = 'Budget must be a valid number';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title || !formData.dueDate) {
-      alert('Please fill in title and due date');
+    
+    if (!validateForm()) {
       return;
     }
     
@@ -91,6 +132,7 @@ export function TaskForm({ taskId, onSave, onCancel }: TaskFormProps) {
       milestones: formData.milestones.split('\n').map(milestone => milestone.trim()).filter(milestone => milestone),
       id: taskId || `T${Date.now().toString().slice(-6)}`,
       createdDate: new Date().toISOString().split('T')[0],
+      progress: 0,
       completedHours: formData.actualHours || 0
     };
     
@@ -99,14 +141,18 @@ export function TaskForm({ taskId, onSave, onCancel }: TaskFormProps) {
 
   const updateField = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
   };
 
   const addReminder = () => {
     const reminder = prompt('Enter reminder (e.g., "2 hours before", "1 day before"):');
-    if (reminder) {
+    if (reminder && reminder.trim()) {
       setFormData(prev => ({
         ...prev,
-        reminders: [...prev.reminders, reminder]
+        reminders: [...prev.reminders, reminder.trim()]
       }));
     }
   };
@@ -119,7 +165,7 @@ export function TaskForm({ taskId, onSave, onCancel }: TaskFormProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -153,8 +199,9 @@ export function TaskForm({ taskId, onSave, onCancel }: TaskFormProps) {
                     onChange={(e) => updateField('title', e.target.value)}
                     placeholder="Enter comprehensive task title"
                     required
-                    className="h-12"
+                    className={`h-12 ${errors.title ? 'border-red-500' : ''}`}
                   />
+                  {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
                 </div>
                 
                 <div>
@@ -175,8 +222,9 @@ export function TaskForm({ taskId, onSave, onCancel }: TaskFormProps) {
                       value={formData.dueDate}
                       onChange={(e) => updateField('dueDate', e.target.value)}
                       required
-                      className="h-10"
+                      className={`h-10 ${errors.dueDate ? 'border-red-500' : ''}`}
                     />
+                    {errors.dueDate && <p className="text-red-500 text-sm mt-1">{errors.dueDate}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Due Time</label>
@@ -251,13 +299,15 @@ export function TaskForm({ taskId, onSave, onCancel }: TaskFormProps) {
               </CardHeader>
               <CardContent className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Assignee</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Assignee *</label>
                   <Input
                     value={formData.assignee}
                     onChange={(e) => updateField('assignee', e.target.value)}
                     placeholder="Assign to team member"
-                    className="h-10"
+                    className={`h-10 ${errors.assignee ? 'border-red-500' : ''}`}
+                    required
                   />
+                  {errors.assignee && <p className="text-red-500 text-sm mt-1">{errors.assignee}</p>}
                 </div>
                 
                 <div>
@@ -369,8 +419,9 @@ export function TaskForm({ taskId, onSave, onCancel }: TaskFormProps) {
                       placeholder="Estimated time to complete"
                       min="0"
                       step="0.5"
-                      className="h-10"
+                      className={`h-10 ${errors.estimatedHours ? 'border-red-500' : ''}`}
                     />
+                    {errors.estimatedHours && <p className="text-red-500 text-sm mt-1">{errors.estimatedHours}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Actual Hours</label>
@@ -381,8 +432,9 @@ export function TaskForm({ taskId, onSave, onCancel }: TaskFormProps) {
                       placeholder="Time actually spent"
                       min="0"
                       step="0.5"
-                      className="h-10"
+                      className={`h-10 ${errors.actualHours ? 'border-red-500' : ''}`}
                     />
+                    {errors.actualHours && <p className="text-red-500 text-sm mt-1">{errors.actualHours}</p>}
                   </div>
                 </div>
                 
@@ -396,8 +448,9 @@ export function TaskForm({ taskId, onSave, onCancel }: TaskFormProps) {
                       placeholder="Budget amount"
                       min="0"
                       step="0.01"
-                      className="h-10"
+                      className={`h-10 ${errors.budget ? 'border-red-500' : ''}`}
                     />
+                    {errors.budget && <p className="text-red-500 text-sm mt-1">{errors.budget}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
