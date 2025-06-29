@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dashboard } from "@/components/Dashboard";
 import { TaskManager } from "@/components/TaskManager";
@@ -25,6 +24,7 @@ type ViewType =
   | "exim-bills"
   | "company-admin" 
   | "companies"
+  | "create-deal"
   | "reports" 
   | "notifications" 
   | "ai-insights" 
@@ -36,12 +36,12 @@ export default function Index() {
   const [currentView, setCurrentView] = useState<ViewType>("dashboard");
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
 
-  const handleViewChange = (view: string) => {
-    setCurrentView(view as ViewType);
+  const handleViewChange = (view: ViewType) => {
+    setCurrentView(view);
   };
 
-  const handleDashboardNavigate = (view: string) => {
-    setCurrentView(view as ViewType);
+  const handleDashboardNavigate = (view: ViewType) => {
+    setCurrentView(view);
   };
 
   const handleCompanyAdminNavigate = (view: ViewType) => {
