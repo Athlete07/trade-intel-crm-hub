@@ -24,6 +24,7 @@ type ViewType =
   | "bills" 
   | "exim-bills"
   | "company-admin" 
+  | "companies"
   | "reports" 
   | "notifications" 
   | "ai-insights" 
