@@ -39,6 +39,14 @@ export default function Index() {
     setCurrentView(view as ViewType);
   };
 
+  const handleDashboardNavigate = (view: string) => {
+    setCurrentView(view as ViewType);
+  };
+
+  const handleCompanyAdminNavigate = (view: ViewType) => {
+    setCurrentView(view);
+  };
+
   const handleAddEmployee = () => {
     setSelectedEmployee(null);
     setCurrentView("add-employee");
@@ -62,7 +70,7 @@ export default function Index() {
   const renderView = () => {
     switch (currentView) {
       case "dashboard":
-        return <Dashboard onNavigate={setCurrentView} />;
+        return <Dashboard onNavigate={handleDashboardNavigate} />;
       case "tasks":
         return <TaskManager />;
       case "deals":
@@ -78,7 +86,7 @@ export default function Index() {
       case "company-admin":
         return (
           <CompanyAdmin 
-            onNavigate={setCurrentView}
+            onNavigate={handleCompanyAdminNavigate}
             onAddEmployee={handleAddEmployee}
             onEditEmployee={handleEditEmployee}
           />
@@ -107,7 +115,7 @@ export default function Index() {
           />
         );
       default:
-        return <Dashboard onNavigate={setCurrentView} />;
+        return <Dashboard onNavigate={handleDashboardNavigate} />;
     }
   };
 
