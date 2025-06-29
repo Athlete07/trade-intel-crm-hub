@@ -25,6 +25,7 @@ type ViewType =
   | "company-admin" 
   | "companies"
   | "create-deal"
+  | "add-company"
   | "reports" 
   | "notifications" 
   | "ai-insights" 

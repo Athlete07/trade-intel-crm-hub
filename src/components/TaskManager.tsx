@@ -1,9 +1,10 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { TaskForm } from "@/components/TaskForm";
+import { TaskBoard } from "@/components/TaskBoard";
 import { 
   Plus, 
   Search, 
@@ -22,7 +23,10 @@ import {
   Target,
   TrendingUp,
   Activity,
-  Users
+  Users,
+  LayoutGrid,
+  List,
+  Lightbulb
 } from "lucide-react";
 
 export function TaskManager() {
@@ -30,7 +34,10 @@ export function TaskManager() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [viewMode, setViewMode] = useState("grid"); // grid or list
+  const [viewMode, setViewMode] = useState("grid");
+  const [showTaskForm, setShowTaskForm] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [showTaskBoard, setShowTaskBoard] = useState(false);
 
   const tasks = [
     {
@@ -170,6 +177,40 @@ export function TaskManager() {
     return matchesSearch && matchesStatus && matchesPriority && matchesCategory;
   });
 
+  const handleNewTask = () => {
+    setSelectedTask(null);
+    setShowTaskForm(true);
+  };
+
+  const handleViewTask = (taskId: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    setSelectedTask(task);
+    setShowTaskForm(true);
+  };
+
+  const handleEditTask = (taskId: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    setSelectedTask(task);
+    setShowTaskForm(true);
+  };
+
+  const handleSaveTask = (taskData: any) => {
+    console.log("Saving task:", taskData);
+    setShowTaskForm(false);
+    setSelectedTask(null);
+  };
+
+  const getAIInsight = (task: any) => {
+    const insights = [
+      "Consider breaking this task into smaller milestones for better tracking",
+      "Risk level suggests additional approval may be needed",
+      "Similar tasks typically take 20% longer than estimated",
+      "High priority task - consider allocating additional resources",
+      "Client contact hasn't been reached recently - schedule follow-up"
+    ];
+    return insights[Math.floor(Math.random() * insights.length)];
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Completed": return "bg-green-100 text-green-800";
@@ -220,6 +261,30 @@ export function TaskManager() {
     overdue: tasks.filter(t => new Date(t.dueDate) < new Date() && t.status !== "Completed").length
   };
 
+  if (showTaskForm) {
+    return (
+      <TaskForm 
+        taskId={selectedTask?.id}
+        onSave={handleSaveTask}
+        onCancel={() => {
+          setShowTaskForm(false);
+          setSelectedTask(null);
+        }}
+      />
+    );
+  }
+
+  if (showTaskBoard) {
+    return (
+      <TaskBoard 
+        tasks={filteredTasks}
+        onBack={() => setShowTaskBoard(false)}
+        onViewTask={handleViewTask}
+        onEditTask={handleEditTask}
+      />
+    );
+  }
+
   return (
     <div className="space-y-8">
       {/* Header with Stats */}
@@ -248,9 +313,8 @@ export function TaskManager() {
               <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
                 <CheckCircle className="w-6 h-6 text-white" />
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
         <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-0 shadow-lg">
           <CardContent className="p-6">
@@ -335,7 +399,19 @@ export function TaskManager() {
                 ))}
               </select>
               
-              <Button className="bg-[#0073e6] hover:bg-[#005bb5] px-6">
+              <Button 
+                variant="outline"
+                onClick={() => setShowTaskBoard(true)}
+                className="px-6"
+              >
+                <LayoutGrid className="w-4 h-4 mr-2" />
+                Board View
+              </Button>
+              
+              <Button 
+                className="bg-[#0073e6] hover:bg-[#005bb5] px-6"
+                onClick={handleNewTask}
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 New Task
               </Button>
@@ -358,6 +434,14 @@ export function TaskManager() {
                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                       <MoreVertical className="w-4 h-4" />
                     </Button>
+                  </div>
+
+                  {/* AI Insight */}
+                  <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <Lightbulb className="w-4 h-4 text-blue-600 mt-0.5" />
+                      <p className="text-sm text-blue-700">{getAIInsight(task)}</p>
+                    </div>
                   </div>
 
                   {/* Task Title & Description */}
@@ -435,11 +519,20 @@ export function TaskManager() {
 
                   {/* Action Buttons */}
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline" className="flex-1">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => handleViewTask(task.id)}
+                    >
                       <Eye className="w-4 h-4 mr-1" />
                       View
                     </Button>
-                    <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
+                    <Button 
+                      size="sm" 
+                      className="flex-1 bg-blue-600 hover:bg-blue-700"
+                      onClick={() => handleEditTask(task.id)}
+                    >
                       <Edit className="w-4 h-4 mr-1" />
                       Edit
                     </Button>
