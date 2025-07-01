@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dashboard } from "@/components/Dashboard";
 import { TaskManager } from "@/components/TaskManager";
@@ -33,7 +32,8 @@ type ViewType =
   | "ai-insights" 
   | "interactions"
   | "add-employee"
-  | "edit-employee";
+  | "edit-employee"
+  | "deal-details";
 
 export default function Index() {
   const [currentView, setCurrentView] = useState<ViewType>("dashboard");
