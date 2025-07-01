@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { 
   LayoutDashboard, 
@@ -14,7 +15,8 @@ import {
   Settings,
   ChevronDown,
   ChevronRight,
-  Globe
+  Globe,
+  Building
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -30,6 +32,7 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "tasks", label: "Tasks", icon: CheckSquare },
     { id: "deals", label: "Deals", icon: Handshake },
+    { id: "companies", label: "Companies", icon: Building },
     { id: "contacts", label: "Contacts", icon: Users },
     { 
       id: "documents", 

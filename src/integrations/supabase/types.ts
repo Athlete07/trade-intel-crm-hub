@@ -9,7 +9,324 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      contacts: {
+        Row: {
+          address: string | null
+          category: string | null
+          city: string | null
+          company: string | null
+          country: string | null
+          createddate: string | null
+          createdDate: string | null
+          designation: string | null
+          email: string | null
+          id: string
+          language: string | null
+          linkedin: string | null
+          name: string | null
+          notes: string | null
+          phone: string | null
+          position: string | null
+          postalcode: string | null
+          postalCode: string | null
+          preferredcontact: string | null
+          preferredContact: string | null
+          preferredcontactmethod: string | null
+          rating: number | null
+          state: string | null
+          status: string | null
+          tags: string | null
+          timezone: string | null
+          website: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          address?: string | null
+          category?: string | null
+          city?: string | null
+          company?: string | null
+          country?: string | null
+          createddate?: string | null
+          createdDate?: string | null
+          designation?: string | null
+          email?: string | null
+          id: string
+          language?: string | null
+          linkedin?: string | null
+          name?: string | null
+          notes?: string | null
+          phone?: string | null
+          position?: string | null
+          postalcode?: string | null
+          postalCode?: string | null
+          preferredcontact?: string | null
+          preferredContact?: string | null
+          preferredcontactmethod?: string | null
+          rating?: number | null
+          state?: string | null
+          status?: string | null
+          tags?: string | null
+          timezone?: string | null
+          website?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          address?: string | null
+          category?: string | null
+          city?: string | null
+          company?: string | null
+          country?: string | null
+          createddate?: string | null
+          createdDate?: string | null
+          designation?: string | null
+          email?: string | null
+          id?: string
+          language?: string | null
+          linkedin?: string | null
+          name?: string | null
+          notes?: string | null
+          phone?: string | null
+          position?: string | null
+          postalcode?: string | null
+          postalCode?: string | null
+          preferredcontact?: string | null
+          preferredContact?: string | null
+          preferredcontactmethod?: string | null
+          rating?: number | null
+          state?: string | null
+          status?: string | null
+          tags?: string | null
+          timezone?: string | null
+          website?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      deals: {
+        Row: {
+          assignedTo: string | null
+          buyer: string | null
+          company: string | null
+          countryOfOrigin: string | null
+          currency: string | null
+          destinationCountry: string | null
+          expectedClosure: string | null
+          hsCode: string | null
+          id: string
+          incoterm: string | null
+          inspectionRequirements: string | null
+          paymentTerm: string | null
+          portOfDischarge: string | null
+          portOfLoading: string | null
+          probability: number | null
+          product: string | null
+          qualityStandards: string | null
+          quantity: string | null
+          seller: string | null
+          specialTerms: string | null
+          stage: string | null
+          status: string | null
+          value: number | null
+        }
+        Insert: {
+          assignedTo?: string | null
+          buyer?: string | null
+          company?: string | null
+          countryOfOrigin?: string | null
+          currency?: string | null
+          destinationCountry?: string | null
+          expectedClosure?: string | null
+          hsCode?: string | null
+          id: string
+          incoterm?: string | null
+          inspectionRequirements?: string | null
+          paymentTerm?: string | null
+          portOfDischarge?: string | null
+          portOfLoading?: string | null
+          probability?: number | null
+          product?: string | null
+          qualityStandards?: string | null
+          quantity?: string | null
+          seller?: string | null
+          specialTerms?: string | null
+          stage?: string | null
+          status?: string | null
+          value?: number | null
+        }
+        Update: {
+          assignedTo?: string | null
+          buyer?: string | null
+          company?: string | null
+          countryOfOrigin?: string | null
+          currency?: string | null
+          destinationCountry?: string | null
+          expectedClosure?: string | null
+          hsCode?: string | null
+          id?: string
+          incoterm?: string | null
+          inspectionRequirements?: string | null
+          paymentTerm?: string | null
+          portOfDischarge?: string | null
+          portOfLoading?: string | null
+          probability?: number | null
+          product?: string | null
+          qualityStandards?: string | null
+          quantity?: string | null
+          seller?: string | null
+          specialTerms?: string | null
+          stage?: string | null
+          status?: string | null
+          value?: number | null
+        }
+        Relationships: []
+      }
+      documents: {
+        Row: {
+          category: string | null
+          company: string | null
+          description: string | null
+          id: string
+          name: string
+          size: number | null
+          tags: string[] | null
+          type: string | null
+          upload_date: string | null
+        }
+        Insert: {
+          category?: string | null
+          company?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          size?: number | null
+          tags?: string[] | null
+          type?: string | null
+          upload_date?: string | null
+        }
+        Update: {
+          category?: string | null
+          company?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          size?: number | null
+          tags?: string[] | null
+          type?: string | null
+          upload_date?: string | null
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          actualHours: number | null
+          approvalRequired: boolean | null
+          approver: string | null
+          assignee: string | null
+          attachments: Json | null
+          budget: number | null
+          category: string | null
+          clientContact: string | null
+          company: string | null
+          completedHours: number | null
+          completionCriteria: string | null
+          contingencyPlan: string | null
+          createdDate: string | null
+          currency: string | null
+          dealId: string | null
+          dependencies: string[] | null
+          description: string | null
+          dueDate: string | null
+          dueTime: string | null
+          estimatedHours: number | null
+          id: string
+          locationRequired: string | null
+          milestones: string[] | null
+          notes: string | null
+          priority: string | null
+          progress: number | null
+          reminders: string[] | null
+          requiredSkills: string[] | null
+          resources: string[] | null
+          reviewDate: string | null
+          riskLevel: string | null
+          status: string | null
+          tags: string[] | null
+          title: string
+        }
+        Insert: {
+          actualHours?: number | null
+          approvalRequired?: boolean | null
+          approver?: string | null
+          assignee?: string | null
+          attachments?: Json | null
+          budget?: number | null
+          category?: string | null
+          clientContact?: string | null
+          company?: string | null
+          completedHours?: number | null
+          completionCriteria?: string | null
+          contingencyPlan?: string | null
+          createdDate?: string | null
+          currency?: string | null
+          dealId?: string | null
+          dependencies?: string[] | null
+          description?: string | null
+          dueDate?: string | null
+          dueTime?: string | null
+          estimatedHours?: number | null
+          id: string
+          locationRequired?: string | null
+          milestones?: string[] | null
+          notes?: string | null
+          priority?: string | null
+          progress?: number | null
+          reminders?: string[] | null
+          requiredSkills?: string[] | null
+          resources?: string[] | null
+          reviewDate?: string | null
+          riskLevel?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title: string
+        }
+        Update: {
+          actualHours?: number | null
+          approvalRequired?: boolean | null
+          approver?: string | null
+          assignee?: string | null
+          attachments?: Json | null
+          budget?: number | null
+          category?: string | null
+          clientContact?: string | null
+          company?: string | null
+          completedHours?: number | null
+          completionCriteria?: string | null
+          contingencyPlan?: string | null
+          createdDate?: string | null
+          currency?: string | null
+          dealId?: string | null
+          dependencies?: string[] | null
+          description?: string | null
+          dueDate?: string | null
+          dueTime?: string | null
+          estimatedHours?: number | null
+          id?: string
+          locationRequired?: string | null
+          milestones?: string[] | null
+          notes?: string | null
+          priority?: string | null
+          progress?: number | null
+          reminders?: string[] | null
+          requiredSkills?: string[] | null
+          resources?: string[] | null
+          reviewDate?: string | null
+          riskLevel?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

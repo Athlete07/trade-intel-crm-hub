@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dashboard } from "@/components/Dashboard";
 import { TaskManager } from "@/components/TaskManager";
@@ -7,6 +8,7 @@ import { DocumentManager } from "@/components/DocumentManager";
 import { BillGenerator } from "@/components/BillGenerator";
 import { EximBillGenerator } from "@/components/EximBillGenerator";
 import { CompanyAdmin } from "@/components/CompanyAdmin";
+import { CompanyProfile } from "@/components/CompanyProfile";
 import { ReportGenerator } from "@/components/ReportGenerator";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { AIInsights } from "@/components/AIInsights";
@@ -36,6 +38,7 @@ type ViewType =
 export default function Index() {
   const [currentView, setCurrentView] = useState<ViewType>("dashboard");
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
 
   const handleViewChange = (view: ViewType) => {
     setCurrentView(view);
@@ -91,6 +94,13 @@ export default function Index() {
             onNavigate={handleCompanyAdminNavigate}
             onAddEmployee={handleAddEmployee}
             onEditEmployee={handleEditEmployee}
+          />
+        );
+      case "companies":
+        return (
+          <CompanyProfile 
+            selectedId={selectedCompanyId}
+            onSelectCompany={setSelectedCompanyId}
           />
         );
       case "reports":
