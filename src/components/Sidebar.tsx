@@ -16,16 +16,21 @@ import {
   ChevronDown,
   ChevronRight,
   Globe,
-  Building
+  Building,
+  User,
+  LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { User as SupabaseUser } from '@supabase/supabase-js';
 
 interface SidebarProps {
   currentView: string;
   onViewChange: (view: any) => void;
+  user?: SupabaseUser | null;
+  onLogout?: () => void;
 }
 
-export function Sidebar({ currentView, onViewChange }: SidebarProps) {
+export function Sidebar({ currentView, onViewChange, user, onLogout }: SidebarProps) {
   const [isDocumentsExpanded, setIsDocumentsExpanded] = useState(false);
   const [isComplianceExpanded, setIsComplianceExpanded] = useState(false);
 
@@ -74,7 +79,7 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
   };
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 shadow-lg">
+    <div className="w-64 bg-white border-r border-gray-200 shadow-lg flex flex-col">
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
@@ -87,7 +92,7 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
         </div>
       </div>
 
-      <nav className="mt-6 px-4">
+      <nav className="mt-6 px-4 flex-1">
         <div className="space-y-1">
           {menuItems.map((item) => (
             <div key={item.id}>
@@ -159,7 +164,52 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
         </div>
       </nav>
 
-      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-gray-50">
+      {/* User Profile Section */}
+      {user && (
+        <div className="p-4 border-t border-gray-200 bg-gray-50">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+              <User className="w-4 h-4 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 truncate">
+                {user.user_metadata?.first_name} {user.user_metadata?.last_name}
+              </p>
+              <p className="text-xs text-gray-500 truncate">{user.email}</p>
+            </div>
+          </div>
+          
+          <div className="space-y-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`w-full justify-start text-left ${
+                currentView === "profile"
+                  ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white"
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
+              onClick={() => onViewChange("profile")}
+            >
+              <User className="w-4 h-4 mr-2" />
+              My Profile
+            </Button>
+            
+            {onLogout && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-left text-gray-700 hover:bg-gray-100"
+                onClick={onLogout}
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="p-4 border-t border-gray-200 bg-gray-50">
         <div className="text-center">
           <p className="text-xs text-gray-500">EXIM CRM v2.0</p>
           <p className="text-xs text-gray-400 mt-1">Trade Solutions</p>

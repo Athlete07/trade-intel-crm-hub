@@ -19,6 +19,7 @@ import { EmployeeForm } from "@/components/EmployeeForm";
 import { Sidebar } from "@/components/Sidebar";
 import { CompaniesManager } from "@/components/CompaniesManager";
 import { AuthPage } from "@/components/AuthPage";
+import { UserProfile } from "@/components/UserProfile";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from '@supabase/supabase-js';
 
@@ -38,6 +39,7 @@ type ViewType =
   | "edit-contact"
   | "add-task"
   | "edit-task"
+  | "add-document"
   | "reports" 
   | "notifications" 
   | "ai-insights" 
@@ -47,7 +49,8 @@ type ViewType =
   | "deal-details"
   | "interaction-details"
   | "compliance"
-  | "logistics";
+  | "logistics"
+  | "profile";
 
 export default function Index() {
   const [currentView, setCurrentView] = useState<ViewType>("dashboard");
@@ -163,6 +166,8 @@ export default function Index() {
         return <ComplianceManager />;
       case "logistics":
         return <LogisticsManager />;
+      case "profile":
+        return <UserProfile user={user} onBack={handleBackToDashboard} onLogout={handleLogout} />;
       case "add-employee":
         return (
           <EmployeeForm 
@@ -202,7 +207,12 @@ export default function Index() {
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      <Sidebar currentView={currentView} onViewChange={handleViewChange} />
+      <Sidebar 
+        currentView={currentView} 
+        onViewChange={handleViewChange}
+        user={user}
+        onLogout={handleLogout}
+      />
       <main className="flex-1 overflow-hidden">
         <div className="h-full overflow-auto p-6">
           {renderView()}

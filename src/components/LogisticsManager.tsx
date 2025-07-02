@@ -1,9 +1,12 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Truck, 
   Ship, 
@@ -22,14 +25,35 @@ import {
   Search,
   Filter,
   Eye,
-  Edit
+  Edit,
+  Trash2
 } from "lucide-react";
 
 export function LogisticsManager() {
   const [activeTab, setActiveTab] = useState('overview');
   const [searchTerm, setSearchTerm] = useState('');
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [selectedShipment, setSelectedShipment] = useState<any>(null);
+  const [filterMode, setFilterMode] = useState('all');
+  const { toast } = useToast();
 
-  const shipments = [
+  const [newShipment, setNewShipment] = useState({
+    origin: '',
+    destination: '',
+    mode: 'sea',
+    carrier: '',
+    vessel: '',
+    cargo: '',
+    weight: '',
+    value: '',
+    incoterm: 'FOB',
+    departureDate: '',
+    estimatedArrival: '',
+    priority: 'medium'
+  });
+
+  const [shipments, setShipments] = useState([
     {
       id: 'SH001',
       trackingNumber: 'TRK-2024-001',
@@ -84,7 +108,7 @@ export function LogisticsManager() {
       incoterm: 'EXW',
       priority: 'high'
     }
-  ];
+  ]);
 
   const ports = [
     {
@@ -122,6 +146,100 @@ export function LogisticsManager() {
     }
   ];
 
+  const handleAddShipment = () => {
+    if (!newShipment.origin || !newShipment.destination || !newShipment.carrier || !newShipment.cargo) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newShipmentData = {
+      id: `SH${String(shipments.length + 1).padStart(3, '0')}`,
+      trackingNumber: `TRK-2024-${String(shipments.length + 1).padStart(3, '0')}`,
+      ...newShipment,
+      status: 'pending',
+      actualArrival: null
+    };
+
+    setShipments([...shipments, newShipmentData]);
+    setNewShipment({
+      origin: '',
+      destination: '',
+      mode: 'sea',
+      carrier: '',
+      vessel: '',
+      cargo: '',
+      weight: '',
+      value: '',
+      incoterm: 'FOB',
+      departureDate: '',
+      estimatedArrival: '',
+      priority: 'medium'
+    });
+    setShowAddDialog(false);
+    
+    toast({
+      title: "Shipment Created",
+      description: "New shipment has been successfully created.",
+    });
+  };
+
+  const handleEditShipment = (shipment: any) => {
+    setSelectedShipment(shipment);
+    setShowEditDialog(true);
+  };
+
+  const handleUpdateShipment = () => {
+    if (!selectedShipment) return;
+
+    setShipments(shipments.map(shipment => 
+      shipment.id === selectedShipment.id ? selectedShipment : shipment
+    ));
+    setShowEditDialog(false);
+    setSelectedShipment(null);
+    
+    toast({
+      title: "Shipment Updated",
+      description: "Shipment has been successfully updated.",
+    });
+  };
+
+  const handleDeleteShipment = (shipmentId: string) => {
+    if (window.confirm("Are you sure you want to delete this shipment?")) {
+      setShipments(shipments.filter(shipment => shipment.id !== shipmentId));
+      toast({
+        title: "Shipment Deleted",
+        description: "Shipment has been successfully deleted.",
+      });
+    }
+  };
+
+  const handleViewShipment = (shipment: any) => {
+    toast({
+      title: "View Shipment",
+      description: `Viewing details for ${shipment.trackingNumber}`,
+    });
+  };
+
+  const handleTrackShipment = (shipment: any) => {
+    toast({
+      title: "Live Tracking",
+      description: `Opening live tracking for ${shipment.trackingNumber}`,
+    });
+  };
+
+  const filteredShipments = shipments.filter(shipment => {
+    const matchesSearch = shipment.trackingNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         shipment.origin.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         shipment.destination.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         shipment.cargo.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = filterMode === 'all' || shipment.mode === filterMode;
+    return matchesSearch && matchesFilter;
+  });
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'delivered': return 'bg-green-100 text-green-800';
@@ -158,10 +276,167 @@ export function LogisticsManager() {
           <h1 className="text-2xl font-bold text-gray-900">Logistics & Shipping</h1>
           <p className="text-gray-600">Track shipments, manage routes, and optimize logistics</p>
         </div>
-        <Button>
-          <Plus className="w-4 h-4 mr-2" />
-          New Shipment
-        </Button>
+        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              New Shipment
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>Create New Shipment</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="origin">Origin *</Label>
+                  <Input
+                    id="origin"
+                    value={newShipment.origin}
+                    onChange={(e) => setNewShipment({...newShipment, origin: e.target.value})}
+                    placeholder="Enter origin location"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="destination">Destination *</Label>
+                  <Input
+                    id="destination"
+                    value={newShipment.destination}
+                    onChange={(e) => setNewShipment({...newShipment, destination: e.target.value})}
+                    placeholder="Enter destination location"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="mode">Transport Mode</Label>
+                  <select
+                    id="mode"
+                    value={newShipment.mode}
+                    onChange={(e) => setNewShipment({...newShipment, mode: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
+                  >
+                    <option value="sea">Sea</option>
+                    <option value="air">Air</option>
+                    <option value="road">Road</option>
+                    <option value="rail">Rail</option>
+                  </select>
+                </div>
+                <div>
+                  <Label htmlFor="carrier">Carrier *</Label>
+                  <Input
+                    id="carrier"
+                    value={newShipment.carrier}
+                    onChange={(e) => setNewShipment({...newShipment, carrier: e.target.value})}
+                    placeholder="Enter carrier name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="vessel">Vessel/Flight</Label>
+                  <Input
+                    id="vessel"
+                    value={newShipment.vessel}
+                    onChange={(e) => setNewShipment({...newShipment, vessel: e.target.value})}
+                    placeholder="Enter vessel/flight number"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="cargo">Cargo Description *</Label>
+                  <Input
+                    id="cargo"
+                    value={newShipment.cargo}
+                    onChange={(e) => setNewShipment({...newShipment, cargo: e.target.value})}
+                    placeholder="Enter cargo description"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="weight">Weight</Label>
+                  <Input
+                    id="weight"
+                    value={newShipment.weight}
+                    onChange={(e) => setNewShipment({...newShipment, weight: e.target.value})}
+                    placeholder="e.g., 1000 kg"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="value">Cargo Value</Label>
+                  <Input
+                    id="value"
+                    value={newShipment.value}
+                    onChange={(e) => setNewShipment({...newShipment, value: e.target.value})}
+                    placeholder="e.g., $50,000"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="incoterm">Incoterm</Label>
+                  <select
+                    id="incoterm"
+                    value={newShipment.incoterm}
+                    onChange={(e) => setNewShipment({...newShipment, incoterm: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
+                  >
+                    <option value="FOB">FOB</option>
+                    <option value="CIF">CIF</option>
+                    <option value="EXW">EXW</option>
+                    <option value="DDP">DDP</option>
+                    <option value="CFR">CFR</option>
+                  </select>
+                </div>
+                <div>
+                  <Label htmlFor="priority">Priority</Label>
+                  <select
+                    id="priority"
+                    value={newShipment.priority}
+                    onChange={(e) => setNewShipment({...newShipment, priority: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="departureDate">Departure Date</Label>
+                  <Input
+                    id="departureDate"
+                    type="date"
+                    value={newShipment.departureDate}
+                    onChange={(e) => setNewShipment({...newShipment, departureDate: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="estimatedArrival">Estimated Arrival</Label>
+                  <Input
+                    id="estimatedArrival"
+                    type="date"
+                    value={newShipment.estimatedArrival}
+                    onChange={(e) => setNewShipment({...newShipment, estimatedArrival: e.target.value})}
+                  />
+                </div>
+              </div>
+              
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleAddShipment}>
+                  Create Shipment
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Stats Cards */}
@@ -171,7 +446,7 @@ export function LogisticsManager() {
             <div className="flex items-center gap-3">
               <Package className="w-6 h-6 text-blue-600" />
               <div>
-                <p className="text-2xl font-bold">47</p>
+                <p className="text-2xl font-bold">{shipments.filter(s => s.status !== 'delivered').length}</p>
                 <p className="text-sm text-gray-500">Active Shipments</p>
               </div>
             </div>
@@ -183,7 +458,7 @@ export function LogisticsManager() {
             <div className="flex items-center gap-3">
               <Clock className="w-6 h-6 text-orange-600" />
               <div>
-                <p className="text-2xl font-bold">8</p>
+                <p className="text-2xl font-bold">{shipments.filter(s => s.status === 'delayed').length}</p>
                 <p className="text-sm text-gray-500">Delayed Shipments</p>
               </div>
             </div>
@@ -195,7 +470,7 @@ export function LogisticsManager() {
             <div className="flex items-center gap-3">
               <CheckCircle className="w-6 h-6 text-green-600" />
               <div>
-                <p className="text-2xl font-bold">156</p>
+                <p className="text-2xl font-bold">{shipments.filter(s => s.status === 'delivered').length}</p>
                 <p className="text-sm text-gray-500">Delivered This Month</p>
               </div>
             </div>
@@ -303,15 +578,22 @@ export function LogisticsManager() {
                 className="pl-10"
               />
             </div>
-            <Button variant="outline">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-            </Button>
+            <select
+              value={filterMode}
+              onChange={(e) => setFilterMode(e.target.value)}
+              className="px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
+            >
+              <option value="all">All Modes</option>
+              <option value="sea">Sea</option>
+              <option value="air">Air</option>
+              <option value="road">Road</option>
+              <option value="rail">Rail</option>
+            </select>
           </div>
 
           {/* Shipments List */}
           <div className="space-y-4">
-            {shipments.map((shipment) => {
+            {filteredShipments.map((shipment) => {
               const ModeIcon = getModeIcon(shipment.mode);
               return (
                 <Card key={shipment.id}>
@@ -370,14 +652,17 @@ export function LogisticsManager() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => handleViewShipment(shipment)}>
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => handleEditShipment(shipment)}>
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => handleTrackShipment(shipment)}>
                           <Navigation className="w-4 h-4" />
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => handleDeleteShipment(shipment.id)}>
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
@@ -399,7 +684,7 @@ export function LogisticsManager() {
               <Navigation className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">Real-Time Tracking</h3>
               <p className="text-gray-600 mb-4">Track your shipments in real-time with GPS and IoT integration</p>
-              <Button>
+              <Button onClick={() => toast({ title: "Live Map", description: "Opening live tracking map..." })}>
                 <MapPin className="w-4 h-4 mr-2" />
                 View Live Map
               </Button>
@@ -463,7 +748,7 @@ export function LogisticsManager() {
               <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">Advanced Analytics</h3>
               <p className="text-gray-600 mb-4">Analyze shipping performance, costs, and optimize routes</p>
-              <Button>
+              <Button onClick={() => toast({ title: "Analytics Dashboard", description: "Opening analytics dashboard..." })}>
                 <BarChart3 className="w-4 h-4 mr-2" />
                 View Analytics Dashboard
               </Button>
@@ -471,6 +756,105 @@ export function LogisticsManager() {
           </CardContent>
         </Card>
       )}
+
+      {/* Edit Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Edit Shipment</DialogTitle>
+          </DialogHeader>
+          {selectedShipment && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="editOrigin">Origin</Label>
+                  <Input
+                    id="editOrigin"
+                    value={selectedShipment.origin}
+                    onChange={(e) => setSelectedShipment({...selectedShipment, origin: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="editDestination">Destination</Label>
+                  <Input
+                    id="editDestination"
+                    value={selectedShipment.destination}
+                    onChange={(e) => setSelectedShipment({...selectedShipment, destination: e.target.value})}
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="editMode">Transport Mode</Label>
+                  <select
+                    id="editMode"
+                    value={selectedShipment.mode}
+                    onChange={(e) => setSelectedShipment({...selectedShipment, mode: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
+                  >
+                    <option value="sea">Sea</option>
+                    <option value="air">Air</option>
+                    <option value="road">Road</option>
+                    <option value="rail">Rail</option>
+                  </select>
+                </div>
+                <div>
+                  <Label htmlFor="editCarrier">Carrier</Label>
+                  <Input
+                    id="editCarrier"
+                    value={selectedShipment.carrier}
+                    onChange={(e) => setSelectedShipment({...selectedShipment, carrier: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="editStatus">Status</Label>
+                  <select
+                    id="editStatus"
+                    value={selectedShipment.status}
+                    onChange={(e) => setSelectedShipment({...selectedShipment, status: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="in_transit">In Transit</option>
+                    <option value="customs">At Customs</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="delayed">Delayed</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="editCargo">Cargo</Label>
+                  <Input
+                    id="editCargo"
+                    value={selectedShipment.cargo}
+                    onChange={(e) => setSelectedShipment({...selectedShipment, cargo: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="editWeight">Weight</Label>
+                  <Input
+                    id="editWeight"
+                    value={selectedShipment.weight}
+                    onChange={(e) => setSelectedShipment({...selectedShipment, weight: e.target.value})}
+                  />
+                </div>
+              </div>
+              
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleUpdateShipment}>
+                  Update Shipment
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
