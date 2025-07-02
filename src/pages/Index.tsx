@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dashboard } from "@/components/Dashboard";
 import { TaskManager } from "@/components/TaskManager";
 import { DealManager } from "@/components/DealManager";
@@ -15,6 +15,9 @@ import { InteractionLogger } from "@/components/InteractionLogger";
 import { EmployeeForm } from "@/components/EmployeeForm";
 import { Sidebar } from "@/components/Sidebar";
 import { CompaniesManager } from "@/components/CompaniesManager";
+import { AuthPage } from "@/components/AuthPage";
+import { supabase } from "@/integrations/supabase/client";
+import type { User } from '@supabase/supabase-js';
 
 type ViewType = 
   | "dashboard" 
@@ -28,6 +31,7 @@ type ViewType =
   | "companies"
   | "create-deal"
   | "add-company"
+  | "add-contact"
   | "reports" 
   | "notifications" 
   | "ai-insights" 
@@ -41,6 +45,40 @@ export default function Index() {
   const [currentView, setCurrentView] = useState<ViewType>("dashboard");
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check for existing session on mount
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    };
+    
+    checkSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+        setIsLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleAuthSuccess = (authenticatedUser: User) => {
+    setUser(authenticatedUser);
+    setCurrentView("dashboard");
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setCurrentView("dashboard");
+  };
 
   const handleViewChange = (view: ViewType) => {
     setCurrentView(view);
@@ -132,6 +170,23 @@ export default function Index() {
         return <Dashboard onNavigate={handleDashboardNavigate} />;
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <div className="w-8 h-8 bg-white rounded-full"></div>
+          </div>
+          <p className="text-gray-600">Loading EXIM CRM...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
+  }
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 to-blue-50">
