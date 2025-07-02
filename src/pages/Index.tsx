@@ -9,7 +9,9 @@ import { EximBillGenerator } from "@/components/EximBillGenerator";
 import { CompanyAdmin } from "@/components/CompanyAdmin";
 import { CompanyProfile } from "@/components/CompanyProfile";
 import { ReportGenerator } from "@/components/ReportGenerator";
-import { NotificationCenter } from "@/components/NotificationCenter";
+import { RealTimeNotificationCenter } from "@/components/RealTimeNotificationCenter";
+import { ComplianceManager } from "@/components/ComplianceManager";
+import { LogisticsManager } from "@/components/LogisticsManager";
 import { AIInsights } from "@/components/AIInsights";
 import { InteractionLogger } from "@/components/InteractionLogger";
 import { EmployeeForm } from "@/components/EmployeeForm";
@@ -33,6 +35,7 @@ type ViewType =
   | "add-company"
   | "add-contact"
   | "edit-contact"
+  | "add-task"
   | "reports" 
   | "notifications" 
   | "ai-insights" 
@@ -40,7 +43,9 @@ type ViewType =
   | "add-employee"
   | "edit-employee"
   | "deal-details"
-  | "interaction-details";
+  | "interaction-details"
+  | "compliance"
+  | "logistics";
 
 export default function Index() {
   const [currentView, setCurrentView] = useState<ViewType>("dashboard");
@@ -147,11 +152,15 @@ export default function Index() {
       case "reports":
         return <ReportGenerator onBack={handleBackToDashboard} />;
       case "notifications":
-        return <NotificationCenter onBack={handleBackToDashboard} />;
+        return <RealTimeNotificationCenter onBack={handleBackToDashboard} />;
       case "ai-insights":
         return <AIInsights />;
       case "interactions":
         return <InteractionLogger />;
+      case "compliance":
+        return <ComplianceManager />;
+      case "logistics":
+        return <LogisticsManager />;
       case "add-employee":
         return (
           <EmployeeForm 

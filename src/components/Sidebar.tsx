@@ -27,6 +27,7 @@ interface SidebarProps {
 
 export function Sidebar({ currentView, onViewChange }: SidebarProps) {
   const [isDocumentsExpanded, setIsDocumentsExpanded] = useState(false);
+  const [isComplianceExpanded, setIsComplianceExpanded] = useState(false);
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -45,6 +46,16 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
         { id: "exim-bills", label: "EXIM Documents", icon: Globe }
       ]
     },
+    { id: "logistics", label: "Logistics & Shipping", icon: MessageSquare },
+    { 
+      id: "compliance", 
+      label: "Compliance", 
+      icon: Settings,
+      hasSubmenu: true,
+      submenu: [
+        { id: "compliance", label: "Compliance Manager", icon: Settings },
+      ]
+    },
     { id: "company-admin", label: "Company Admin", icon: Building2 },
     { id: "reports", label: "Reports", icon: BarChart3 },
     { id: "notifications", label: "Notifications", icon: Bell },
@@ -55,6 +66,8 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
   const handleMenuClick = (itemId: string) => {
     if (itemId === "documents") {
       setIsDocumentsExpanded(!isDocumentsExpanded);
+    } else if (itemId === "compliance") {
+      setIsComplianceExpanded(!isComplianceExpanded);
     } else {
       onViewChange(itemId);
     }
@@ -81,7 +94,9 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
               <Button
                 variant="ghost"
                 className={`w-full justify-start text-left font-medium transition-all duration-200 ${
-                  currentView === item.id || (item.hasSubmenu && (currentView === "documents" || currentView === "bills" || currentView === "exim-bills"))
+                  currentView === item.id || 
+                  (item.hasSubmenu && item.id === "documents" && (currentView === "documents" || currentView === "bills" || currentView === "exim-bills")) ||
+                  (item.hasSubmenu && item.id === "compliance" && currentView === "compliance")
                     ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl"
                     : "text-gray-700 hover:bg-gray-100"
                 }`}
@@ -91,7 +106,7 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
                 {item.label}
                 {item.hasSubmenu && (
                   <div className="ml-auto">
-                    {isDocumentsExpanded ? (
+                    {(item.id === "documents" && isDocumentsExpanded) || (item.id === "compliance" && isComplianceExpanded) ? (
                       <ChevronDown className="w-4 h-4" />
                     ) : (
                       <ChevronRight className="w-4 h-4" />
@@ -100,7 +115,27 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
                 )}
               </Button>
               
-              {item.hasSubmenu && isDocumentsExpanded && (
+              {item.hasSubmenu && item.id === "documents" && isDocumentsExpanded && (
+                <div className="ml-8 mt-2 space-y-1">
+                  {item.submenu?.map((subItem) => (
+                    <Button
+                      key={subItem.id}
+                      variant="ghost"
+                      className={`w-full justify-start text-left font-medium transition-all duration-200 ${
+                        currentView === subItem.id
+                          ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md"
+                          : "text-gray-600 hover:bg-gray-50"
+                      }`}
+                      onClick={() => onViewChange(subItem.id)}
+                    >
+                      <subItem.icon className="w-4 h-4 mr-3" />
+                      {subItem.label}
+                    </Button>
+                  ))}
+                </div>
+              )}
+
+              {item.hasSubmenu && item.id === "compliance" && isComplianceExpanded && (
                 <div className="ml-8 mt-2 space-y-1">
                   {item.submenu?.map((subItem) => (
                     <Button
