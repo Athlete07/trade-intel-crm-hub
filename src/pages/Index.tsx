@@ -32,6 +32,7 @@ type ViewType =
   | "create-deal"
   | "add-company"
   | "add-contact"
+  | "edit-contact"
   | "reports" 
   | "notifications" 
   | "ai-insights" 
