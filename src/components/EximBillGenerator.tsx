@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,8 +19,11 @@ import {
   Plane,
   Award,
   Package,
-  Receipt
+  Receipt,
+  Send,
+  Edit
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface TemplateField {
   name: string;
@@ -401,6 +403,9 @@ export function EximBillGenerator() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [formData, setFormData] = useState<{[key: string]: any}>({});
   const [currentSection, setCurrentSection] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
+  const [isDraft, setIsDraft] = useState(false);
+  const { toast } = useToast();
 
   const categories = ["all", "Pre-shipment", "Official", "Shipping", "Compliance", "Logistics", "Transport"];
   
@@ -418,6 +423,8 @@ export function EximBillGenerator() {
     if (template && template.fields.length > 0) {
       setCurrentSection(template.fields[0].section);
     }
+    setShowPreview(false);
+    setIsDraft(false);
   };
 
   const handleInputChange = (fieldName: string, value: any) => {
@@ -427,9 +434,107 @@ export function EximBillGenerator() {
     }));
   };
 
+  const validateForm = () => {
+    const template = documentTemplates.find(t => t.id === selectedTemplate);
+    if (!template) return false;
+
+    const requiredFields = template.fields.filter(field => field.required);
+    const missingFields = requiredFields.filter(field => 
+      !formData[field.name] || formData[field.name].toString().trim() === ''
+    );
+
+    if (missingFields.length > 0) {
+      const fieldNames = missingFields.map(field => field.label).join(', ');
+      toast({
+        title: "Required Fields Missing",
+        description: `Please fill in the following required fields: ${fieldNames}`,
+        variant: "destructive",
+      });
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmitForm = () => {
+    if (!validateForm()) return;
+    
+    toast({
+      title: "Form Submitted Successfully",
+      description: "Your document data has been processed and is ready for preview.",
+    });
+    setShowPreview(true);
+  };
+
+  const handlePreview = () => {
+    if (!validateForm()) return;
+    setShowPreview(true);
+  };
+
+  const handleSaveDraft = () => {
+    const template = documentTemplates.find(t => t.id === selectedTemplate);
+    if (!template) return;
+    
+    const draftData = {
+      templateId: selectedTemplate,
+      templateName: template.name,
+      formData,
+      savedAt: new Date().toISOString(),
+      progress: calculateFormProgress()
+    };
+    
+    const drafts = JSON.parse(localStorage.getItem('eximDrafts') || '[]');
+    drafts.push(draftData);
+    localStorage.setItem('eximDrafts', JSON.stringify(drafts));
+    
+    setIsDraft(true);
+    toast({
+      title: "Draft Saved",
+      description: "Your document has been saved as a draft and can be continued later.",
+    });
+  };
+
   const handleGenerateDocument = () => {
-    console.log('Generating document with data:', formData);
-    alert('Document generated successfully! (In production, this would generate a PDF)');
+    if (!validateForm()) return;
+    
+    const template = documentTemplates.find(t => t.id === selectedTemplate);
+    if (!template) return;
+    
+    const pdfData = {
+      template: template.name,
+      data: formData,
+      generatedAt: new Date().toISOString(),
+      documentNumber: `${selectedTemplate?.toUpperCase()}-${Date.now()}`
+    };
+    
+    console.log('Generating PDF with data:', pdfData);
+    
+    const content = `${template.name}\n\nDocument Generated: ${new Date().toLocaleString()}\nDocument Number: ${pdfData.documentNumber}\n\nForm Data:\n${JSON.stringify(formData, null, 2)}`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${template.name.replace(/\s+/g, '_')}_${Date.now()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Document Generated",
+      description: "Your PDF document has been generated and downloaded successfully.",
+    });
+  };
+
+  const calculateFormProgress = () => {
+    const template = documentTemplates.find(t => t.id === selectedTemplate);
+    if (!template) return 0;
+    
+    const totalFields = template.fields.length;
+    const filledFields = template.fields.filter(field => 
+      formData[field.name] && formData[field.name].toString().trim() !== ''
+    ).length;
+    
+    return Math.round((filledFields / totalFields) * 100);
   };
 
   const getSectionsForTemplate = (templateId: string) => {
@@ -485,6 +590,87 @@ export function EximBillGenerator() {
     const sections = getSectionsForTemplate(selectedTemplate);
     const currentSectionFields = template.fields.filter(field => field.section === currentSection);
 
+    if (showPreview) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
+          <div className="max-w-4xl mx-auto">
+            {/* Preview Header */}
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowPreview(false)}
+                  className="flex items-center gap-2"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Back to Form
+                </Button>
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900">Document Preview</h1>
+                  <p className="text-gray-600 mt-1">{template.name}</p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={() => setShowPreview(false)}>
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit
+                </Button>
+                <Button variant="outline" onClick={handleSaveDraft}>
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Draft
+                </Button>
+                <Button 
+                  onClick={handleGenerateDocument}
+                  className={`bg-gradient-to-r ${template.color} hover:opacity-90 text-white shadow-lg`}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download PDF
+                </Button>
+              </div>
+            </div>
+
+            {/* Preview Content */}
+            <Card className="bg-white shadow-xl border-0">
+              <CardHeader className="text-center border-b">
+                <CardTitle className="text-2xl font-bold">{template.name}</CardTitle>
+                <p className="text-gray-600">Generated on {new Date().toLocaleDateString()}</p>
+              </CardHeader>
+              <CardContent className="p-8">
+                {sections.map((section) => {
+                  const sectionFields = template.fields.filter(field => field.section === section);
+                  
+                  return (
+                    <div key={section} className="mb-8">
+                      <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2">
+                        {getSectionTitle(section)}
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {sectionFields.map((field) => {
+                          const value = formData[field.name];
+                          return (
+                            <div key={field.name} className={field.type === 'textarea' ? 'md:col-span-2' : ''}>
+                              <div className="bg-gray-50 p-3 rounded-lg">
+                                <label className="text-sm font-medium text-gray-700 block mb-1">
+                                  {field.label}
+                                </label>
+                                <div className="text-gray-900">
+                                  {value || <span className="text-gray-400 italic">Not provided</span>}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
         <div className="max-w-7xl mx-auto">
@@ -502,14 +688,25 @@ export function EximBillGenerator() {
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">{template.name}</h1>
                 <p className="text-gray-600 mt-1">{template.description}</p>
+                <div className="flex items-center gap-4 mt-2">
+                  <div className="text-sm text-gray-500">
+                    Progress: {calculateFormProgress()}% Complete
+                  </div>
+                  {isDraft && (
+                    <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                      <Save className="w-3 h-3 mr-1" />
+                      Draft Saved
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex gap-3">
-              <Button variant="outline" className="hover:bg-gray-50">
+              <Button variant="outline" onClick={handlePreview} className="hover:bg-gray-50">
                 <Eye className="w-4 h-4 mr-2" />
                 Preview
               </Button>
-              <Button variant="outline" className="hover:bg-gray-50">
+              <Button variant="outline" onClick={handleSaveDraft} className="hover:bg-gray-50">
                 <Save className="w-4 h-4 mr-2" />
                 Save Draft
               </Button>
@@ -605,8 +802,8 @@ export function EximBillGenerator() {
                     ))}
                   </div>
 
-                  {/* Section Navigation */}
-                  <div className="flex justify-between mt-8 pt-6 border-t border-gray-200">
+                  {/* Section Navigation and Submit */}
+                  <div className="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
                     <Button
                       variant="outline"
                       onClick={() => {
@@ -621,22 +818,33 @@ export function EximBillGenerator() {
                       Previous Section
                     </Button>
                     
-                    <div className="text-sm text-gray-600 flex items-center">
-                      Section {sections.indexOf(currentSection) + 1} of {sections.length}
+                    <div className="flex items-center gap-4">
+                      <div className="text-sm text-gray-600">
+                        Section {sections.indexOf(currentSection) + 1} of {sections.length}
+                      </div>
+                      
+                      {sections.indexOf(currentSection) === sections.length - 1 ? (
+                        <Button
+                          onClick={handleSubmitForm}
+                          className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6"
+                        >
+                          <Send className="w-4 h-4 mr-2" />
+                          Submit Form
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={() => {
+                            const currentIndex = sections.indexOf(currentSection);
+                            if (currentIndex < sections.length - 1) {
+                              setCurrentSection(sections[currentIndex + 1]);
+                            }
+                          }}
+                          className={`bg-gradient-to-r ${template.color} hover:opacity-90 text-white`}
+                        >
+                          Next Section
+                        </Button>
+                      )}
                     </div>
-                    
-                    <Button
-                      onClick={() => {
-                        const currentIndex = sections.indexOf(currentSection);
-                        if (currentIndex < sections.length - 1) {
-                          setCurrentSection(sections[currentIndex + 1]);
-                        }
-                      }}
-                      disabled={sections.indexOf(currentSection) === sections.length - 1}
-                      className={`bg-gradient-to-r ${template.color} hover:opacity-90 text-white`}
-                    >
-                      Next Section
-                    </Button>
                   </div>
                 </CardContent>
               </Card>

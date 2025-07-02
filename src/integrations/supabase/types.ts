@@ -185,34 +185,43 @@ export type Database = {
           category: string | null
           company: string | null
           description: string | null
+          file_url: string | null
           id: string
           name: string
           size: number | null
+          status: string | null
           tags: string[] | null
           type: string | null
           upload_date: string | null
+          uploaded_by: string | null
         }
         Insert: {
           category?: string | null
           company?: string | null
           description?: string | null
+          file_url?: string | null
           id?: string
           name: string
           size?: number | null
+          status?: string | null
           tags?: string[] | null
           type?: string | null
           upload_date?: string | null
+          uploaded_by?: string | null
         }
         Update: {
           category?: string | null
           company?: string | null
           description?: string | null
+          file_url?: string | null
           id?: string
           name?: string
           size?: number | null
+          status?: string | null
           tags?: string[] | null
           type?: string | null
           upload_date?: string | null
+          uploaded_by?: string | null
         }
         Relationships: []
       }

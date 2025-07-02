@@ -14,6 +14,7 @@ import { AIInsights } from "@/components/AIInsights";
 import { InteractionLogger } from "@/components/InteractionLogger";
 import { EmployeeForm } from "@/components/EmployeeForm";
 import { Sidebar } from "@/components/Sidebar";
+import { CompaniesManager } from "@/components/CompaniesManager";
 
 type ViewType = 
   | "dashboard" 
@@ -33,7 +34,8 @@ type ViewType =
   | "interactions"
   | "add-employee"
   | "edit-employee"
-  | "deal-details";
+  | "deal-details"
+  | "interaction-details";
 
 export default function Index() {
   const [currentView, setCurrentView] = useState<ViewType>("dashboard");
