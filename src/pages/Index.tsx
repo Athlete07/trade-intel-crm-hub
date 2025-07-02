@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Dashboard } from "@/components/Dashboard";
 import { TaskManager } from "@/components/TaskManager";
@@ -36,6 +37,7 @@ type ViewType =
   | "add-contact"
   | "edit-contact"
   | "add-task"
+  | "edit-task"
   | "reports" 
   | "notifications" 
   | "ai-insights" 
