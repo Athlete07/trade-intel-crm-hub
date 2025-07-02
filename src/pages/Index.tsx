@@ -40,6 +40,7 @@ type ViewType =
   | "add-task"
   | "edit-task"
   | "add-document"
+  | "edit-document"
   | "reports" 
   | "notifications" 
   | "ai-insights" 
