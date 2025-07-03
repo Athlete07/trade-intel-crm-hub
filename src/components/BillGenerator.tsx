@@ -19,7 +19,14 @@ import {
   Zap,
   Star,
   Shield,
-  Calendar
+  Calendar,
+  Package,
+  Receipt,
+  CreditCard,
+  DollarSign,
+  FileCheck,
+  MapPin,
+  Scale
 } from "lucide-react";
 import { BillTemplate } from "./BillTemplate";
 import { EnhancedCard, EnhancedCardContent, EnhancedCardHeader, EnhancedCardTitle, EnhancedCardDescription } from "@/components/ui/enhanced-card";
@@ -112,6 +119,117 @@ const internationalTemplates = [
     standards: ["ISO 20022", "Custom Branding"],
     features: ["Luxury Design", "Brand Colors", "Watermarks", "Digital Signature", "Premium Support"],
     regions: ["Global", "Luxury Markets"]
+  },
+  // EXIM Document Templates
+  {
+    id: "commercial-invoice",
+    name: "Commercial Invoice",
+    description: "Official EXIM commercial invoice for customs clearance and international trade",
+    category: "EXIM Documents",
+    icon: Receipt,
+    gradient: "from-purple-600 to-pink-600",
+    standards: ["EXIM", "Customs Declaration", "WTO Guidelines"],
+    features: ["Customs Ready", "HS Code Integration", "Country of Origin", "Trade Terms", "Valuation Details"],
+    regions: ["Global", "All Trade Zones"]
+  },
+  {
+    id: "proforma-invoice",
+    name: "Proforma Invoice",
+    description: "Preliminary invoice for quotations and advance payment arrangements",
+    category: "EXIM Documents",
+    icon: FileCheck,
+    gradient: "from-teal-600 to-cyan-600",
+    standards: ["EXIM", "Trade Documentation", "ICC Guidelines"],
+    features: ["Quote Format", "Validity Period", "Payment Terms", "Shipping Estimates", "Product Specs"],
+    regions: ["Global", "International Trade"]
+  },
+  {
+    id: "export-invoice",
+    name: "Export Invoice",
+    description: "Specialized export documentation with regulatory compliance features",
+    category: "EXIM Documents",
+    icon: Package,
+    gradient: "from-emerald-600 to-green-700",
+    standards: ["EXIM", "Export Documentation", "FTA Compliance"],
+    features: ["Export License", "Certificate of Origin", "Shipping Documents", "Insurance Details", "Payment Terms"],
+    regions: ["Global", "Export Markets"]
+  },
+  {
+    id: "import-invoice",
+    name: "Import Invoice",
+    description: "Import-specific invoice with duty calculations and customs requirements",
+    category: "EXIM Documents",
+    icon: MapPin,
+    gradient: "from-amber-600 to-orange-600",
+    standards: ["EXIM", "Import Documentation", "Customs Compliance"],
+    features: ["Duty Calculations", "Customs Value", "Import License", "Tax Details", "Clearance Info"],
+    regions: ["Global", "Import Markets"]
+  },
+  {
+    id: "bill-of-lading",
+    name: "Bill of Lading",
+    description: "Official shipping document and receipt for maritime cargo transportation",
+    category: "EXIM Documents",
+    icon: Ship,
+    gradient: "from-blue-800 to-indigo-800",
+    standards: ["Maritime Law", "ICC Rules", "Hague-Visby Rules"],
+    features: ["Cargo Receipt", "Title Document", "Shipping Terms", "Port Details", "Carrier Liability"],
+    regions: ["Global", "Maritime Trade"]
+  },
+  {
+    id: "airway-bill",
+    name: "Air Waybill",
+    description: "Aviation cargo document for air freight shipments and customs clearance",
+    category: "EXIM Documents",
+    icon: Plane,
+    gradient: "from-sky-600 to-blue-700",
+    standards: ["IATA", "ICAO", "Montreal Convention"],
+    features: ["Flight Details", "Cargo Manifest", "Handling Instructions", "Customs Declaration", "Tracking"],
+    regions: ["Global", "Air Cargo"]
+  },
+  {
+    id: "freight-invoice",
+    name: "Freight Invoice",
+    description: "Comprehensive freight billing for logistics and transportation services",
+    category: "EXIM Documents",
+    icon: Truck,
+    gradient: "from-orange-600 to-red-600",
+    standards: ["Transportation Law", "Freight Terms"],
+    features: ["Service Details", "Route Information", "Weight/Volume", "Fuel Surcharge", "Accessorial Charges"],
+    regions: ["Global", "Logistics"]
+  },
+  {
+    id: "customs-invoice",
+    name: "Customs Invoice",
+    description: "Specialized customs declaration invoice with valuation and classification",
+    category: "EXIM Documents", 
+    icon: Scale,
+    gradient: "from-violet-600 to-purple-700",
+    standards: ["WTO Valuation", "Customs Code", "ATA Carnet"],
+    features: ["Customs Value", "HS Classification", "Origin Certificate", "Duty Assessment", "Clearance Status"],
+    regions: ["Global", "Customs Territories"]
+  },
+  {
+    id: "debit-note",
+    name: "Debit Note",
+    description: "Commercial debit note for additional charges and adjustments in trade",
+    category: "EXIM Documents",
+    icon: CreditCard,
+    gradient: "from-red-600 to-pink-600",
+    standards: ["Commercial Law", "Accounting Standards"],
+    features: ["Charge Details", "Reference Invoice", "Adjustment Reason", "Payment Terms", "Account Adjustment"],
+    regions: ["Global", "Commercial Trade"]
+  },
+  {
+    id: "credit-note",
+    name: "Credit Note",
+    description: "Commercial credit note for refunds, returns, and trade adjustments",
+    category: "EXIM Documents",
+    icon: DollarSign,
+    gradient: "from-green-600 to-emerald-700",
+    standards: ["Commercial Law", "Accounting Standards"],
+    features: ["Credit Details", "Return Reference", "Refund Terms", "Account Credit", "Adjustment Tracking"],
+    regions: ["Global", "Commercial Trade"]
   }
 ];
 
@@ -121,8 +239,8 @@ export function BillGenerator() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [standardFilter, setStandardFilter] = useState("all");
 
-  const categories = ["all", "ISO Compliant", "UBL Standard", "European Standard", "Trade Finance", "Logistics", "Maritime", "Aviation", "Premium"];
-  const standards = ["all", "ISO 20022", "UBL 2.1", "EN 16931", "UCP 600", "IATA", "CMR"];
+  const categories = ["all", "ISO Compliant", "UBL Standard", "European Standard", "Trade Finance", "Logistics", "Maritime", "Aviation", "Premium", "EXIM Documents"];
+  const standards = ["all", "ISO 20022", "UBL 2.1", "EN 16931", "UCP 600", "IATA", "CMR", "EXIM", "Maritime Law", "WTO Guidelines"];
 
   const filteredTemplates = internationalTemplates.filter(template => {
     const matchesSearch = template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -161,17 +279,21 @@ export function BillGenerator() {
                   Create internationally compliant invoices with live editing, real-time updates, and instant PDF export
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
-                  <Badge className="bg-green-100 text-green-800 border-green-200 px-4 py-2 text-sm font-semibold">
+                  <Badge className="bg-green-100 text-green-800 border-green-200 px-4 py-2 text-sm font-semibold hover:bg-green-200 transition-colors">
                     <Shield className="w-4 h-4 mr-2" />
                     ISO 20022 Certified
                   </Badge>
-                  <Badge className="bg-blue-100 text-blue-800 border-blue-200 px-4 py-2 text-sm font-semibold">
+                  <Badge className="bg-blue-100 text-blue-800 border-blue-200 px-4 py-2 text-sm font-semibold hover:bg-blue-200 transition-colors">
                     <Award className="w-4 h-4 mr-2" />
                     UBL 2.1 Standard
                   </Badge>
-                  <Badge className="bg-purple-100 text-purple-800 border-purple-200 px-4 py-2 text-sm font-semibold">
+                  <Badge className="bg-purple-100 text-purple-800 border-purple-200 px-4 py-2 text-sm font-semibold hover:bg-purple-200 transition-colors">
                     <Globe className="w-4 h-4 mr-2" />
                     EN 16931 Compliant
+                  </Badge>
+                  <Badge className="bg-orange-100 text-orange-800 border-orange-200 px-4 py-2 text-sm font-semibold hover:bg-orange-200 transition-colors">
+                    <Package className="w-4 h-4 mr-2" />
+                    EXIM Ready
                   </Badge>
                 </div>
               </div>
@@ -180,7 +302,7 @@ export function BillGenerator() {
         </div>
 
         {/* Enhanced Search and Filters */}
-        <EnhancedCard>
+        <EnhancedCard className="shadow-xl hover:shadow-2xl transition-shadow duration-300">
           <EnhancedCardContent className="p-8">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
@@ -190,7 +312,7 @@ export function BillGenerator() {
                     placeholder="Search templates, standards, or features..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-14 h-16 text-lg border-2 border-gray-200 focus:border-blue-500 rounded-xl shadow-sm bg-white"
+                    className="pl-14 h-16 text-lg border-2 border-gray-200 focus:border-blue-500 rounded-xl shadow-sm bg-white hover:shadow-md transition-shadow"
                   />
                 </div>
               </div>
@@ -198,7 +320,7 @@ export function BillGenerator() {
                 <select 
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-lg font-medium bg-white shadow-sm"
+                  className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-lg font-medium bg-white shadow-sm hover:shadow-md transition-shadow"
                 >
                   {categories.map(category => (
                     <option key={category} value={category}>
@@ -211,7 +333,7 @@ export function BillGenerator() {
                 <select 
                   value={standardFilter}
                   onChange={(e) => setStandardFilter(e.target.value)}
-                  className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-lg font-medium bg-white shadow-sm"
+                  className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-lg font-medium bg-white shadow-sm hover:shadow-md transition-shadow"
                 >
                   {standards.map(standard => (
                     <option key={standard} value={standard}>
@@ -226,7 +348,7 @@ export function BillGenerator() {
 
         {/* Enhanced Feature Highlights */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <EnhancedCard className="bg-gradient-to-br from-blue-50 to-indigo-100 border-0 shadow-xl hover:shadow-2xl">
+          <EnhancedCard className="bg-gradient-to-br from-blue-50 to-indigo-100 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
             <EnhancedCardContent className="p-8 text-center">
               <div className="w-16 h-16 bg-blue-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <Zap className="w-8 h-8 text-white" />
@@ -236,33 +358,33 @@ export function BillGenerator() {
             </EnhancedCardContent>
           </EnhancedCard>
 
-          <EnhancedCard className="bg-gradient-to-br from-green-50 to-emerald-100 border-0 shadow-xl hover:shadow-2xl">
+          <EnhancedCard className="bg-gradient-to-br from-green-50 to-emerald-100 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
             <EnhancedCardContent className="p-8 text-center">
               <div className="w-16 h-16 bg-green-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <Shield className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">International Standards</h3>
-              <p className="text-gray-600 leading-relaxed">Fully compliant with ISO 20022, UBL 2.1, EN 16931, and more</p>
+              <p className="text-gray-600 leading-relaxed">Fully compliant with ISO 20022, UBL 2.1, EN 16931, and EXIM requirements</p>
             </EnhancedCardContent>
           </EnhancedCard>
 
-          <EnhancedCard className="bg-gradient-to-br from-purple-50 to-violet-100 border-0 shadow-xl hover:shadow-2xl">
+          <EnhancedCard className="bg-gradient-to-br from-purple-50 to-violet-100 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
             <EnhancedCardContent className="p-8 text-center">
               <div className="w-16 h-16 bg-purple-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <Download className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Professional PDF</h3>
-              <p className="text-gray-600 leading-relaxed">High-quality PDF generation with pixel-perfect formatting</p>
+              <p className="text-gray-600 leading-relaxed">High-quality PDF generation with pixel-perfect formatting and print optimization</p>
             </EnhancedCardContent>
           </EnhancedCard>
 
-          <EnhancedCard className="bg-gradient-to-br from-orange-50 to-amber-100 border-0 shadow-xl hover:shadow-2xl">
+          <EnhancedCard className="bg-gradient-to-br from-orange-50 to-amber-100 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
             <EnhancedCardContent className="p-8 text-center">
               <div className="w-16 h-16 bg-orange-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Calendar className="w-8 h-8 text-white" />
+                <Package className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Real-time Updates</h3>
-              <p className="text-gray-600 leading-relaxed">See changes instantly as you type with dynamic layout adjustment</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">EXIM Ready</h3>
+              <p className="text-gray-600 leading-relaxed">Complete EXIM document templates for international trade and customs</p>
             </EnhancedCardContent>
           </EnhancedCard>
         </div>
@@ -275,7 +397,7 @@ export function BillGenerator() {
             return (
               <EnhancedCard 
                 key={template.id} 
-                className="cursor-pointer transform hover:scale-105 transition-all duration-300 group overflow-hidden bg-white shadow-xl hover:shadow-2xl"
+                className="cursor-pointer transform hover:scale-105 transition-all duration-300 group overflow-hidden bg-white shadow-xl hover:shadow-2xl border-0"
                 onClick={() => setSelectedTemplate(template.id)}
               >
                 <div className={`h-56 bg-gradient-to-br ${template.gradient} flex items-center justify-center relative overflow-hidden`}>
@@ -284,14 +406,14 @@ export function BillGenerator() {
                     <IconComponent className="w-12 h-12 text-white" />
                   </div>
                   <div className="absolute top-6 right-6 z-10">
-                    <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-3 py-1 font-semibold">
+                    <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-3 py-1 font-semibold hover:bg-white/30 transition-colors">
                       {template.category}
                     </Badge>
                   </div>
                   <div className="absolute bottom-6 left-6 right-6 z-10">
                     <div className="flex flex-wrap gap-2">
                       {template.regions.slice(0, 2).map((region, index) => (
-                        <Badge key={index} className="bg-white/20 text-white border-white/30 backdrop-blur-sm text-xs">
+                        <Badge key={index} className="bg-white/20 text-white border-white/30 backdrop-blur-sm text-xs hover:bg-white/30 transition-colors">
                           {region}
                         </Badge>
                       ))}
@@ -299,7 +421,7 @@ export function BillGenerator() {
                   </div>
                 </div>
                 
-                <EnhancedCardContent>
+                <EnhancedCardContent className="p-6">
                   <div className="space-y-4">
                     <div>
                       <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
@@ -317,7 +439,7 @@ export function BillGenerator() {
                           <Badge 
                             key={index} 
                             variant="outline" 
-                            className="text-xs bg-green-50 text-green-700 border-green-200 font-medium"
+                            className="text-xs bg-green-50 text-green-700 border-green-200 font-medium hover:bg-green-100 transition-colors"
                           >
                             {standard}
                           </Badge>
@@ -332,13 +454,13 @@ export function BillGenerator() {
                           <Badge 
                             key={index} 
                             variant="outline" 
-                            className="text-xs bg-blue-50 text-blue-700 border-blue-200"
+                            className="text-xs bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 transition-colors"
                           >
                             {feature}
                           </Badge>
                         ))}
                         {template.features.length > 3 && (
-                          <Badge variant="outline" className="text-xs bg-gray-50 text-gray-600 border-gray-200">
+                          <Badge variant="outline" className="text-xs bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100 transition-colors">
                             +{template.features.length - 3} more
                           </Badge>
                         )}
@@ -346,7 +468,7 @@ export function BillGenerator() {
                     </div>
                     
                     <Button 
-                      className={`w-full bg-gradient-to-r ${template.gradient} hover:opacity-90 text-white font-semibold py-3 shadow-lg group-hover:shadow-xl transition-all duration-300`}
+                      className={`w-full bg-gradient-to-r ${template.gradient} hover:opacity-90 text-white font-semibold py-3 shadow-lg group-hover:shadow-xl transition-all duration-300 transform hover:scale-105`}
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedTemplate(template.id);
@@ -377,7 +499,7 @@ export function BillGenerator() {
                 setStandardFilter("all");
               }}
               variant="outline"
-              className="px-8 py-3 text-lg"
+              className="px-8 py-3 text-lg hover:bg-blue-50 hover:border-blue-200 transition-colors"
             >
               Clear Filters
             </Button>
@@ -394,17 +516,17 @@ export function BillGenerator() {
                 and professional PDF export. Start creating compliant bills in seconds.
               </p>
               <div className="flex flex-wrap justify-center gap-4 mb-8">
-                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm">
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm hover:bg-white/30 transition-colors">
                   ✓ Live Editing Experience
                 </Badge>
-                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm">
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm hover:bg-white/30 transition-colors">
                   ✓ International Standards
                 </Badge>
-                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm">
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm hover:bg-white/30 transition-colors">
                   ✓ Professional PDF Export
                 </Badge>
-                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm">
-                  ✓ Real-time Updates
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm hover:bg-white/30 transition-colors">
+                  ✓ EXIM Documentation
                 </Badge>
               </div>
               <Button 

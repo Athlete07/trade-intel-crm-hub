@@ -117,8 +117,86 @@ const templateConfigs = {
       accent: "text-orange-600",
       border: "border-orange-200"
     }
+  },
+  "commercial-invoice": {
+    name: "Commercial Invoice",
+    standards: ["EXIM", "Customs Declaration"],
+    colors: {
+      primary: "from-purple-600 to-pink-600",
+      secondary: "bg-purple-50",
+      accent: "text-purple-600",
+      border: "border-purple-200"
+    }
+  },
+  "proforma-invoice": {
+    name: "Proforma Invoice",
+    standards: ["EXIM", "Trade Documentation"],
+    colors: {
+      primary: "from-teal-600 to-cyan-600",
+      secondary: "bg-teal-50",
+      accent: "text-teal-600",
+      border: "border-teal-200"
+    }
+  },
+  "bill-of-lading": {
+    name: "Bill of Lading",
+    standards: ["Maritime Law", "ICC Rules"],
+    colors: {
+      primary: "from-blue-800 to-indigo-800",
+      secondary: "bg-blue-50",
+      accent: "text-blue-800",
+      border: "border-blue-300"
+    }
+  },
+  "export-invoice": {
+    name: "Export Invoice",
+    standards: ["EXIM", "Export Documentation"],
+    colors: {
+      primary: "from-emerald-600 to-green-700",
+      secondary: "bg-emerald-50",
+      accent: "text-emerald-600",
+      border: "border-emerald-200"
+    }
+  },
+  "import-invoice": {
+    name: "Import Invoice",
+    standards: ["EXIM", "Import Documentation"],
+    colors: {
+      primary: "from-amber-600 to-orange-600",
+      secondary: "bg-amber-50",
+      accent: "text-amber-600",
+      border: "border-amber-200"
+    }
   }
 };
+
+const currencies = [
+  { code: "USD", name: "US Dollar", symbol: "$" },
+  { code: "EUR", name: "Euro", symbol: "€" },
+  { code: "GBP", name: "British Pound", symbol: "£" },
+  { code: "JPY", name: "Japanese Yen", symbol: "¥" },
+  { code: "CHF", name: "Swiss Franc", symbol: "CHF" },
+  { code: "CAD", name: "Canadian Dollar", symbol: "C$" },
+  { code: "AUD", name: "Australian Dollar", symbol: "A$" },
+  { code: "CNY", name: "Chinese Yuan", symbol: "¥" },
+  { code: "INR", name: "Indian Rupee", symbol: "₹" },
+  { code: "KRW", name: "South Korean Won", symbol: "₩" },
+  { code: "SGD", name: "Singapore Dollar", symbol: "S$" },
+  { code: "HKD", name: "Hong Kong Dollar", symbol: "HK$" },
+  { code: "SEK", name: "Swedish Krona", symbol: "kr" },
+  { code: "NOK", name: "Norwegian Krone", symbol: "kr" },
+  { code: "DKK", name: "Danish Krone", symbol: "kr" },
+  { code: "PLN", name: "Polish Zloty", symbol: "zł" },
+  { code: "CZK", name: "Czech Koruna", symbol: "Kč" },
+  { code: "HUF", name: "Hungarian Forint", symbol: "Ft" },
+  { code: "RUB", name: "Russian Ruble", symbol: "₽" },
+  { code: "BRL", name: "Brazilian Real", symbol: "R$" },
+  { code: "MXN", name: "Mexican Peso", symbol: "$" },
+  { code: "ZAR", name: "South African Rand", symbol: "R" },
+  { code: "TRY", name: "Turkish Lira", symbol: "₺" },
+  { code: "AED", name: "UAE Dirham", symbol: "د.إ" },
+  { code: "SAR", name: "Saudi Riyal", symbol: "﷼" }
+];
 
 export function BillTemplate({ templateId, onBack }: BillTemplateProps) {
   const [billData, setBillData] = useState<BillData>({
@@ -234,33 +312,184 @@ export function BillTemplate({ templateId, onBack }: BillTemplateProps) {
     }
   };
 
-  const generatePDF = () => {
+  const printBill = () => {
     const printContent = document.getElementById('invoice-content');
     if (printContent) {
-      const originalContents = document.body.innerHTML;
-      const printContents = printContent.innerHTML;
-      
-      document.body.innerHTML = `
-        <html>
-          <head>
-            <title>Invoice ${billData.invoiceNumber}</title>
-            <style>
-              body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-              .no-print { display: none !important; }
-              @media print { .no-print { display: none !important; } }
-            </style>
-          </head>
-          <body>
-            ${printContents}
-          </body>
-        </html>
-      `;
-      
-      window.print();
-      document.body.innerHTML = originalContents;
-      window.location.reload();
+      const newWindow = window.open('', '_blank');
+      if (newWindow) {
+        newWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Invoice ${billData.invoiceNumber}</title>
+              <style>
+                body { 
+                  font-family: Arial, sans-serif; 
+                  margin: 0; 
+                  padding: 20px; 
+                  color: #333;
+                  line-height: 1.4;
+                }
+                .invoice-header {
+                  background: linear-gradient(135deg, #1e40af, #7c3aed);
+                  color: white;
+                  padding: 30px;
+                  margin-bottom: 30px;
+                  border-radius: 8px;
+                }
+                .company-info { display: flex; justify-content: space-between; align-items: flex-start; }
+                .invoice-details { text-align: right; }
+                .bill-to { margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 8px; }
+                .line-items { margin: 20px 0; }
+                .line-items table { width: 100%; border-collapse: collapse; }
+                .line-items th, .line-items td { 
+                  padding: 12px; 
+                  text-align: left; 
+                  border-bottom: 1px solid #ddd; 
+                }
+                .line-items th { background: #f8f9fa; font-weight: bold; }
+                .totals { float: right; width: 400px; margin: 20px 0; }
+                .totals table { width: 100%; }
+                .totals td { padding: 8px 0; }
+                .grand-total { 
+                  background: linear-gradient(135deg, #1e40af, #7c3aed);
+                  color: white;
+                  font-weight: bold;
+                  padding: 15px;
+                  border-radius: 8px;
+                }
+                .footer { 
+                  margin-top: 40px; 
+                  padding: 20px; 
+                  background: #f8f9fa; 
+                  border-radius: 8px;
+                  text-align: center;
+                  font-size: 12px;
+                  color: #666;
+                }
+                @media print {
+                  body { margin: 0; padding: 15px; font-size: 12px; }
+                  .invoice-header { background: #1e40af !important; -webkit-print-color-adjust: exact; }
+                  .grand-total { background: #1e40af !important; -webkit-print-color-adjust: exact; }
+                }
+              </style>
+            </head>
+            <body>
+              <div class="invoice-header">
+                <div class="company-info">
+                  <div>
+                    <h1 style="margin: 0; font-size: 24px;">${billData.companyName}</h1>
+                    <div style="margin-top: 10px; white-space: pre-line;">${billData.companyAddress}</div>
+                    <div style="margin-top: 10px;">
+                      <div>Email: ${billData.companyEmail}</div>
+                      <div>Phone: ${billData.companyPhone}</div>
+                      <div>Website: ${billData.companyWebsite}</div>
+                    </div>
+                  </div>
+                  <div class="invoice-details">
+                    <h1 style="margin: 0; font-size: 36px;">INVOICE</h1>
+                    <div style="margin-top: 15px;">
+                      <div><strong>Invoice #:</strong> ${billData.invoiceNumber}</div>
+                      <div><strong>Issue Date:</strong> ${billData.issueDate}</div>
+                      <div><strong>Due Date:</strong> ${billData.dueDate}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bill-to">
+                <h3 style="margin: 0 0 15px 0; color: #1e40af;">Bill To:</h3>
+                <div style="font-weight: bold; font-size: 16px;">${billData.clientName}</div>
+                <div style="margin-top: 5px; white-space: pre-line;">${billData.clientAddress}</div>
+                <div style="margin-top: 5px;">Email: ${billData.clientEmail}</div>
+                <div>VAT: ${billData.clientVAT}</div>
+              </div>
+
+              <div class="line-items">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Description</th>
+                      <th style="text-align: center;">Quantity</th>
+                      <th style="text-align: center;">Unit Price</th>
+                      <th style="text-align: right;">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${billData.lineItems.map(item => `
+                      <tr>
+                        <td>${item.description}</td>
+                        <td style="text-align: center;">${item.quantity}</td>
+                        <td style="text-align: center;">${billData.currency} ${item.unitPrice.toFixed(2)}</td>
+                        <td style="text-align: right;">${billData.currency} ${item.total.toFixed(2)}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="totals">
+                <table>
+                  <tr>
+                    <td>Subtotal:</td>
+                    <td style="text-align: right;">${billData.currency} ${billData.subtotal.toFixed(2)}</td>
+                  </tr>
+                  <tr>
+                    <td>Discount (${billData.discountRate}%):</td>
+                    <td style="text-align: right; color: green;">-${billData.currency} ${billData.discountAmount.toFixed(2)}</td>
+                  </tr>
+                  <tr>
+                    <td>Tax (${billData.taxRate}%):</td>
+                    <td style="text-align: right;">${billData.currency} ${billData.taxAmount.toFixed(2)}</td>
+                  </tr>
+                </table>
+                <div class="grand-total" style="text-align: center; margin-top: 10px;">
+                  <div style="font-size: 18px;">TOTAL: ${billData.currency} ${billData.grandTotal.toFixed(2)}</div>
+                </div>
+              </div>
+
+              <div style="clear: both; margin-top: 30px;">
+                <div style="margin-bottom: 20px;">
+                  <h4 style="color: #1e40af;">Payment Terms:</h4>
+                  <p>${billData.paymentTerms}</p>
+                </div>
+                <div style="margin-bottom: 20px;">
+                  <h4 style="color: #1e40af;">Bank Details:</h4>
+                  <pre style="white-space: pre-line; font-family: Arial, sans-serif;">${billData.bankDetails}</pre>
+                </div>
+                <div style="margin-bottom: 20px;">
+                  <h4 style="color: #1e40af;">Notes:</h4>
+                  <p>${billData.notes}</p>
+                </div>
+              </div>
+
+              <div class="footer">
+                <div style="margin-bottom: 10px;">
+                  ${billData.companyName} | Reg: ${billData.companyRegNumber} | Email: ${billData.companyEmail} | ${billData.companyWebsite}
+                </div>
+                <div style="font-size: 10px;">
+                  This invoice complies with international standards: ${template.standards.join(', ')}
+                </div>
+                <div style="font-size: 10px; margin-top: 5px;">
+                  ${billData.legalText}
+                </div>
+              </div>
+            </body>
+          </html>
+        `);
+        newWindow.document.close();
+        newWindow.print();
+      }
     }
 
+    toast({
+      title: "Print Ready",
+      description: `Invoice ${billData.invoiceNumber} is ready for printing.`,
+    });
+  };
+
+  const generatePDF = () => {
+    printBill();
     toast({
       title: "PDF Generated",
       description: `Invoice ${billData.invoiceNumber} has been prepared for download.`,
@@ -322,7 +551,7 @@ export function BillTemplate({ templateId, onBack }: BillTemplateProps) {
         {/* Enhanced Header Controls */}
         <div className="flex items-center justify-between mb-8 bg-white rounded-2xl shadow-lg p-6">
           <div className="flex items-center gap-6">
-            <Button variant="outline" onClick={onBack} className="flex items-center gap-2 px-6 py-3">
+            <Button variant="outline" onClick={onBack} className="flex items-center gap-2 px-6 py-3 hover:bg-blue-50 transition-colors">
               <ArrowLeft className="w-5 h-5" />
               Back to Templates
             </Button>
@@ -332,12 +561,12 @@ export function BillTemplate({ templateId, onBack }: BillTemplateProps) {
                 {template.name}
               </h1>
               <div className="flex items-center gap-2 mt-2">
-                <Badge className="bg-green-100 text-green-800 px-3 py-1">
+                <Badge className="bg-green-100 text-green-800 px-3 py-1 font-semibold">
                   <Shield className="w-3 h-3 mr-1" />
                   Live Editing
                 </Badge>
                 {template.standards.map((standard, index) => (
-                  <Badge key={index} variant="outline" className="text-xs">
+                  <Badge key={index} variant="outline" className="text-xs font-medium">
                     {standard}
                   </Badge>
                 ))}
@@ -349,18 +578,18 @@ export function BillTemplate({ templateId, onBack }: BillTemplateProps) {
             <Button 
               variant="outline" 
               onClick={() => setIsPreviewMode(!isPreviewMode)}
-              className={`px-6 py-3 ${isPreviewMode ? 'bg-blue-50 text-blue-600 border-blue-200' : ''}`}
+              className={`px-6 py-3 transition-all duration-200 ${isPreviewMode ? 'bg-blue-50 text-blue-600 border-blue-200 shadow-md' : 'hover:bg-blue-50'}`}
             >
               <Eye className="w-5 h-5 mr-2" />
               {isPreviewMode ? 'Edit Mode' : 'Preview'}
             </Button>
-            <Button variant="outline" onClick={() => window.print()} className="px-6 py-3">
+            <Button variant="outline" onClick={printBill} className="px-6 py-3 hover:bg-green-50 hover:border-green-200 transition-colors">
               <Printer className="w-5 h-5 mr-2" />
               Print
             </Button>
             <Button 
               onClick={generatePDF}
-              className={`bg-gradient-to-r ${template.colors.primary} hover:opacity-90 px-6 py-3 text-white font-semibold shadow-lg`}
+              className={`bg-gradient-to-r ${template.colors.primary} hover:opacity-90 px-6 py-3 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105`}
             >
               <Download className="w-5 h-5 mr-2" />
               Download PDF
@@ -431,7 +660,7 @@ export function BillTemplate({ templateId, onBack }: BillTemplateProps) {
               </div>
               <div className="text-right space-y-4">
                 <h1 className="text-5xl font-bold mb-4">INVOICE</h1>
-                <div className="space-y-3 bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                <div className="space-y-3 bg-white/10 backdrop-blur-sm rounded-xl p-6 shadow-xl">
                   <div className="flex items-center gap-3">
                     <span className="text-white/80 font-medium">Invoice #</span>
                     <EditableField
@@ -474,7 +703,7 @@ export function BillTemplate({ templateId, onBack }: BillTemplateProps) {
                   <Globe className="w-6 h-6" />
                   Bill To
                 </h3>
-                <div className="space-y-4 bg-gray-50 rounded-xl p-6">
+                <div className="space-y-4 bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
                   <EditableField
                     value={billData.clientName}
                     onChange={(value) => updateBillData('clientName', value)}
@@ -510,21 +739,21 @@ export function BillTemplate({ templateId, onBack }: BillTemplateProps) {
                   <CreditCard className="w-6 h-6" />
                   Payment Details
                 </h3>
-                <div className="space-y-4 bg-gray-50 rounded-xl p-6">
+                <div className="space-y-4 bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium text-gray-600 mb-1 block">Currency</label>
                       <select
                         value={billData.currency}
                         onChange={(e) => updateBillData('currency', e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 bg-white shadow-sm hover:shadow-md transition-shadow"
                         disabled={isPreviewMode}
                       >
-                        <option value="USD">USD - US Dollar</option>
-                        <option value="EUR">EUR - Euro</option>
-                        <option value="GBP">GBP - British Pound</option>
-                        <option value="INR">INR - Indian Rupee</option>
-                        <option value="CAD">CAD - Canadian Dollar</option>
+                        {currencies.map(currency => (
+                          <option key={currency.code} value={currency.code}>
+                            {currency.code} - {currency.name}
+                          </option>
+                        ))}
                       </select>
                     </div>
                     <div>
@@ -557,7 +786,7 @@ export function BillTemplate({ templateId, onBack }: BillTemplateProps) {
               </div>
             </div>
 
-            {/* Line Items */}
+            {/* Line Items with Enhanced UI */}
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h3 className={`text-xl font-bold ${template.colors.accent} flex items-center gap-3`}>
@@ -568,7 +797,7 @@ export function BillTemplate({ templateId, onBack }: BillTemplateProps) {
                   <Button 
                     onClick={addLineItem}
                     size="sm"
-                    className={`bg-gradient-to-r ${template.colors.primary} hover:opacity-90 text-white shadow-lg`}
+                    className={`bg-gradient-to-r ${template.colors.primary} hover:opacity-90 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105`}
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Add Item
@@ -576,7 +805,7 @@ export function BillTemplate({ templateId, onBack }: BillTemplateProps) {
                 )}
               </div>
 
-              <div className={`border-2 ${template.colors.border} rounded-xl overflow-hidden shadow-lg`}>
+              <div className={`border-2 ${template.colors.border} rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow`}>
                 <div className={`${template.colors.secondary} p-4 grid grid-cols-12 gap-4 font-bold text-gray-800 border-b ${template.colors.border}`}>
                   <div className="col-span-5">Description</div>
                   <div className="col-span-2 text-center">Quantity</div>
@@ -625,7 +854,7 @@ export function BillTemplate({ templateId, onBack }: BillTemplateProps) {
                           onClick={() => removeLineItem(item.id)}
                           size="sm"
                           variant="ghost"
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2"
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors"
                           disabled={billData.lineItems.length === 1}
                         >
                           <Trash className="w-4 h-4" />
@@ -637,10 +866,10 @@ export function BillTemplate({ templateId, onBack }: BillTemplateProps) {
               </div>
             </div>
 
-            {/* Totals */}
+            {/* Enhanced Totals Section */}
             <div className="flex justify-end">
               <div className="w-full max-w-lg">
-                <div className="bg-gray-50 rounded-xl p-6 space-y-4">
+                <div className="bg-gray-50 rounded-xl p-6 space-y-4 shadow-lg hover:shadow-xl transition-shadow">
                   <div className="flex justify-between items-center py-2 border-b border-gray-200">
                     <span className="text-gray-700 font-medium">Subtotal:</span>
                     <span className="font-bold text-lg">{billData.currency} {billData.subtotal.toFixed(2)}</span>
@@ -692,11 +921,11 @@ export function BillTemplate({ templateId, onBack }: BillTemplateProps) {
               </div>
             </div>
 
-            {/* Notes & Legal Text */}
+            {/* Enhanced Notes & Legal Text */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div>
                 <h3 className={`text-lg font-bold ${template.colors.accent} mb-4`}>Notes</h3>
-                <div className="bg-gray-50 rounded-xl p-6">
+                <div className="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
                   <EditableField
                     value={billData.notes}
                     onChange={(value) => updateBillData('notes', value)}
@@ -708,7 +937,7 @@ export function BillTemplate({ templateId, onBack }: BillTemplateProps) {
               </div>
               <div>
                 <h3 className={`text-lg font-bold ${template.colors.accent} mb-4`}>Legal & Compliance</h3>
-                <div className="bg-gray-50 rounded-xl p-6">
+                <div className="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
                   <EditableField
                     value={billData.legalText}
                     onChange={(value) => updateBillData('legalText', value)}
