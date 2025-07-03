@@ -7,5 +7,5 @@ interface CompanyProfileProps {
 }
 
 export function CompanyProfile({ selectedId, onSelectCompany }: CompanyProfileProps) {
-  return <CompaniesManager />;
+  return <CompaniesManager onSelectCompany={onSelectCompany} />;
 }
