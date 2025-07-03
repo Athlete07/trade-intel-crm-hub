@@ -43,8 +43,8 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
     estimatedDuration: '4',
     location: '',
     objectives: '',
-    standards: [],
-    checklist: [],
+    standards: [] as string[],
+    checklist: [] as string[],
     riskLevel: 'medium',
     preparationTime: '7',
     followUpRequired: true,
@@ -87,7 +87,7 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
     if (!formData.title || !formData.auditor || !formData.scheduledDate) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all required fields.",
+        description: "Please fill in all required fields (Title, Auditor, and Scheduled Date).",
         variant: "destructive",
       });
       return;
@@ -98,14 +98,16 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
       ...formData,
       status: 'Scheduled',
       createdDate: new Date().toISOString().split('T')[0],
-      progress: 0
+      progress: 0,
+      createdBy: 'Current User', // In production, get from auth context
+      lastUpdated: new Date().toISOString()
     };
 
     onScheduled(auditData);
     
     toast({
       title: "Audit Scheduled Successfully",
-      description: `${formData.type} has been scheduled for ${formData.scheduledDate}`,
+      description: `${formData.type} "${formData.title}" has been scheduled for ${formData.scheduledDate}`,
     });
 
     // Reset form
@@ -176,6 +178,13 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
     }
   };
 
+  const handleInputChange = (field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -202,7 +211,7 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
                   <Input
                     id="title"
                     value={formData.title}
-                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                    onChange={(e) => handleInputChange('title', e.target.value)}
                     placeholder="Enter audit title"
                     required
                   />
@@ -212,7 +221,7 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
                   <select
                     id="type"
                     value={formData.type}
-                    onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
+                    onChange={(e) => handleInputChange('type', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
                   >
                     {auditTypes.map(type => (
@@ -227,7 +236,7 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
                 <Textarea
                   id="scope"
                   value={formData.scope}
-                  onChange={(e) => setFormData(prev => ({ ...prev, scope: e.target.value }))}
+                  onChange={(e) => handleInputChange('scope', e.target.value)}
                   placeholder="Define the scope and boundaries of the audit"
                   rows={3}
                 />
@@ -238,7 +247,7 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
                 <Textarea
                   id="objectives"
                   value={formData.objectives}
-                  onChange={(e) => setFormData(prev => ({ ...prev, objectives: e.target.value }))}
+                  onChange={(e) => handleInputChange('objectives', e.target.value)}
                   placeholder="Define the specific objectives and goals of the audit"
                   rows={3}
                 />
@@ -262,8 +271,9 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
                     id="scheduledDate"
                     type="date"
                     value={formData.scheduledDate}
-                    onChange={(e) => setFormData(prev => ({ ...prev, scheduledDate: e.target.value }))}
+                    onChange={(e) => handleInputChange('scheduledDate', e.target.value)}
                     required
+                    min={new Date().toISOString().split('T')[0]}
                   />
                 </div>
                 <div>
@@ -272,7 +282,7 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
                     id="scheduledTime"
                     type="time"
                     value={formData.scheduledTime}
-                    onChange={(e) => setFormData(prev => ({ ...prev, scheduledTime: e.target.value }))}
+                    onChange={(e) => handleInputChange('scheduledTime', e.target.value)}
                   />
                 </div>
                 <div>
@@ -281,7 +291,7 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
                     id="estimatedDuration"
                     type="number"
                     value={formData.estimatedDuration}
-                    onChange={(e) => setFormData(prev => ({ ...prev, estimatedDuration: e.target.value }))}
+                    onChange={(e) => handleInputChange('estimatedDuration', e.target.value)}
                     min="1"
                     max="24"
                   />
@@ -294,7 +304,7 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
                   <Input
                     id="location"
                     value={formData.location}
-                    onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                    onChange={(e) => handleInputChange('location', e.target.value)}
                     placeholder="Audit location or 'Virtual'"
                   />
                 </div>
@@ -304,7 +314,7 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
                     id="preparationTime"
                     type="number"
                     value={formData.preparationTime}
-                    onChange={(e) => setFormData(prev => ({ ...prev, preparationTime: e.target.value }))}
+                    onChange={(e) => handleInputChange('preparationTime', e.target.value)}
                     min="1"
                     max="30"
                   />
@@ -328,7 +338,7 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
                   <Input
                     id="auditor"
                     value={formData.auditor}
-                    onChange={(e) => setFormData(prev => ({ ...prev, auditor: e.target.value }))}
+                    onChange={(e) => handleInputChange('auditor', e.target.value)}
                     placeholder="Enter lead auditor name"
                     required
                   />
@@ -338,7 +348,7 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
                   <Input
                     id="auditeeCompany"
                     value={formData.auditeeCompany}
-                    onChange={(e) => setFormData(prev => ({ ...prev, auditeeCompany: e.target.value }))}
+                    onChange={(e) => handleInputChange('auditeeCompany', e.target.value)}
                     placeholder="Company being audited"
                   />
                 </div>
@@ -349,7 +359,7 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
                 <Input
                   id="auditeeContact"
                   value={formData.auditeeContact}
-                  onChange={(e) => setFormData(prev => ({ ...prev, auditeeContact: e.target.value }))}
+                  onChange={(e) => handleInputChange('auditeeContact', e.target.value)}
                   placeholder="Primary contact for the audit"
                 />
               </div>
@@ -379,16 +389,16 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
                       <option key={standard} value={standard}>{standard}</option>
                     ))}
                   </select>
-                  <Button type="button" onClick={addStandard}>
+                  <Button type="button" onClick={addStandard} disabled={!newStandard}>
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {formData.standards.map(standard => (
                     <Badge key={standard} variant="outline" className="flex items-center gap-1">
-                      {standard}
+                      {standard.split(' - ')[0]}
                       <X 
-                        className="w-3 h-3 cursor-pointer" 
+                        className="w-3 h-3 cursor-pointer hover:text-red-600" 
                         onClick={() => removeStandard(standard)}
                       />
                     </Badge>
@@ -406,7 +416,7 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
                     placeholder="Add checklist item"
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addChecklistItem())}
                   />
-                  <Button type="button" onClick={addChecklistItem}>
+                  <Button type="button" onClick={addChecklistItem} disabled={!newChecklistItem}>
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>
@@ -415,7 +425,7 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
                     <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                       <span className="text-sm">{item}</span>
                       <X 
-                        className="w-4 h-4 cursor-pointer text-red-500" 
+                        className="w-4 h-4 cursor-pointer text-red-500 hover:text-red-700" 
                         onClick={() => removeChecklistItem(item)}
                       />
                     </div>
@@ -440,7 +450,7 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
                   <select
                     id="riskLevel"
                     value={formData.riskLevel}
-                    onChange={(e) => setFormData(prev => ({ ...prev, riskLevel: e.target.value }))}
+                    onChange={(e) => handleInputChange('riskLevel', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
                   >
                     <option value="low">Low Risk</option>
@@ -454,7 +464,8 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
                     id="reportingDeadline"
                     type="date"
                     value={formData.reportingDeadline}
-                    onChange={(e) => setFormData(prev => ({ ...prev, reportingDeadline: e.target.value }))}
+                    onChange={(e) => handleInputChange('reportingDeadline', e.target.value)}
+                    min={formData.scheduledDate || new Date().toISOString().split('T')[0]}
                   />
                 </div>
               </div>
@@ -464,7 +475,7 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
                   type="checkbox"
                   id="followUpRequired"
                   checked={formData.followUpRequired}
-                  onChange={(e) => setFormData(prev => ({ ...prev, followUpRequired: e.target.checked }))}
+                  onChange={(e) => handleInputChange('followUpRequired', e.target.checked)}
                   className="w-4 h-4"
                 />
                 <Label htmlFor="followUpRequired">Follow-up audit required</Label>
@@ -480,7 +491,7 @@ export function ScheduleAuditDialog({ open, onOpenChange, onScheduled }: Schedul
             <CardContent>
               <Textarea
                 value={formData.notes}
-                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                onChange={(e) => handleInputChange('notes', e.target.value)}
                 placeholder="Any additional notes, special requirements, or instructions for the audit"
                 rows={4}
               />

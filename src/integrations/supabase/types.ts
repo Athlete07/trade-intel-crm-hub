@@ -9,6 +9,224 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      buyer_companies: {
+        Row: {
+          alternate_contact_name: string | null
+          alternate_email: string | null
+          alternate_phone: string | null
+          aml_kyc_compliance: string | null
+          annual_import_value: string | null
+          annual_turnover: string | null
+          banking_partner: string | null
+          business_address: string | null
+          business_category: string | null
+          business_languages: string[] | null
+          city: string | null
+          company_name: string
+          company_type: string | null
+          compliance_standards: string[] | null
+          contact_email: string | null
+          contact_person_name: string | null
+          contact_phone: string | null
+          country: string | null
+          created_at: string | null
+          credit_rating: string | null
+          currency_preferences: string[] | null
+          customs_broker: string | null
+          customs_registration: string | null
+          designation: string | null
+          duns_number: string | null
+          email: string | null
+          employee_count: string | null
+          eori_number: string | null
+          export_license_number: string | null
+          freight_forwarder: string | null
+          id: string
+          ie_code: string | null
+          import_license_number: string | null
+          incorporation_date: string | null
+          letter_of_credit_bank: string | null
+          payment_terms_preference: string | null
+          phone: string | null
+          postal_code: string | null
+          preferred_incoterms: string[] | null
+          preferred_suppliers: string | null
+          primary_markets: string[] | null
+          product_categories: string[] | null
+          product_certifications: string[] | null
+          quality_certifications: string | null
+          registration_number: string | null
+          regulatory_licenses: string | null
+          restricted_products: string | null
+          sanctions_compliance: string | null
+          source_countries: string[] | null
+          state: string | null
+          sustainability_requirements: string | null
+          target_markets: string[] | null
+          tax_id: string | null
+          time_zone: string | null
+          trade_finance_limit: string | null
+          trading_experience: string | null
+          vat_number: string | null
+          website: string | null
+          years_in_business: string | null
+        }
+        Insert: {
+          alternate_contact_name?: string | null
+          alternate_email?: string | null
+          alternate_phone?: string | null
+          aml_kyc_compliance?: string | null
+          annual_import_value?: string | null
+          annual_turnover?: string | null
+          banking_partner?: string | null
+          business_address?: string | null
+          business_category?: string | null
+          business_languages?: string[] | null
+          city?: string | null
+          company_name: string
+          company_type?: string | null
+          compliance_standards?: string[] | null
+          contact_email?: string | null
+          contact_person_name?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string | null
+          credit_rating?: string | null
+          currency_preferences?: string[] | null
+          customs_broker?: string | null
+          customs_registration?: string | null
+          designation?: string | null
+          duns_number?: string | null
+          email?: string | null
+          employee_count?: string | null
+          eori_number?: string | null
+          export_license_number?: string | null
+          freight_forwarder?: string | null
+          id?: string
+          ie_code?: string | null
+          import_license_number?: string | null
+          incorporation_date?: string | null
+          letter_of_credit_bank?: string | null
+          payment_terms_preference?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          preferred_incoterms?: string[] | null
+          preferred_suppliers?: string | null
+          primary_markets?: string[] | null
+          product_categories?: string[] | null
+          product_certifications?: string[] | null
+          quality_certifications?: string | null
+          registration_number?: string | null
+          regulatory_licenses?: string | null
+          restricted_products?: string | null
+          sanctions_compliance?: string | null
+          source_countries?: string[] | null
+          state?: string | null
+          sustainability_requirements?: string | null
+          target_markets?: string[] | null
+          tax_id?: string | null
+          time_zone?: string | null
+          trade_finance_limit?: string | null
+          trading_experience?: string | null
+          vat_number?: string | null
+          website?: string | null
+          years_in_business?: string | null
+        }
+        Update: {
+          alternate_contact_name?: string | null
+          alternate_email?: string | null
+          alternate_phone?: string | null
+          aml_kyc_compliance?: string | null
+          annual_import_value?: string | null
+          annual_turnover?: string | null
+          banking_partner?: string | null
+          business_address?: string | null
+          business_category?: string | null
+          business_languages?: string[] | null
+          city?: string | null
+          company_name?: string
+          company_type?: string | null
+          compliance_standards?: string[] | null
+          contact_email?: string | null
+          contact_person_name?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string | null
+          credit_rating?: string | null
+          currency_preferences?: string[] | null
+          customs_broker?: string | null
+          customs_registration?: string | null
+          designation?: string | null
+          duns_number?: string | null
+          email?: string | null
+          employee_count?: string | null
+          eori_number?: string | null
+          export_license_number?: string | null
+          freight_forwarder?: string | null
+          id?: string
+          ie_code?: string | null
+          import_license_number?: string | null
+          incorporation_date?: string | null
+          letter_of_credit_bank?: string | null
+          payment_terms_preference?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          preferred_incoterms?: string[] | null
+          preferred_suppliers?: string | null
+          primary_markets?: string[] | null
+          product_categories?: string[] | null
+          product_certifications?: string[] | null
+          quality_certifications?: string | null
+          registration_number?: string | null
+          regulatory_licenses?: string | null
+          restricted_products?: string | null
+          sanctions_compliance?: string | null
+          source_countries?: string[] | null
+          state?: string | null
+          sustainability_requirements?: string | null
+          target_markets?: string[] | null
+          tax_id?: string | null
+          time_zone?: string | null
+          trade_finance_limit?: string | null
+          trading_experience?: string | null
+          vat_number?: string | null
+          website?: string | null
+          years_in_business?: string | null
+        }
+        Relationships: []
+      }
+      buyer_documents: {
+        Row: {
+          buyer_company_id: string | null
+          document_type: string | null
+          file_url: string | null
+          id: string
+          uploaded_at: string | null
+        }
+        Insert: {
+          buyer_company_id?: string | null
+          document_type?: string | null
+          file_url?: string | null
+          id?: string
+          uploaded_at?: string | null
+        }
+        Update: {
+          buyer_company_id?: string | null
+          document_type?: string | null
+          file_url?: string | null
+          id?: string
+          uploaded_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buyer_documents_buyer_company_id_fkey"
+            columns: ["buyer_company_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           address: string | null
@@ -222,6 +440,281 @@ export type Database = {
           type?: string | null
           upload_date?: string | null
           uploaded_by?: string | null
+        }
+        Relationships: []
+      }
+      seller_companies: {
+        Row: {
+          alternate_contact_name: string | null
+          alternate_email: string | null
+          alternate_phone: string | null
+          aml_kyc_compliance: string | null
+          annual_export_value: string | null
+          annual_turnover: string | null
+          banking_partner: string | null
+          business_address: string | null
+          business_category: string | null
+          business_languages: string[] | null
+          city: string | null
+          company_name: string
+          company_type: string | null
+          compliance_standards: string[] | null
+          contact_email: string | null
+          contact_person_name: string | null
+          contact_phone: string | null
+          country: string | null
+          created_at: string | null
+          credit_rating: string | null
+          currency_preferences: string[] | null
+          customs_broker: string | null
+          customs_registration: string | null
+          designation: string | null
+          duns_number: string | null
+          email: string | null
+          employee_count: string | null
+          eori_number: string | null
+          export_license_number: string | null
+          freight_forwarder: string | null
+          id: string
+          ie_code: string | null
+          incorporation_date: string | null
+          letter_of_credit_bank: string | null
+          payment_terms_preference: string | null
+          phone: string | null
+          postal_code: string | null
+          preferred_buyers: string | null
+          preferred_incoterms: string[] | null
+          primary_markets: string[] | null
+          product_categories: string[] | null
+          product_certifications: string[] | null
+          quality_certifications: string | null
+          registration_number: string | null
+          regulatory_licenses: string | null
+          restricted_products: string | null
+          sanctions_compliance: string | null
+          source_countries: string[] | null
+          state: string | null
+          sustainability_requirements: string | null
+          target_markets: string[] | null
+          tax_id: string | null
+          time_zone: string | null
+          trade_finance_limit: string | null
+          trading_experience: string | null
+          vat_number: string | null
+          website: string | null
+          years_in_business: string | null
+        }
+        Insert: {
+          alternate_contact_name?: string | null
+          alternate_email?: string | null
+          alternate_phone?: string | null
+          aml_kyc_compliance?: string | null
+          annual_export_value?: string | null
+          annual_turnover?: string | null
+          banking_partner?: string | null
+          business_address?: string | null
+          business_category?: string | null
+          business_languages?: string[] | null
+          city?: string | null
+          company_name: string
+          company_type?: string | null
+          compliance_standards?: string[] | null
+          contact_email?: string | null
+          contact_person_name?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string | null
+          credit_rating?: string | null
+          currency_preferences?: string[] | null
+          customs_broker?: string | null
+          customs_registration?: string | null
+          designation?: string | null
+          duns_number?: string | null
+          email?: string | null
+          employee_count?: string | null
+          eori_number?: string | null
+          export_license_number?: string | null
+          freight_forwarder?: string | null
+          id?: string
+          ie_code?: string | null
+          incorporation_date?: string | null
+          letter_of_credit_bank?: string | null
+          payment_terms_preference?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          preferred_buyers?: string | null
+          preferred_incoterms?: string[] | null
+          primary_markets?: string[] | null
+          product_categories?: string[] | null
+          product_certifications?: string[] | null
+          quality_certifications?: string | null
+          registration_number?: string | null
+          regulatory_licenses?: string | null
+          restricted_products?: string | null
+          sanctions_compliance?: string | null
+          source_countries?: string[] | null
+          state?: string | null
+          sustainability_requirements?: string | null
+          target_markets?: string[] | null
+          tax_id?: string | null
+          time_zone?: string | null
+          trade_finance_limit?: string | null
+          trading_experience?: string | null
+          vat_number?: string | null
+          website?: string | null
+          years_in_business?: string | null
+        }
+        Update: {
+          alternate_contact_name?: string | null
+          alternate_email?: string | null
+          alternate_phone?: string | null
+          aml_kyc_compliance?: string | null
+          annual_export_value?: string | null
+          annual_turnover?: string | null
+          banking_partner?: string | null
+          business_address?: string | null
+          business_category?: string | null
+          business_languages?: string[] | null
+          city?: string | null
+          company_name?: string
+          company_type?: string | null
+          compliance_standards?: string[] | null
+          contact_email?: string | null
+          contact_person_name?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string | null
+          credit_rating?: string | null
+          currency_preferences?: string[] | null
+          customs_broker?: string | null
+          customs_registration?: string | null
+          designation?: string | null
+          duns_number?: string | null
+          email?: string | null
+          employee_count?: string | null
+          eori_number?: string | null
+          export_license_number?: string | null
+          freight_forwarder?: string | null
+          id?: string
+          ie_code?: string | null
+          incorporation_date?: string | null
+          letter_of_credit_bank?: string | null
+          payment_terms_preference?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          preferred_buyers?: string | null
+          preferred_incoterms?: string[] | null
+          primary_markets?: string[] | null
+          product_categories?: string[] | null
+          product_certifications?: string[] | null
+          quality_certifications?: string | null
+          registration_number?: string | null
+          regulatory_licenses?: string | null
+          restricted_products?: string | null
+          sanctions_compliance?: string | null
+          source_countries?: string[] | null
+          state?: string | null
+          sustainability_requirements?: string | null
+          target_markets?: string[] | null
+          tax_id?: string | null
+          time_zone?: string | null
+          trade_finance_limit?: string | null
+          trading_experience?: string | null
+          vat_number?: string | null
+          website?: string | null
+          years_in_business?: string | null
+        }
+        Relationships: []
+      }
+      seller_documents: {
+        Row: {
+          document_type: string | null
+          file_url: string | null
+          id: string
+          seller_company_id: string | null
+          uploaded_at: string | null
+        }
+        Insert: {
+          document_type?: string | null
+          file_url?: string | null
+          id?: string
+          seller_company_id?: string | null
+          uploaded_at?: string | null
+        }
+        Update: {
+          document_type?: string | null
+          file_url?: string | null
+          id?: string
+          seller_company_id?: string | null
+          uploaded_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_documents_seller_company_id_fkey"
+            columns: ["seller_company_id"]
+            isOneToOne: false
+            referencedRelation: "seller_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shipments: {
+        Row: {
+          actual_arrival: string | null
+          cargo: string
+          carrier: string
+          created_at: string | null
+          departure_date: string | null
+          destination: string
+          estimated_arrival: string | null
+          id: string
+          incoterm: string | null
+          mode: string
+          origin: string
+          priority: string | null
+          status: string
+          tracking_number: string
+          value: string | null
+          vessel: string | null
+          weight: string | null
+        }
+        Insert: {
+          actual_arrival?: string | null
+          cargo: string
+          carrier: string
+          created_at?: string | null
+          departure_date?: string | null
+          destination: string
+          estimated_arrival?: string | null
+          id?: string
+          incoterm?: string | null
+          mode: string
+          origin: string
+          priority?: string | null
+          status?: string
+          tracking_number: string
+          value?: string | null
+          vessel?: string | null
+          weight?: string | null
+        }
+        Update: {
+          actual_arrival?: string | null
+          cargo?: string
+          carrier?: string
+          created_at?: string | null
+          departure_date?: string | null
+          destination?: string
+          estimated_arrival?: string | null
+          id?: string
+          incoterm?: string | null
+          mode?: string
+          origin?: string
+          priority?: string | null
+          status?: string
+          tracking_number?: string
+          value?: string | null
+          vessel?: string | null
+          weight?: string | null
         }
         Relationships: []
       }

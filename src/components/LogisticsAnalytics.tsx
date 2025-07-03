@@ -4,6 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   BarChart, 
   Bar, 
@@ -35,7 +39,10 @@ import {
   Globe,
   Activity,
   Target,
-  Zap
+  Zap,
+  Download,
+  Filter,
+  Search
 } from "lucide-react";
 
 interface LogisticsAnalyticsProps {
@@ -46,8 +53,44 @@ export function LogisticsAnalytics({ onBack }: LogisticsAnalyticsProps) {
   const [activeTab, setActiveTab] = useState('overview');
   const [timeRange, setTimeRange] = useState('month');
   const [isLoading, setIsLoading] = useState(true);
+  const [shipments, setShipments] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const { toast } = useToast();
 
-  // Mock data for analytics
+  useEffect(() => {
+    loadShipmentData();
+  }, []);
+
+  const loadShipmentData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('shipments')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setShipments(data || []);
+    } catch (error) {
+      console.error('Error loading shipment data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load shipment data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Calculate analytics data
+  const totalShipments = shipments.length;
+  const completedShipments = shipments.filter(s => s.status === 'delivered').length;
+  const onTimeDeliveryRate = totalShipments > 0 ? ((completedShipments / totalShipments) * 100).toFixed(1) : '0';
+  const activeShipments = shipments.filter(s => s.status === 'pending' || s.status === 'in_transit').length;
+  const delayedShipments = shipments.filter(s => s.status === 'delayed').length;
+
+  // Mock data for charts (in production, this would be calculated from real data)
   const shipmentVolumeData = [
     { month: 'Jan', shipments: 120, revenue: 245000 },
     { month: 'Feb', shipments: 140, revenue: 280000 },
@@ -95,10 +138,37 @@ export function LogisticsAnalytics({ onBack }: LogisticsAnalyticsProps) {
     { carrier: 'MSC', shipments: 38, onTime: 85, rating: 4.2, cost: 340 }
   ];
 
-  useEffect(() => {
-    // Simulate loading
-    setTimeout(() => setIsLoading(false), 1000);
-  }, []);
+  const filteredShipments = shipments.filter(shipment => {
+    const matchesSearch = shipment.cargo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         shipment.tracking_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         shipment.origin?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         shipment.destination?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesFilter = filterStatus === 'all' || shipment.status === filterStatus;
+    
+    return matchesSearch && matchesFilter;
+  });
+
+  const exportData = () => {
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + "Tracking Number,Cargo,Origin,Destination,Status,Carrier,ETA\n"
+      + filteredShipments.map(s => 
+          `${s.tracking_number},${s.cargo},${s.origin},${s.destination},${s.status},${s.carrier},${s.estimated_arrival}`
+        ).join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "logistics_analytics.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast({
+      title: "Export Successful",
+      description: "Analytics data has been exported to CSV",
+    });
+  };
 
   if (isLoading) {
     return (
@@ -135,9 +205,9 @@ export function LogisticsAnalytics({ onBack }: LogisticsAnalyticsProps) {
             <option value="quarter">Last Quarter</option>
             <option value="year">Last Year</option>
           </select>
-          <Button>
-            <Calendar className="w-4 h-4 mr-2" />
-            Custom Range
+          <Button onClick={exportData}>
+            <Download className="w-4 h-4 mr-2" />
+            Export Data
           </Button>
         </div>
       </div>
@@ -149,7 +219,7 @@ export function LogisticsAnalytics({ onBack }: LogisticsAnalyticsProps) {
             <div className="flex items-center gap-3">
               <Package className="w-6 h-6 text-blue-600" />
               <div>
-                <p className="text-2xl font-bold">2,847</p>
+                <p className="text-2xl font-bold">{totalShipments}</p>
                 <p className="text-sm text-gray-500">Total Shipments</p>
                 <div className="flex items-center gap-1 mt-1">
                   <TrendingUp className="w-3 h-3 text-green-600" />
@@ -165,7 +235,7 @@ export function LogisticsAnalytics({ onBack }: LogisticsAnalyticsProps) {
             <div className="flex items-center gap-3">
               <CheckCircle className="w-6 h-6 text-green-600" />
               <div>
-                <p className="text-2xl font-bold">94.2%</p>
+                <p className="text-2xl font-bold">{onTimeDeliveryRate}%</p>
                 <p className="text-sm text-gray-500">On-Time Delivery</p>
                 <div className="flex items-center gap-1 mt-1">
                   <TrendingUp className="w-3 h-3 text-green-600" />
@@ -213,7 +283,7 @@ export function LogisticsAnalytics({ onBack }: LogisticsAnalyticsProps) {
             <div className="flex items-center gap-3">
               <AlertTriangle className="w-6 h-6 text-red-600" />
               <div>
-                <p className="text-2xl font-bold">23</p>
+                <p className="text-2xl font-bold">{delayedShipments}</p>
                 <p className="text-sm text-gray-500">Active Issues</p>
                 <div className="flex items-center gap-1 mt-1">
                   <TrendingDown className="w-3 h-3 text-green-600" />
@@ -241,6 +311,34 @@ export function LogisticsAnalytics({ onBack }: LogisticsAnalyticsProps) {
         </Card>
       </div>
 
+      {/* Filters */}
+      <div className="flex items-center gap-4">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input
+            placeholder="Search shipments..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
+        >
+          <option value="all">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="in_transit">In Transit</option>
+          <option value="delivered">Delivered</option>
+          <option value="delayed">Delayed</option>
+        </select>
+        <Button variant="outline">
+          <Filter className="w-4 h-4 mr-2" />
+          More Filters
+        </Button>
+      </div>
+
       {/* Analytics Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-6">
@@ -249,7 +347,7 @@ export function LogisticsAnalytics({ onBack }: LogisticsAnalyticsProps) {
           <TabsTrigger value="routes">Routes</TabsTrigger>
           <TabsTrigger value="costs">Cost Analysis</TabsTrigger>
           <TabsTrigger value="carriers">Carriers</TabsTrigger>
-          <TabsTrigger value="trends">Trends</TabsTrigger>
+          <TabsTrigger value="shipments">Shipments ({filteredShipments.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -328,33 +426,26 @@ export function LogisticsAnalytics({ onBack }: LogisticsAnalyticsProps) {
         </TabsContent>
 
         <TabsContent value="performance" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Performance Metrics</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center p-6 bg-green-50 rounded-lg">
-                  <CheckCircle className="w-12 h-12 text-green-600 mx-auto mb-4" />
-                  <h3 className="text-2xl font-bold text-green-900">94.2%</h3>
-                  <p className="text-green-700">On-Time Delivery Rate</p>
-                  <p className="text-sm text-green-600 mt-2">Target: 95%</p>
-                </div>
-                <div className="text-center p-6 bg-blue-50 rounded-lg">
-                  <Zap className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-                  <h3 className="text-2xl font-bold text-blue-900">99.1%</h3>
-                  <p className="text-blue-700">Shipment Accuracy</p>
-                  <p className="text-sm text-blue-600 mt-2">Target: 99%</p>
-                </div>
-                <div className="text-center p-6 bg-purple-50 rounded-lg">
-                  <Target className="w-12 h-12 text-purple-600 mx-auto mb-4" />
-                  <h3 className="text-2xl font-bold text-purple-900">4.7/5</h3>
-                  <p className="text-purple-700">Customer Satisfaction</p>
-                  <p className="text-sm text-purple-600 mt-2">Target: 4.5/5</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center p-6 bg-green-50 rounded-lg">
+              <CheckCircle className="w-12 h-12 text-green-600 mx-auto mb-4" />
+              <h3 className="text-2xl font-bold text-green-900">{onTimeDeliveryRate}%</h3>
+              <p className="text-green-700">On-Time Delivery Rate</p>
+              <p className="text-sm text-green-600 mt-2">Target: 95%</p>
+            </div>
+            <div className="text-center p-6 bg-blue-50 rounded-lg">
+              <Zap className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+              <h3 className="text-2xl font-bold text-blue-900">99.1%</h3>
+              <p className="text-blue-700">Shipment Accuracy</p>
+              <p className="text-sm text-blue-600 mt-2">Target: 99%</p>
+            </div>
+            <div className="text-center p-6 bg-purple-50 rounded-lg">
+              <Target className="w-12 h-12 text-purple-600 mx-auto mb-4" />
+              <h3 className="text-2xl font-bold text-purple-900">4.7/5</h3>
+              <p className="text-purple-700">Customer Satisfaction</p>
+              <p className="text-sm text-purple-600 mt-2">Target: 4.5/5</p>
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="routes" className="space-y-6">
@@ -492,26 +583,50 @@ export function LogisticsAnalytics({ onBack }: LogisticsAnalyticsProps) {
           </Card>
         </TabsContent>
 
-        <TabsContent value="trends" className="space-y-6">
+        <TabsContent value="shipments" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5" />
-                Shipment and Revenue Trends
-              </CardTitle>
+              <CardTitle>Shipment Details</CardTitle>
             </CardHeader>
-            <CardContent className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={shipmentVolumeData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis yAxisId="left" />
-                  <YAxis yAxisId="right" orientation="right" />
-                  <Tooltip />
-                  <Bar yAxisId="left" dataKey="shipments" fill="#3B82F6" name="Shipments" />
-                  <Bar yAxisId="right" dataKey="revenue" fill="#10B981" name="Revenue ($)" />
-                </BarChart>
-              </ResponsiveContainer>
+            <CardContent>
+              <div className="space-y-4">
+                {filteredShipments.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No Shipments Found</h3>
+                    <p className="text-gray-600">No shipments match your current filters.</p>
+                  </div>
+                ) : (
+                  filteredShipments.map((shipment) => (
+                    <div key={shipment.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-4">
+                        <Package className="w-8 h-8 text-blue-600" />
+                        <div>
+                          <h4 className="font-semibold">{shipment.cargo || 'Unknown Cargo'}</h4>
+                          <p className="text-sm text-gray-600">Tracking: {shipment.tracking_number}</p>
+                          <p className="text-sm text-gray-500">{shipment.origin} → {shipment.destination}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-center">
+                          <p className="text-sm font-medium">{shipment.carrier}</p>
+                          <p className="text-xs text-gray-500">Carrier</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm font-medium">{shipment.estimated_arrival || 'TBD'}</p>
+                          <p className="text-xs text-gray-500">ETA</p>
+                        </div>
+                        <Badge 
+                          variant={shipment.status === 'delivered' ? 'default' : 
+                                  shipment.status === 'delayed' ? 'destructive' : 'secondary'}
+                        >
+                          {shipment.status?.replace('_', ' ') || 'Unknown'}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

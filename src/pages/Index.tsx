@@ -127,6 +127,11 @@ export default function Index() {
     setCurrentView("dashboard");
   };
 
+  const handleCompanySelect = (companyId: string) => {
+    setSelectedCompanyId(companyId);
+    setCurrentView("company-holistic");
+  };
+
   const renderView = () => {
     switch (currentView) {
       case "dashboard":
@@ -153,9 +158,8 @@ export default function Index() {
         );
       case "companies":
         return (
-          <CompanyProfile 
-            selectedId={selectedCompanyId}
-            onSelectCompany={setSelectedCompanyId}
+          <CompaniesManager 
+            onSelectCompany={handleCompanySelect}
           />
         );
       case "reports":
@@ -191,7 +195,7 @@ export default function Index() {
         return (
           <CompanyHolistic 
             companyId={selectedCompanyId || "default"}
-            onBack={handleBackToDashboard}
+            onBack={() => setCurrentView("companies")}
           />
         );
       case "logistics-analytics":
