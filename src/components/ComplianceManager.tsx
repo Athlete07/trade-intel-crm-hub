@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,6 +26,7 @@ import {
   Trash2,
   X
 } from "lucide-react";
+import { ScheduleAuditDialog } from "./ScheduleAuditDialog";
 
 export function ComplianceManager() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -35,6 +35,8 @@ export function ComplianceManager() {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [filterStatus, setFilterStatus] = useState('all');
+  const [showScheduleAudit, setShowScheduleAudit] = useState(false);
+  const [scheduledAudits, setScheduledAudits] = useState([]);
   const { toast } = useToast();
 
   const [newItem, setNewItem] = useState({
@@ -199,6 +201,18 @@ export function ComplianceManager() {
     toast({
       title: "Download Started",
       description: `Downloading document for ${item.title}`,
+    });
+  };
+
+  const handleScheduleAudit = () => {
+    setShowScheduleAudit(true);
+  };
+
+  const handleAuditScheduled = (audit: any) => {
+    setScheduledAudits(prev => [...prev, audit]);
+    toast({
+      title: "Audit Scheduled",
+      description: `${audit.type} has been scheduled successfully.`,
     });
   };
 
@@ -572,18 +586,44 @@ export function ComplianceManager() {
       {activeTab === 'audits' && (
         <Card>
           <CardHeader>
-            <CardTitle>Compliance Audits</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-12">
-              <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Audit Management</h3>
-              <p className="text-gray-600 mb-4">Track and manage compliance audits and assessments</p>
-              <Button onClick={() => toast({ title: "Audit Scheduled", description: "New compliance audit has been scheduled." })}>
+            <div className="flex items-center justify-between">
+              <CardTitle>Compliance Audits</CardTitle>
+              <Button onClick={handleScheduleAudit}>
                 <Plus className="w-4 h-4 mr-2" />
                 Schedule Audit
               </Button>
             </div>
+          </CardHeader>
+          <CardContent>
+            {scheduledAudits.length > 0 ? (
+              <div className="space-y-4">
+                {scheduledAudits.map((audit) => (
+                  <div key={audit.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <h4 className="font-semibold">{audit.title}</h4>
+                      <p className="text-sm text-gray-600">{audit.type}</p>
+                      <p className="text-sm text-gray-500">Scheduled: {audit.scheduledDate}</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Badge variant="outline">{audit.status}</Badge>
+                      <Button variant="outline" size="sm">
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Audits Scheduled</h3>
+                <p className="text-gray-600 mb-4">Schedule your first compliance audit to get started</p>
+                <Button onClick={handleScheduleAudit}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Schedule First Audit
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
@@ -688,6 +728,12 @@ export function ComplianceManager() {
           )}
         </DialogContent>
       </Dialog>
+
+      <ScheduleAuditDialog
+        open={showScheduleAudit}
+        onOpenChange={setShowScheduleAudit}
+        onScheduled={handleAuditScheduled}
+      />
     </div>
   );
 }

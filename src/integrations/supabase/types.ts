@@ -336,6 +336,42 @@ export type Database = {
         }
         Relationships: []
       }
+      users: {
+        Row: {
+          company: string | null
+          country: string | null
+          created_at: string | null
+          email: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          role: string | null
+        }
+        Insert: {
+          company?: string | null
+          country?: string | null
+          created_at?: string | null
+          email: string
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          phone?: string | null
+          role?: string | null
+        }
+        Update: {
+          company?: string | null
+          country?: string | null
+          created_at?: string | null
+          email?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          role?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

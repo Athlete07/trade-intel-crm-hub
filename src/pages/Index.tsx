@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dashboard } from "@/components/Dashboard";
 import { TaskManager } from "@/components/TaskManager";
@@ -20,6 +19,8 @@ import { Sidebar } from "@/components/Sidebar";
 import { CompaniesManager } from "@/components/CompaniesManager";
 import { AuthPage } from "@/components/AuthPage";
 import { UserProfile } from "@/components/UserProfile";
+import { CompanyHolistic } from "@/components/CompanyHolistic";
+import { LogisticsAnalytics } from "@/components/LogisticsAnalytics";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from '@supabase/supabase-js';
 
@@ -51,7 +52,9 @@ type ViewType =
   | "interaction-details"
   | "compliance"
   | "logistics"
-  | "profile";
+  | "profile"
+  | "company-holistic"
+  | "logistics-analytics";
 
 export default function Index() {
   const [currentView, setCurrentView] = useState<ViewType>("dashboard");
@@ -182,6 +185,19 @@ export default function Index() {
             onBack={() => setCurrentView("company-admin")}
             onSave={handleSaveEmployee}
             employee={selectedEmployee}
+          />
+        );
+      case "company-holistic":
+        return (
+          <CompanyHolistic 
+            companyId={selectedCompanyId || "default"}
+            onBack={handleBackToDashboard}
+          />
+        );
+      case "logistics-analytics":
+        return (
+          <LogisticsAnalytics 
+            onBack={() => setCurrentView("logistics")}
           />
         );
       default:

@@ -28,6 +28,7 @@ import {
   Edit,
   Trash2
 } from "lucide-react";
+import { LogisticsAnalytics } from "./LogisticsAnalytics";
 
 export function LogisticsManager() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -36,6 +37,7 @@ export function LogisticsManager() {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedShipment, setSelectedShipment] = useState<any>(null);
   const [filterMode, setFilterMode] = useState('all');
+  const [showAnalytics, setShowAnalytics] = useState(false);
   const { toast } = useToast();
 
   const [newShipment, setNewShipment] = useState({
@@ -269,174 +271,189 @@ export function LogisticsManager() {
     }
   };
 
+  const handleViewAnalytics = () => {
+    setShowAnalytics(true);
+  };
+
+  if (showAnalytics) {
+    return <LogisticsAnalytics onBack={() => setShowAnalytics(false)} />;
+  }
+
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Logistics & Shipping</h1>
-          <p className="text-gray-600">Track shipments, manage routes, and optimize logistics</p>
+          <p className="text-gray-600">Manage shipments, track deliveries, and monitor logistics operations</p>
         </div>
-        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              New Shipment
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-3xl">
-            <DialogHeader>
-              <DialogTitle>Create New Shipment</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="origin">Origin *</Label>
-                  <Input
-                    id="origin"
-                    value={newShipment.origin}
-                    onChange={(e) => setNewShipment({...newShipment, origin: e.target.value})}
-                    placeholder="Enter origin location"
-                  />
+        <div className="flex items-center gap-3">
+          <Button variant="outline" onClick={handleViewAnalytics}>
+            <BarChart3 className="w-4 h-4 mr-2" />
+            View Analytics Dashboard
+          </Button>
+          <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                New Shipment
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl">
+              <DialogHeader>
+                <DialogTitle>Create New Shipment</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="origin">Origin *</Label>
+                    <Input
+                      id="origin"
+                      value={newShipment.origin}
+                      onChange={(e) => setNewShipment({...newShipment, origin: e.target.value})}
+                      placeholder="Enter origin location"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="destination">Destination *</Label>
+                    <Input
+                      id="destination"
+                      value={newShipment.destination}
+                      onChange={(e) => setNewShipment({...newShipment, destination: e.target.value})}
+                      placeholder="Enter destination location"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="destination">Destination *</Label>
-                  <Input
-                    id="destination"
-                    value={newShipment.destination}
-                    onChange={(e) => setNewShipment({...newShipment, destination: e.target.value})}
-                    placeholder="Enter destination location"
-                  />
+                
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="mode">Transport Mode</Label>
+                    <select
+                      id="mode"
+                      value={newShipment.mode}
+                      onChange={(e) => setNewShipment({...newShipment, mode: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="sea">Sea</option>
+                      <option value="air">Air</option>
+                      <option value="road">Road</option>
+                      <option value="rail">Rail</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Label htmlFor="carrier">Carrier *</Label>
+                    <Input
+                      id="carrier"
+                      value={newShipment.carrier}
+                      onChange={(e) => setNewShipment({...newShipment, carrier: e.target.value})}
+                      placeholder="Enter carrier name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="vessel">Vessel/Flight</Label>
+                    <Input
+                      id="vessel"
+                      value={newShipment.vessel}
+                      onChange={(e) => setNewShipment({...newShipment, vessel: e.target.value})}
+                      placeholder="Enter vessel/flight number"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="cargo">Cargo Description *</Label>
+                    <Input
+                      id="cargo"
+                      value={newShipment.cargo}
+                      onChange={(e) => setNewShipment({...newShipment, cargo: e.target.value})}
+                      placeholder="Enter cargo description"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="weight">Weight</Label>
+                    <Input
+                      id="weight"
+                      value={newShipment.weight}
+                      onChange={(e) => setNewShipment({...newShipment, weight: e.target.value})}
+                      placeholder="e.g., 1000 kg"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="value">Cargo Value</Label>
+                    <Input
+                      id="value"
+                      value={newShipment.value}
+                      onChange={(e) => setNewShipment({...newShipment, value: e.target.value})}
+                      placeholder="e.g., $50,000"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="incoterm">Incoterm</Label>
+                    <select
+                      id="incoterm"
+                      value={newShipment.incoterm}
+                      onChange={(e) => setNewShipment({...newShipment, incoterm: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="FOB">FOB</option>
+                      <option value="CIF">CIF</option>
+                      <option value="EXW">EXW</option>
+                      <option value="DDP">DDP</option>
+                      <option value="CFR">CFR</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Label htmlFor="priority">Priority</Label>
+                    <select
+                      id="priority"
+                      value={newShipment.priority}
+                      onChange={(e) => setNewShipment({...newShipment, priority: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="low">Low</option>
+                      <option value="medium">Medium</option>
+                      <option value="high">High</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="departureDate">Departure Date</Label>
+                    <Input
+                      id="departureDate"
+                      type="date"
+                      value={newShipment.departureDate}
+                      onChange={(e) => setNewShipment({...newShipment, departureDate: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="estimatedArrival">Estimated Arrival</Label>
+                    <Input
+                      id="estimatedArrival"
+                      type="date"
+                      value={newShipment.estimatedArrival}
+                      onChange={(e) => setNewShipment({...newShipment, estimatedArrival: e.target.value})}
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleAddShipment}>
+                    Create Shipment
+                  </Button>
                 </div>
               </div>
-              
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="mode">Transport Mode</Label>
-                  <select
-                    id="mode"
-                    value={newShipment.mode}
-                    onChange={(e) => setNewShipment({...newShipment, mode: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
-                  >
-                    <option value="sea">Sea</option>
-                    <option value="air">Air</option>
-                    <option value="road">Road</option>
-                    <option value="rail">Rail</option>
-                  </select>
-                </div>
-                <div>
-                  <Label htmlFor="carrier">Carrier *</Label>
-                  <Input
-                    id="carrier"
-                    value={newShipment.carrier}
-                    onChange={(e) => setNewShipment({...newShipment, carrier: e.target.value})}
-                    placeholder="Enter carrier name"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="vessel">Vessel/Flight</Label>
-                  <Input
-                    id="vessel"
-                    value={newShipment.vessel}
-                    onChange={(e) => setNewShipment({...newShipment, vessel: e.target.value})}
-                    placeholder="Enter vessel/flight number"
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="cargo">Cargo Description *</Label>
-                  <Input
-                    id="cargo"
-                    value={newShipment.cargo}
-                    onChange={(e) => setNewShipment({...newShipment, cargo: e.target.value})}
-                    placeholder="Enter cargo description"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="weight">Weight</Label>
-                  <Input
-                    id="weight"
-                    value={newShipment.weight}
-                    onChange={(e) => setNewShipment({...newShipment, weight: e.target.value})}
-                    placeholder="e.g., 1000 kg"
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="value">Cargo Value</Label>
-                  <Input
-                    id="value"
-                    value={newShipment.value}
-                    onChange={(e) => setNewShipment({...newShipment, value: e.target.value})}
-                    placeholder="e.g., $50,000"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="incoterm">Incoterm</Label>
-                  <select
-                    id="incoterm"
-                    value={newShipment.incoterm}
-                    onChange={(e) => setNewShipment({...newShipment, incoterm: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
-                  >
-                    <option value="FOB">FOB</option>
-                    <option value="CIF">CIF</option>
-                    <option value="EXW">EXW</option>
-                    <option value="DDP">DDP</option>
-                    <option value="CFR">CFR</option>
-                  </select>
-                </div>
-                <div>
-                  <Label htmlFor="priority">Priority</Label>
-                  <select
-                    id="priority"
-                    value={newShipment.priority}
-                    onChange={(e) => setNewShipment({...newShipment, priority: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
-                  >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                  </select>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="departureDate">Departure Date</Label>
-                  <Input
-                    id="departureDate"
-                    type="date"
-                    value={newShipment.departureDate}
-                    onChange={(e) => setNewShipment({...newShipment, departureDate: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="estimatedArrival">Estimated Arrival</Label>
-                  <Input
-                    id="estimatedArrival"
-                    type="date"
-                    value={newShipment.estimatedArrival}
-                    onChange={(e) => setNewShipment({...newShipment, estimatedArrival: e.target.value})}
-                  />
-                </div>
-              </div>
-              
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setShowAddDialog(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleAddShipment}>
-                  Create Shipment
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Stats Cards */}
