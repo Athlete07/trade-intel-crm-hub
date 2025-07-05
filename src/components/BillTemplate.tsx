@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -148,6 +147,16 @@ const templateConfigs = {
       border: "border-blue-300"
     }
   },
+  "ocean-bill-of-lading": {
+    name: "Ocean Bill of Lading",
+    standards: ["Hague-Visby Rules", "Hamburg Rules"],
+    colors: {
+      primary: "from-blue-900 to-cyan-800",
+      secondary: "bg-blue-50",
+      accent: "text-blue-900",
+      border: "border-blue-300"
+    }
+  },
   "export-invoice": {
     name: "Export Invoice",
     standards: ["EXIM", "Export Documentation"],
@@ -166,6 +175,66 @@ const templateConfigs = {
       secondary: "bg-amber-50",
       accent: "text-amber-600",
       border: "border-amber-200"
+    }
+  },
+  "debit-note": {
+    name: "Debit Note",
+    standards: ["Commercial Law", "Accounting Standards", "GAAP"],
+    colors: {
+      primary: "from-red-600 to-pink-600",
+      secondary: "bg-red-50",
+      accent: "text-red-600",
+      border: "border-red-200"
+    }
+  },
+  "credit-note": {
+    name: "Credit Note",
+    standards: ["Commercial Law", "Accounting Standards", "GAAP"],
+    colors: {
+      primary: "from-green-600 to-emerald-700",
+      secondary: "bg-green-50",
+      accent: "text-green-600",
+      border: "border-green-200"
+    }
+  },
+  "packing-list": {
+    name: "Packing List",
+    standards: ["Customs Requirements", "Shipping Standards"],
+    colors: {
+      primary: "from-brown-600 to-amber-700",
+      secondary: "bg-amber-50",
+      accent: "text-amber-600",
+      border: "border-amber-200"
+    }
+  },
+  "certificate-of-origin": {
+    name: "Certificate of Origin",
+    standards: ["WTO Rules", "FTA Agreements"],
+    colors: {
+      primary: "from-gold-600 to-yellow-700",
+      secondary: "bg-yellow-50",
+      accent: "text-yellow-600",
+      border: "border-yellow-200"
+    }
+  },
+  "insurance-certificate": {
+    name: "Insurance Certificate",
+    standards: ["Marine Insurance", "ICC Clauses"],
+    colors: {
+      primary: "from-blue-700 to-indigo-700",
+      secondary: "bg-blue-50",
+      accent: "text-blue-700",
+      border: "border-blue-200"
+    }
+  },
+  "letter-of-credit": {
+    name: "Letter of Credit",
+    standards: ["UCP 600", "ISBP"],
+    colors: {
+      primary: "from-purple-700 to-indigo-800",
+      secondary: "bg-purple-50",
+      accent: "text-purple-700",
+      border: "border-purple-200"
     }
   }
 };
@@ -195,7 +264,49 @@ const currencies = [
   { code: "ZAR", name: "South African Rand", symbol: "R" },
   { code: "TRY", name: "Turkish Lira", symbol: "₺" },
   { code: "AED", name: "UAE Dirham", symbol: "د.إ" },
-  { code: "SAR", name: "Saudi Riyal", symbol: "﷼" }
+  { code: "SAR", name: "Saudi Riyal", symbol: "﷼" },
+  { code: "THB", name: "Thai Baht", symbol: "฿" },
+  { code: "MYR", name: "Malaysian Ringgit", symbol: "RM" },
+  { code: "IDR", name: "Indonesian Rupiah", symbol: "Rp" },
+  { code: "PHP", name: "Philippine Peso", symbol: "₱" },
+  { code: "VND", name: "Vietnamese Dong", symbol: "₫" },
+  { code: "BGN", name: "Bulgarian Lev", symbol: "лв" },
+  { code: "HRK", name: "Croatian Kuna", symbol: "kn" },
+  { code: "RON", name: "Romanian Leu", symbol: "lei" },
+  { code: "ISK", name: "Icelandic Krona", symbol: "kr" },
+  { code: "NZD", name: "New Zealand Dollar", symbol: "NZ$" },
+  { code: "CLP", name: "Chilean Peso", symbol: "$" },
+  { code: "COP", name: "Colombian Peso", symbol: "$" },
+  { code: "PEN", name: "Peruvian Sol", symbol: "S/" },
+  { code: "UYU", name: "Uruguayan Peso", symbol: "$U" },
+  { code: "EGP", name: "Egyptian Pound", symbol: "£" },
+  { code: "ILS", name: "Israeli Shekel", symbol: "₪" },
+  { code: "QAR", name: "Qatari Riyal", symbol: "﷼" },
+  { code: "KWD", name: "Kuwaiti Dinar", symbol: "د.ك" },
+  { code: "BHD", name: "Bahraini Dinar", symbol: ".د.ب" },
+  { code: "OMR", name: "Omani Rial", symbol: "﷼" },
+  { code: "JOD", name: "Jordanian Dinar", symbol: "د.ا" },
+  { code: "LBP", name: "Lebanese Pound", symbol: "£" },
+  { code: "PKR", name: "Pakistani Rupee", symbol: "₨" },
+  { code: "BDT", name: "Bangladeshi Taka", symbol: "৳" },
+  { code: "LKR", name: "Sri Lankan Rupee", symbol: "₨" },
+  { code: "NPR", name: "Nepalese Rupee", symbol: "₨" },
+  { code: "AFN", name: "Afghan Afghani", symbol: "؋" },
+  { code: "MMK", name: "Myanmar Kyat", symbol: "K" },
+  { code: "KHR", name: "Cambodian Riel", symbol: "៛" },
+  { code: "LAK", name: "Lao Kip", symbol: "₭" },
+  { code: "MNT", name: "Mongolian Tugrik", symbol: "₮" },
+  { code: "KZT", name: "Kazakhstani Tenge", symbol: "₸" },
+  { code: "UZS", name: "Uzbekistani Som", symbol: "лв" },
+  { code: "KGS", name: "Kyrgyzstani Som", symbol: "лв" },
+  { code: "TJS", name: "Tajikistani Somoni", symbol: "ЅМ" },
+  { code: "TMT", name: "Turkmenistani Manat", symbol: "T" },
+  { code: "GEL", name: "Georgian Lari", symbol: "₾" },
+  { code: "AMD", name: "Armenian Dram", symbol: "֏" },
+  { code: "AZN", name: "Azerbaijani Manat", symbol: "₼" },
+  { code: "MDL", name: "Moldovan Leu", symbol: "lei" },
+  { code: "UAH", name: "Ukrainian Hryvnia", symbol: "₴" },
+  { code: "BYN", name: "Belarusian Ruble", symbol: "Br" }
 ];
 
 export function BillTemplate({ templateId, onBack }: BillTemplateProps) {
@@ -321,107 +432,365 @@ export function BillTemplate({ templateId, onBack }: BillTemplateProps) {
           <!DOCTYPE html>
           <html>
             <head>
-              <title>Invoice ${billData.invoiceNumber}</title>
+              <title>${template.name} ${billData.invoiceNumber}</title>
               <style>
                 body { 
-                  font-family: Arial, sans-serif; 
+                  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
                   margin: 0; 
                   padding: 20px; 
-                  color: #333;
-                  line-height: 1.4;
+                  color: #1f2937;
+                  line-height: 1.6;
+                  background: white;
                 }
                 .invoice-header {
-                  background: linear-gradient(135deg, #1e40af, #7c3aed);
+                  background: linear-gradient(135deg, ${template.colors.primary.includes('blue') ? '#1e40af, #7c3aed' : '#059669, #0891b2'});
                   color: white;
+                  padding: 40px;
+                  margin-bottom: 40px;
+                  border-radius: 12px;
+                  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+                }
+                .company-info { 
+                  display: flex; 
+                  justify-content: space-between; 
+                  align-items: flex-start; 
+                  gap: 40px;
+                }
+                .company-details h1 {
+                  margin: 0 0 20px 0;
+                  font-size: 32px;
+                  font-weight: 700;
+                  letter-spacing: -0.025em;
+                }
+                .company-details .address {
+                  font-size: 16px;
+                  line-height: 1.6;
+                  margin-bottom: 20px;
+                  opacity: 0.95;
+                }
+                .company-details .contact-grid {
+                  display: grid;
+                  grid-template-columns: 1fr 1fr;
+                  gap: 15px;
+                  font-size: 14px;
+                }
+                .invoice-details {
+                  text-align: right;
+                  background: rgba(255,255,255,0.15);
                   padding: 30px;
-                  margin-bottom: 30px;
-                  border-radius: 8px;
+                  border-radius: 10px;
+                  backdrop-filter: blur(10px);
+                  min-width: 300px;
                 }
-                .company-info { display: flex; justify-content: space-between; align-items: flex-start; }
-                .invoice-details { text-align: right; }
-                .bill-to { margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 8px; }
-                .line-items { margin: 20px 0; }
-                .line-items table { width: 100%; border-collapse: collapse; }
-                .line-items th, .line-items td { 
-                  padding: 12px; 
+                .invoice-details h1 {
+                  margin: 0 0 25px 0;
+                  font-size: 48px;
+                  font-weight: 800;
+                  letter-spacing: -0.025em;
+                }
+                .invoice-meta {
+                  display: grid;
+                  gap: 12px;
+                  font-size: 16px;
+                }
+                .invoice-meta .meta-row {
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  padding: 8px 0;
+                }
+                .invoice-meta .meta-label {
+                  font-weight: 600;
+                  opacity: 0.9;
+                }
+                .invoice-meta .meta-value {
+                  font-weight: 700;
+                  font-family: 'JetBrains Mono', 'Courier New', monospace;
+                }
+                .bill-to { 
+                  margin: 40px 0; 
+                  padding: 30px; 
+                  background: linear-gradient(135deg, #f8fafc, #f1f5f9); 
+                  border-radius: 12px;
+                  border-left: 6px solid ${template.colors.primary.includes('blue') ? '#3b82f6' : '#10b981'};
+                }
+                .bill-to h3 {
+                  margin: 0 0 20px 0;
+                  color: ${template.colors.primary.includes('blue') ? '#1e40af' : '#059669'};
+                  font-size: 20px;
+                  font-weight: 700;
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                }
+                .bill-to .client-name {
+                  font-size: 22px;
+                  font-weight: 700;
+                  color: #111827;
+                  margin-bottom: 12px;
+                }
+                .bill-to .client-details {
+                  display: grid;
+                  grid-template-columns: 1fr 1fr;
+                  gap: 20px;
+                  margin-top: 20px;
+                }
+                .line-items { 
+                  margin: 40px 0; 
+                  border-radius: 12px;
+                  overflow: hidden;
+                  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+                }
+                .line-items table { 
+                  width: 100%; 
+                  border-collapse: collapse; 
+                  background: white;
+                }
+                .line-items th { 
+                  padding: 20px; 
                   text-align: left; 
-                  border-bottom: 1px solid #ddd; 
+                  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+                  font-weight: 700;
+                  font-size: 14px;
+                  text-transform: uppercase;
+                  letter-spacing: 0.05em;
+                  color: #374151;
+                  border-bottom: 2px solid #e5e7eb;
                 }
-                .line-items th { background: #f8f9fa; font-weight: bold; }
-                .totals { float: right; width: 400px; margin: 20px 0; }
-                .totals table { width: 100%; }
-                .totals td { padding: 8px 0; }
+                .line-items td { 
+                  padding: 18px 20px; 
+                  border-bottom: 1px solid #f3f4f6;
+                  font-size: 15px;
+                }
+                .line-items tr:nth-child(even) {
+                  background: #fafafa;
+                }
+                .line-items tr:hover {
+                  background: #f0f9ff;
+                }
+                .line-items .item-description {
+                  font-weight: 600;
+                  color: #111827;
+                }
+                .line-items .item-quantity,
+                .line-items .item-price {
+                  text-align: center;
+                  font-family: 'JetBrains Mono', 'Courier New', monospace;
+                  font-weight: 600;
+                }
+                .line-items .item-total {
+                  text-align: right;
+                  font-family: 'JetBrains Mono', 'Courier New', monospace;
+                  font-weight: 700;
+                  color: #111827;
+                }
+                .totals { 
+                  float: right; 
+                  width: 450px; 
+                  margin: 40px 0;
+                  background: white;
+                  border-radius: 12px;
+                  overflow: hidden;
+                  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+                }
+                .totals-content {
+                  padding: 30px;
+                }
+                .totals table { 
+                  width: 100%; 
+                  border-collapse: collapse;
+                }
+                .totals td { 
+                  padding: 12px 0; 
+                  font-size: 16px;
+                  border-bottom: 1px solid #f3f4f6;
+                }
+                .totals .total-label {
+                  font-weight: 600;
+                  color: #374151;
+                }
+                .totals .total-value {
+                  text-align: right;
+                  font-family: 'JetBrains Mono', 'Courier New', monospace;
+                  font-weight: 700;
+                  color: #111827;
+                }
+                .totals .discount-value {
+                  color: #059669;
+                }
                 .grand-total { 
-                  background: linear-gradient(135deg, #1e40af, #7c3aed);
+                  background: linear-gradient(135deg, ${template.colors.primary.includes('blue') ? '#1e40af, #7c3aed' : '#059669, #0891b2'});
                   color: white;
-                  font-weight: bold;
-                  padding: 15px;
+                  font-weight: 800;
+                  padding: 25px;
+                  border-radius: 10px;
+                  margin-top: 20px;
+                  text-align: center;
+                  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+                }
+                .grand-total .total-label {
+                  font-size: 14px;
+                  opacity: 0.9;
+                  text-transform: uppercase;
+                  letter-spacing: 0.1em;
+                  margin-bottom: 8px;
+                }
+                .grand-total .total-amount {
+                  font-size: 32px;
+                  font-family: 'JetBrains Mono', 'Courier New', monospace;
+                  font-weight: 800;
+                }
+                .payment-section {
+                  clear: both;
+                  margin-top: 60px;
+                  display: grid;
+                  grid-template-columns: 1fr 1fr;
+                  gap: 40px;
+                }
+                .payment-section .section {
+                  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+                  padding: 30px;
+                  border-radius: 12px;
+                  border-left: 6px solid ${template.colors.primary.includes('blue') ? '#3b82f6' : '#10b981'};
+                }
+                .payment-section h4 {
+                  margin: 0 0 20px 0;
+                  color: ${template.colors.primary.includes('blue') ? '#1e40af' : '#059669'};
+                  font-size: 18px;
+                  font-weight: 700;
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                }
+                .payment-section p,
+                .payment-section pre {
+                  margin: 0;
+                  font-size: 15px;
+                  line-height: 1.6;
+                  color: #374151;
+                }
+                .payment-section pre {
+                  font-family: 'JetBrains Mono', 'Courier New', monospace;
+                  background: white;
+                  padding: 20px;
                   border-radius: 8px;
+                  margin-top: 15px;
+                  border: 1px solid #e5e7eb;
                 }
                 .footer { 
-                  margin-top: 40px; 
-                  padding: 20px; 
-                  background: #f8f9fa; 
-                  border-radius: 8px;
+                  margin-top: 60px; 
+                  padding: 40px; 
+                  background: linear-gradient(135deg, #f8fafc, #e2e8f0); 
+                  border-radius: 12px;
                   text-align: center;
+                  border-top: 4px solid ${template.colors.primary.includes('blue') ? '#3b82f6' : '#10b981'};
+                }
+                .footer .company-info {
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  gap: 30px;
+                  margin-bottom: 20px;
+                  font-size: 14px;
+                  color: #6b7280;
+                  flex-wrap: wrap;
+                }
+                .footer .compliance-info {
                   font-size: 12px;
-                  color: #666;
+                  color: #9ca3af;
+                  margin-bottom: 15px;
+                  font-weight: 600;
+                }
+                .footer .legal-text {
+                  font-size: 11px;
+                  color: #9ca3af;
+                  line-height: 1.5;
+                  max-width: 800px;
+                  margin: 0 auto;
                 }
                 @media print {
-                  body { margin: 0; padding: 15px; font-size: 12px; }
-                  .invoice-header { background: #1e40af !important; -webkit-print-color-adjust: exact; }
-                  .grand-total { background: #1e40af !important; -webkit-print-color-adjust: exact; }
+                  body { 
+                    margin: 0; 
+                    padding: 15px; 
+                    font-size: 12px; 
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                  }
+                  .invoice-header { 
+                    background: linear-gradient(135deg, ${template.colors.primary.includes('blue') ? '#1e40af, #7c3aed' : '#059669, #0891b2'}) !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                  }
+                  .grand-total { 
+                    background: linear-gradient(135deg, ${template.colors.primary.includes('blue') ? '#1e40af, #7c3aed' : '#059669, #0891b2'}) !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                  }
+                  .page-break { page-break-before: always; }
                 }
               </style>
             </head>
             <body>
               <div class="invoice-header">
                 <div class="company-info">
-                  <div>
-                    <h1 style="margin: 0; font-size: 24px;">${billData.companyName}</h1>
-                    <div style="margin-top: 10px; white-space: pre-line;">${billData.companyAddress}</div>
-                    <div style="margin-top: 10px;">
-                      <div>Email: ${billData.companyEmail}</div>
-                      <div>Phone: ${billData.companyPhone}</div>
-                      <div>Website: ${billData.companyWebsite}</div>
+                  <div class="company-details">
+                    <h1>${billData.companyName}</h1>
+                    <div class="address">${billData.companyAddress.replace(/\n/g, '<br>')}</div>
+                    <div class="contact-grid">
+                      <div><strong>Email:</strong> ${billData.companyEmail}</div>
+                      <div><strong>Phone:</strong> ${billData.companyPhone}</div>
+                      <div><strong>Website:</strong> ${billData.companyWebsite}</div>
+                      <div><strong>Reg:</strong> ${billData.companyRegNumber}</div>
+                      <div><strong>VAT:</strong> ${billData.companyVAT}</div>
                     </div>
                   </div>
                   <div class="invoice-details">
-                    <h1 style="margin: 0; font-size: 36px;">INVOICE</h1>
-                    <div style="margin-top: 15px;">
-                      <div><strong>Invoice #:</strong> ${billData.invoiceNumber}</div>
-                      <div><strong>Issue Date:</strong> ${billData.issueDate}</div>
-                      <div><strong>Due Date:</strong> ${billData.dueDate}</div>
+                    <h1>${template.name.toUpperCase()}</h1>
+                    <div class="invoice-meta">
+                      <div class="meta-row">
+                        <span class="meta-label">Document #:</span>
+                        <span class="meta-value">${billData.invoiceNumber}</span>
+                      </div>
+                      <div class="meta-row">
+                        <span class="meta-label">Issue Date:</span>
+                        <span class="meta-value">${new Date(billData.issueDate).toLocaleDateString()}</span>
+                      </div>
+                      <div class="meta-row">
+                        <span class="meta-label">Due Date:</span>
+                        <span class="meta-value">${new Date(billData.dueDate).toLocaleDateString()}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div class="bill-to">
-                <h3 style="margin: 0 0 15px 0; color: #1e40af;">Bill To:</h3>
-                <div style="font-weight: bold; font-size: 16px;">${billData.clientName}</div>
-                <div style="margin-top: 5px; white-space: pre-line;">${billData.clientAddress}</div>
-                <div style="margin-top: 5px;">Email: ${billData.clientEmail}</div>
-                <div>VAT: ${billData.clientVAT}</div>
+                <h3>🏢 Bill To:</h3>
+                <div class="client-name">${billData.clientName}</div>
+                <div>${billData.clientAddress.replace(/\n/g, '<br>')}</div>
+                <div class="client-details">
+                  <div><strong>Email:</strong> ${billData.clientEmail}</div>
+                  <div><strong>VAT:</strong> ${billData.clientVAT}</div>
+                </div>
               </div>
 
               <div class="line-items">
                 <table>
                   <thead>
                     <tr>
-                      <th>Description</th>
-                      <th style="text-align: center;">Quantity</th>
-                      <th style="text-align: center;">Unit Price</th>
-                      <th style="text-align: right;">Total</th>
+                      <th style="width: 50%;">Description</th>
+                      <th style="width: 12%; text-align: center;">Quantity</th>
+                      <th style="width: 18%; text-align: center;">Unit Price</th>
+                      <th style="width: 20%; text-align: right;">Total</th>
                     </tr>
                   </thead>
                   <tbody>
                     ${billData.lineItems.map(item => `
                       <tr>
-                        <td>${item.description}</td>
-                        <td style="text-align: center;">${item.quantity}</td>
-                        <td style="text-align: center;">${billData.currency} ${item.unitPrice.toFixed(2)}</td>
-                        <td style="text-align: right;">${billData.currency} ${item.total.toFixed(2)}</td>
+                        <td class="item-description">${item.description}</td>
+                        <td class="item-quantity">${item.quantity}</td>
+                        <td class="item-price">${billData.currency} ${item.unitPrice.toFixed(2)}</td>
+                        <td class="item-total">${billData.currency} ${item.total.toFixed(2)}</td>
                       </tr>
                     `).join('')}
                   </tbody>
@@ -429,62 +798,77 @@ export function BillTemplate({ templateId, onBack }: BillTemplateProps) {
               </div>
 
               <div class="totals">
-                <table>
-                  <tr>
-                    <td>Subtotal:</td>
-                    <td style="text-align: right;">${billData.currency} ${billData.subtotal.toFixed(2)}</td>
-                  </tr>
-                  <tr>
-                    <td>Discount (${billData.discountRate}%):</td>
-                    <td style="text-align: right; color: green;">-${billData.currency} ${billData.discountAmount.toFixed(2)}</td>
-                  </tr>
-                  <tr>
-                    <td>Tax (${billData.taxRate}%):</td>
-                    <td style="text-align: right;">${billData.currency} ${billData.taxAmount.toFixed(2)}</td>
-                  </tr>
-                </table>
-                <div class="grand-total" style="text-align: center; margin-top: 10px;">
-                  <div style="font-size: 18px;">TOTAL: ${billData.currency} ${billData.grandTotal.toFixed(2)}</div>
+                <div class="totals-content">
+                  <table>
+                    <tr>
+                      <td class="total-label">Subtotal:</td>
+                      <td class="total-value">${billData.currency} ${billData.subtotal.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                      <td class="total-label">Discount (${billData.discountRate}%):</td>
+                      <td class="total-value discount-value">-${billData.currency} ${billData.discountAmount.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                      <td class="total-label">Tax (${billData.taxRate}%):</td>
+                      <td class="total-value">${billData.currency} ${billData.taxAmount.toFixed(2)}</td>
+                    </tr>
+                  </table>
+                  <div class="grand-total">
+                    <div class="total-label">Grand Total</div>
+                    <div class="total-amount">${billData.currency} ${billData.grandTotal.toFixed(2)}</div>
+                  </div>
                 </div>
               </div>
 
-              <div style="clear: both; margin-top: 30px;">
-                <div style="margin-bottom: 20px;">
-                  <h4 style="color: #1e40af;">Payment Terms:</h4>
+              <div class="payment-section">
+                <div class="section">
+                  <h4>💳 Payment Terms</h4>
                   <p>${billData.paymentTerms}</p>
+                  <p style="margin-top: 15px;"><strong>Method:</strong> ${billData.paymentMethod}</p>
                 </div>
-                <div style="margin-bottom: 20px;">
-                  <h4 style="color: #1e40af;">Bank Details:</h4>
-                  <pre style="white-space: pre-line; font-family: Arial, sans-serif;">${billData.bankDetails}</pre>
+                <div class="section">
+                  <h4>🏦 Banking Details</h4>
+                  <pre>${billData.bankDetails}</pre>
                 </div>
-                <div style="margin-bottom: 20px;">
-                  <h4 style="color: #1e40af;">Notes:</h4>
+              </div>
+
+              <div class="payment-section" style="margin-top: 40px;">
+                <div class="section">
+                  <h4>📝 Notes</h4>
                   <p>${billData.notes}</p>
+                </div>
+                <div class="section">
+                  <h4>⚖️ Legal & Compliance</h4>
+                  <p>${billData.legalText}</p>
                 </div>
               </div>
 
               <div class="footer">
-                <div style="margin-bottom: 10px;">
-                  ${billData.companyName} | Reg: ${billData.companyRegNumber} | Email: ${billData.companyEmail} | ${billData.companyWebsite}
+                <div class="company-info">
+                  <span>🏢 ${billData.companyRegNumber}</span>
+                  <span>📧 ${billData.companyEmail}</span>
+                  <span>🌐 ${billData.companyWebsite}</span>
                 </div>
-                <div style="font-size: 10px;">
-                  This invoice complies with international standards: ${template.standards.join(', ')}
+                <div class="compliance-info">
+                  🛡️ This document complies with international standards: ${template.standards.join(', ')}
                 </div>
-                <div style="font-size: 10px; margin-top: 5px;">
-                  ${billData.legalText}
+                <div class="legal-text">
+                  ${billData.legalText} | Payment due within the specified terms. Late payments may incur additional charges as per applicable law.
                 </div>
               </div>
             </body>
           </html>
         `);
         newWindow.document.close();
-        newWindow.print();
+        setTimeout(() => {
+          newWindow.print();
+        }, 1000);
       }
     }
 
     toast({
       title: "Print Ready",
-      description: `Invoice ${billData.invoiceNumber} is ready for printing.`,
+      description: `${template.name} ${billData.invoiceNumber} is ready for printing.`,
     });
   };
 
@@ -549,24 +933,24 @@ export function BillTemplate({ templateId, onBack }: BillTemplateProps) {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4">
       <div className="max-w-7xl mx-auto">
         {/* Enhanced Header Controls */}
-        <div className="flex items-center justify-between mb-8 bg-white rounded-2xl shadow-lg p-6">
-          <div className="flex items-center gap-6">
-            <Button variant="outline" onClick={onBack} className="flex items-center gap-2 px-6 py-3 hover:bg-blue-50 transition-colors">
-              <ArrowLeft className="w-5 h-5" />
+        <div className="flex items-center justify-between mb-8 bg-white rounded-2xl shadow-2xl p-8 border-0">
+          <div className="flex items-center gap-8">
+            <Button variant="outline" onClick={onBack} className="flex items-center gap-3 px-8 py-4 hover:bg-blue-50 transition-colors text-lg font-semibold">
+              <ArrowLeft className="w-6 h-6" />
               Back to Templates
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                <FileText className="w-8 h-8 text-blue-600" />
+              <h1 className="text-4xl font-bold text-gray-900 flex items-center gap-4 mb-2">
+                <FileText className="w-10 h-10 text-blue-600" />
                 {template.name}
               </h1>
-              <div className="flex items-center gap-2 mt-2">
-                <Badge className="bg-green-100 text-green-800 px-3 py-1 font-semibold">
-                  <Shield className="w-3 h-3 mr-1" />
+              <div className="flex items-center gap-3 mt-3">
+                <Badge className="bg-green-100 text-green-800 px-4 py-2 font-semibold text-sm">
+                  <Shield className="w-4 h-4 mr-2" />
                   Live Editing
                 </Badge>
                 {template.standards.map((standard, index) => (
-                  <Badge key={index} variant="outline" className="text-xs font-medium">
+                  <Badge key={index} variant="outline" className="text-sm font-medium px-3 py-1">
                     {standard}
                   </Badge>
                 ))}
@@ -574,24 +958,24 @@ export function BillTemplate({ templateId, onBack }: BillTemplateProps) {
             </div>
           </div>
           
-          <div className="flex gap-3">
+          <div className="flex gap-4">
             <Button 
               variant="outline" 
               onClick={() => setIsPreviewMode(!isPreviewMode)}
-              className={`px-6 py-3 transition-all duration-200 ${isPreviewMode ? 'bg-blue-50 text-blue-600 border-blue-200 shadow-md' : 'hover:bg-blue-50'}`}
+              className={`px-8 py-4 transition-all duration-200 text-lg font-semibold ${isPreviewMode ? 'bg-blue-50 text-blue-600 border-blue-200 shadow-md' : 'hover:bg-blue-50'}`}
             >
-              <Eye className="w-5 h-5 mr-2" />
+              <Eye className="w-6 h-6 mr-3" />
               {isPreviewMode ? 'Edit Mode' : 'Preview'}
             </Button>
-            <Button variant="outline" onClick={printBill} className="px-6 py-3 hover:bg-green-50 hover:border-green-200 transition-colors">
-              <Printer className="w-5 h-5 mr-2" />
+            <Button variant="outline" onClick={printBill} className="px-8 py-4 hover:bg-green-50 hover:border-green-200 transition-colors text-lg font-semibold">
+              <Printer className="w-6 h-6 mr-3" />
               Print
             </Button>
             <Button 
               onClick={generatePDF}
-              className={`bg-gradient-to-r ${template.colors.primary} hover:opacity-90 px-6 py-3 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105`}
+              className={`bg-gradient-to-r ${template.colors.primary} hover:opacity-90 px-8 py-4 text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-200 transform hover:scale-105 text-lg`}
             >
-              <Download className="w-5 h-5 mr-2" />
+              <Download className="w-6 h-6 mr-3" />
               Download PDF
             </Button>
           </div>

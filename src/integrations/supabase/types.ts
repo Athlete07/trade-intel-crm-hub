@@ -227,6 +227,129 @@ export type Database = {
           },
         ]
       }
+      company_profile: {
+        Row: {
+          address: string | null
+          annual_turnover: string | null
+          city: string | null
+          company_name: string
+          company_type: string | null
+          contact_email: string | null
+          contact_person: string | null
+          contact_phone: string | null
+          country: string | null
+          created_at: string | null
+          description: string | null
+          email: string | null
+          employee_count: string | null
+          established_date: string | null
+          id: string
+          industry: string | null
+          logo_url: string | null
+          phone: string | null
+          postal_code: string | null
+          registration_number: string | null
+          state: string | null
+          tax_id: string | null
+          updated_at: string | null
+          vat_number: string | null
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          annual_turnover?: string | null
+          city?: string | null
+          company_name: string
+          company_type?: string | null
+          contact_email?: string | null
+          contact_person?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string | null
+          description?: string | null
+          email?: string | null
+          employee_count?: string | null
+          established_date?: string | null
+          id?: string
+          industry?: string | null
+          logo_url?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          registration_number?: string | null
+          state?: string | null
+          tax_id?: string | null
+          updated_at?: string | null
+          vat_number?: string | null
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          annual_turnover?: string | null
+          city?: string | null
+          company_name?: string
+          company_type?: string | null
+          contact_email?: string | null
+          contact_person?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string | null
+          description?: string | null
+          email?: string | null
+          employee_count?: string | null
+          established_date?: string | null
+          id?: string
+          industry?: string | null
+          logo_url?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          registration_number?: string | null
+          state?: string | null
+          tax_id?: string | null
+          updated_at?: string | null
+          vat_number?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      compliance_items: {
+        Row: {
+          authority: string
+          category: string | null
+          country: string
+          created_at: string | null
+          description: string | null
+          expiry_date: string | null
+          id: string
+          priority: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          authority: string
+          category?: string | null
+          country: string
+          created_at?: string | null
+          description?: string | null
+          expiry_date?: string | null
+          id?: string
+          priority?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          authority?: string
+          category?: string | null
+          country?: string
+          created_at?: string | null
+          description?: string | null
+          expiry_date?: string | null
+          id?: string
+          priority?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       contacts: {
         Row: {
           address: string | null

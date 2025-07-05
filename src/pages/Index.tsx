@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from "react";
-import { Dashboard } from "@/components/Dashboard";
+import { ModernDashboard } from "@/components/ModernDashboard";
 import { TaskManager } from "@/components/TaskManager";
 import { DealManager } from "@/components/DealManager";
 import { ContactManager } from "@/components/ContactManager";
@@ -15,7 +16,7 @@ import { LogisticsManager } from "@/components/LogisticsManager";
 import { AIInsights } from "@/components/AIInsights";
 import { InteractionLogger } from "@/components/InteractionLogger";
 import { EmployeeForm } from "@/components/EmployeeForm";
-import { Sidebar } from "@/components/Sidebar";
+import { ModernSidebar } from "@/components/ModernSidebar";
 import { CompaniesManager } from "@/components/CompaniesManager";
 import { AuthPage } from "@/components/AuthPage";
 import { UserProfile } from "@/components/UserProfile";
@@ -135,7 +136,7 @@ export default function Index() {
   const renderView = () => {
     switch (currentView) {
       case "dashboard":
-        return <Dashboard onNavigate={handleDashboardNavigate} />;
+        return <ModernDashboard onNavigate={handleDashboardNavigate} />;
       case "tasks":
         return <TaskManager />;
       case "deals":
@@ -205,7 +206,7 @@ export default function Index() {
           />
         );
       default:
-        return <Dashboard onNavigate={handleDashboardNavigate} />;
+        return <ModernDashboard onNavigate={handleDashboardNavigate} />;
     }
   };
 
@@ -213,10 +214,11 @@ export default function Index() {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
         <div className="text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <div className="w-8 h-8 bg-white rounded-full"></div>
+          <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 animate-pulse">
+            <div className="w-10 h-10 bg-white rounded-lg"></div>
           </div>
-          <p className="text-gray-600">Loading EXIM CRM...</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Loading EXIM CRM</h2>
+          <p className="text-gray-600">Preparing your international trade platform...</p>
         </div>
       </div>
     );
@@ -228,14 +230,14 @@ export default function Index() {
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      <Sidebar 
+      <ModernSidebar 
         currentView={currentView} 
         onViewChange={handleViewChange}
         user={user}
         onLogout={handleLogout}
       />
       <main className="flex-1 overflow-hidden">
-        <div className="h-full overflow-auto p-6">
+        <div className="h-full overflow-auto">
           {renderView()}
         </div>
       </main>
