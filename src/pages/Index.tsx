@@ -22,6 +22,7 @@ import { AuthPage } from "@/components/AuthPage";
 import { UserProfile } from "@/components/UserProfile";
 import { CompanyHolistic } from "@/components/CompanyHolistic";
 import { LogisticsAnalytics } from "@/components/LogisticsAnalytics";
+import { WebsiteLayout } from "@/components/website/WebsiteLayout";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from '@supabase/supabase-js';
 
@@ -63,6 +64,7 @@ export default function Index() {
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showWebsite, setShowWebsite] = useState(true);
 
   useEffect(() => {
     // Check for existing session on mount
@@ -70,6 +72,10 @@ export default function Index() {
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
       setIsLoading(false);
+      // If user is already authenticated, go directly to app
+      if (session?.user) {
+        setShowWebsite(false);
+      }
     };
     
     checkSession();
@@ -79,6 +85,10 @@ export default function Index() {
       (event, session) => {
         setUser(session?.user ?? null);
         setIsLoading(false);
+        // If user authenticates, hide website and show app
+        if (session?.user) {
+          setShowWebsite(false);
+        }
       }
     );
 
@@ -88,12 +98,18 @@ export default function Index() {
   const handleAuthSuccess = (authenticatedUser: User) => {
     setUser(authenticatedUser);
     setCurrentView("dashboard");
+    setShowWebsite(false);
   };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
     setCurrentView("dashboard");
+    setShowWebsite(true);
+  };
+
+  const handleEnterApp = () => {
+    setShowWebsite(false);
   };
 
   const handleViewChange = (view: ViewType) => {
@@ -224,7 +240,13 @@ export default function Index() {
     );
   }
 
-  if (!user) {
+  // Show website for non-authenticated users or when explicitly requested
+  if (showWebsite || !user) {
+    return <WebsiteLayout onEnterApp={handleEnterApp} />;
+  }
+
+  // Show auth page if no user but website is hidden (direct navigation to app)
+  if (!user && !showWebsite) {
     return <AuthPage onAuthSuccess={handleAuthSuccess} />;
   }
 
