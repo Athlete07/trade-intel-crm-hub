@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,7 +21,9 @@ import {
   Clock,
   User,
   MessageSquare,
-  Plus
+  Plus,
+  Workflow,
+  ArrowRight
 } from "lucide-react";
 
 interface DealDetailsProps {
@@ -108,6 +109,7 @@ export function DealDetails({ dealId, onBack, onEdit }: DealDetailsProps) {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="outline" onClick={onBack}>
@@ -120,6 +122,10 @@ export function DealDetails({ dealId, onBack, onEdit }: DealDetailsProps) {
           </div>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={() => window.location.href = '#trade-lifecycle'}>
+            <Workflow className="w-4 h-4 mr-2" />
+            View Lifecycle
+          </Button>
           <Button variant="outline" onClick={() => onEdit(deal.id)}>
             <Edit className="w-4 h-4 mr-2" />
             Edit Deal
@@ -177,6 +183,32 @@ export function DealDetails({ dealId, onBack, onEdit }: DealDetailsProps) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Trade Lifecycle Status Banner */}
+      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                <Workflow className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Trade Lifecycle Status</h3>
+                <p className="text-sm text-gray-600">Current Phase: Contract & Documentation • 45% Complete</p>
+              </div>
+            </div>
+            <Button onClick={() => window.location.href = '#trade-lifecycle'}>
+              <ArrowRight className="w-4 h-4 mr-2" />
+              View Full Lifecycle
+            </Button>
+          </div>
+          <div className="mt-4">
+            <div className="bg-white rounded-full h-3 shadow-inner">
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 h-3 rounded-full" style={{ width: '45%' }}></div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Tabs Navigation */}
       <div className="border-b border-gray-200">
