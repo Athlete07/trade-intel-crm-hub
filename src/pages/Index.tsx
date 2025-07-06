@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ModernDashboard } from "@/components/ModernDashboard";
 import { TaskManager } from "@/components/TaskManager";
 import { DealManager } from "@/components/DealManager";
+import { EnhancedDealManager } from "@/components/EnhancedDealManager";
 import { ContactManager } from "@/components/ContactManager";
 import { DocumentManager } from "@/components/DocumentManager";
 import { BillGenerator } from "@/components/BillGenerator";
@@ -152,6 +153,23 @@ export default function Index() {
     setCurrentView("company-holistic");
   };
 
+  // New handlers for lifecycle navigation
+  const handleNavigateToSalesLifecycle = (dealId?: string) => {
+    if (dealId) {
+      // Store the deal ID for context
+      localStorage.setItem('currentDealId', dealId);
+    }
+    setCurrentView("sales-lifecycle");
+  };
+
+  const handleNavigateToTradeLifecycle = (dealId?: string) => {
+    if (dealId) {
+      // Store the deal ID for context
+      localStorage.setItem('currentDealId', dealId);
+    }
+    setCurrentView("trade-lifecycle");
+  };
+
   const renderView = () => {
     switch (currentView) {
       case "dashboard":
@@ -159,7 +177,10 @@ export default function Index() {
       case "tasks":
         return <TaskManager />;
       case "deals":
-        return <DealManager />;
+        return <EnhancedDealManager 
+          onNavigateToSalesLifecycle={handleNavigateToSalesLifecycle}
+          onNavigateToTradeLifecycle={handleNavigateToTradeLifecycle}
+        />;
       case "contacts":
         return <ContactManager />;
       case "documents":
@@ -228,12 +249,18 @@ export default function Index() {
         return (
           <TradeLifecycle 
             onBack={handleBackToDashboard}
+            dealId={localStorage.getItem('currentDealId') || undefined}
           />
         );
       case "sales-lifecycle":
         return (
           <SalesLifecycle 
             onBack={handleBackToDashboard}
+            onCompleted={(dealId) => {
+              // Automatically transition to trade lifecycle when sales is completed
+              handleNavigateToTradeLifecycle(dealId);
+            }}
+            dealId={localStorage.getItem('currentDealId') || undefined}
           />
         );
       default:
