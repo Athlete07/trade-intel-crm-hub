@@ -1,8 +1,11 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { EnhancedCard, EnhancedCardContent, EnhancedCardHeader, EnhancedCardTitle } from "@/components/ui/enhanced-card";
+import { useToast } from "@/hooks/use-toast";
 import { 
   MapPin, 
   Phone, 
@@ -11,7 +14,8 @@ import {
   MessageSquare,
   Users,
   Headphones,
-  Globe
+  Globe,
+  CheckCircle
 } from "lucide-react";
 
 interface WebsiteContactProps {
@@ -19,6 +23,68 @@ interface WebsiteContactProps {
 }
 
 export function WebsiteContact({ onNavigate }: WebsiteContactProps) {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    company: "",
+    phone: "",
+    subject: "Sales Inquiry",
+    message: ""
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.id]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Message Sent Successfully!",
+          description: "We'll get back to you within 24 hours.",
+        });
+        
+        // Reset form
+        setFormData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          company: "",
+          phone: "",
+          subject: "Sales Inquiry",
+          message: ""
+        });
+      } else {
+        throw new Error('Failed to send message');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again or contact us directly.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const contactMethods = [
     {
       icon: MessageSquare,
@@ -127,14 +193,17 @@ export function WebsiteContact({ onNavigate }: WebsiteContactProps) {
                 </p>
               </EnhancedCardHeader>
               <EnhancedCardContent>
-                <form className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="firstName">First Name *</Label>
                       <Input 
                         id="firstName" 
                         placeholder="John"
+                        value={formData.firstName}
+                        onChange={handleInputChange}
                         className="mt-2"
+                        required
                       />
                     </div>
                     <div>
@@ -142,7 +211,10 @@ export function WebsiteContact({ onNavigate }: WebsiteContactProps) {
                       <Input 
                         id="lastName" 
                         placeholder="Doe"
+                        value={formData.lastName}
+                        onChange={handleInputChange}
                         className="mt-2"
+                        required
                       />
                     </div>
                   </div>
@@ -153,7 +225,10 @@ export function WebsiteContact({ onNavigate }: WebsiteContactProps) {
                       id="email" 
                       type="email"
                       placeholder="john@company.com"
+                      value={formData.email}
+                      onChange={handleInputChange}
                       className="mt-2"
+                      required
                     />
                   </div>
                   
@@ -162,6 +237,8 @@ export function WebsiteContact({ onNavigate }: WebsiteContactProps) {
                     <Input 
                       id="company" 
                       placeholder="Your Company Name"
+                      value={formData.company}
+                      onChange={handleInputChange}
                       className="mt-2"
                     />
                   </div>
@@ -171,6 +248,8 @@ export function WebsiteContact({ onNavigate }: WebsiteContactProps) {
                     <Input 
                       id="phone" 
                       placeholder="+1 (555) 123-4567"
+                      value={formData.phone}
+                      onChange={handleInputChange}
                       className="mt-2"
                     />
                   </div>
@@ -179,31 +258,45 @@ export function WebsiteContact({ onNavigate }: WebsiteContactProps) {
                     <Label htmlFor="subject">Subject *</Label>
                     <select 
                       id="subject"
+                      value={formData.subject}
+                      onChange={handleInputChange}
                       className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
                     >
-                      <option>Sales Inquiry</option>
-                      <option>Technical Support</option>
-                      <option>Partnership</option>
-                      <option>General Question</option>
-                      <option>Demo Request</option>
+                      <option value="Sales Inquiry">Sales Inquiry</option>
+                      <option value="Technical Support">Technical Support</option>
+                      <option value="Partnership">Partnership</option>
+                      <option value="General Question">General Question</option>
+                      <option value="Demo Request">Demo Request</option>
                     </select>
                   </div>
                   
                   <div>
                     <Label htmlFor="message">Message *</Label>
-                    <textarea 
+                    <Textarea 
                       id="message"
                       rows={4}
                       placeholder="Tell us about your international trade needs..."
-                      className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={formData.message}
+                      onChange={handleInputChange}
+                      className="mt-2"
+                      required
                     />
                   </div>
                   
                   <Button 
                     type="submit"
+                    disabled={isSubmitting}
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3"
                   >
-                    Send Message
+                    {isSubmitting ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                        Sending...
+                      </>
+                    ) : (
+                      'Send Message'
+                    )}
                   </Button>
                 </form>
               </EnhancedCardContent>

@@ -1,5 +1,7 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Globe, 
   Mail, 
@@ -16,7 +18,43 @@ interface WebsiteFooterProps {
 }
 
 export function WebsiteFooter({ onNavigate }: WebsiteFooterProps) {
+  const { toast } = useToast();
+  const [email, setEmail] = useState("");
+  const [isSubscribing, setIsSubscribing] = useState(false);
   const currentYear = new Date().getFullYear();
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubscribing(true);
+
+    try {
+      const response = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Successfully Subscribed!",
+          description: "Thank you for subscribing to our newsletter.",
+        });
+        setEmail("");
+      } else {
+        throw new Error('Failed to subscribe');
+      }
+    } catch (error) {
+      toast({
+        title: "Subscription Failed",
+        description: "Please try again or contact support.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
 
   const footerSections = [
     {
@@ -71,16 +109,30 @@ export function WebsiteFooter({ onNavigate }: WebsiteFooterProps) {
             <p className="text-gray-400 mb-6">
               Get the latest updates on international trade regulations, platform features, and industry insights.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
               <input
                 type="email"
                 placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="flex-1 px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
               />
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8">
-                Subscribe
+              <Button 
+                type="submit"
+                disabled={isSubscribing}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8"
+              >
+                {isSubscribing ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    Subscribing...
+                  </>
+                ) : (
+                  'Subscribe'
+                )}
               </Button>
-            </div>
+            </form>
           </div>
         </div>
       </div>
