@@ -12,7 +12,7 @@ import {
   CheckCircle2,
   Clock,
   AlertCircle,
-  Skip,
+  SkipForward,
   FileText,
   Users,
   Package,
@@ -485,7 +485,7 @@ export function TradeLifecycle({ dealId = "sample-deal", onBack }: TradeLifecycl
       case 'completed': return CheckCircle2;
       case 'in_progress': return Clock;
       case 'blocked': return AlertCircle;
-      case 'skipped': return Skip;
+      case 'skipped': return SkipForward;
       default: return Clock;
     }
   };
