@@ -25,6 +25,7 @@ import { WebsiteLayout } from "@/components/website/WebsiteLayout";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from '@supabase/supabase-js';
 import { TradeLifecycle } from "@/components/TradeLifecycle";
+import { SalesLifecycle } from "@/components/SalesLifecycle";
 
 type ViewType = 
   | "dashboard" 
@@ -57,7 +58,8 @@ type ViewType =
   | "profile"
   | "company-holistic"
   | "logistics-analytics"
-  | "trade-lifecycle";
+  | "trade-lifecycle"
+  | "sales-lifecycle";
 
 export default function Index() {
   const [currentView, setCurrentView] = useState<ViewType>("dashboard");
@@ -225,6 +227,12 @@ export default function Index() {
       case "trade-lifecycle":
         return (
           <TradeLifecycle 
+            onBack={handleBackToDashboard}
+          />
+        );
+      case "sales-lifecycle":
+        return (
+          <SalesLifecycle 
             onBack={handleBackToDashboard}
           />
         );

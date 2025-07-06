@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +16,9 @@ import {
   CheckCircle2,
   Target,
   Workflow,
-  ArrowRight
+  ArrowRight,
+  Zap,
+  Handshake
 } from "lucide-react";
 
 interface ModernDashboardProps {
@@ -283,43 +284,102 @@ export function ModernDashboard({ onNavigate }: ModernDashboardProps) {
       </div>
 
       {/* Quick Actions */}
-      <Card>
+      <Card className="shadow-lg border-0 bg-white">
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <Zap className="w-6 h-6 text-blue-600" />
+            Lifecycle Management
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-xl border border-purple-200 hover:shadow-lg transition-all cursor-pointer"
+                 onClick={() => onNavigate("sales-lifecycle")}>
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center">
+                  <Target className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">Sales Lifecycle</h3>
+                  <p className="text-gray-600 text-sm">International buyer identification</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Active Campaigns:</span>
+                  <span className="font-semibold">3</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Qualified Leads:</span>
+                  <span className="font-semibold">127</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Conversion Rate:</span>
+                  <span className="font-semibold text-green-600">12.5%</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-blue-50 to-green-50 p-6 rounded-xl border border-blue-200 hover:shadow-lg transition-all cursor-pointer"
+                 onClick={() => onNavigate("trade-lifecycle")}>
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-green-600 rounded-xl flex items-center justify-center">
+                  <Globe className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">Trade Lifecycle</h3>
+                  <p className="text-gray-600 text-sm">End-to-end trade management</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Active Trades:</span>
+                  <span className="font-semibold">8</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Completed Steps:</span>
+                  <span className="font-semibold">156</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Success Rate:</span>
+                  <span className="font-semibold text-green-600">94.2%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
             <Button 
-              variant="outline" 
-              className="p-6 h-auto flex-col gap-2"
-              onClick={() => onNavigate('create-deal')}
+              onClick={() => onNavigate("deals")} 
+              className="flex items-center gap-2 h-12"
+              variant="outline"
             >
-              <DollarSign className="w-6 h-6" />
-              <span>New Deal</span>
+              <Handshake className="w-4 h-4" />
+              New Deal
             </Button>
             <Button 
-              variant="outline" 
-              className="p-6 h-auto flex-col gap-2"
-              onClick={() => onNavigate('add-contact')}
+              onClick={() => onNavigate("contacts")} 
+              className="flex items-center gap-2 h-12"
+              variant="outline"
             >
-              <Users className="w-6 h-6" />
-              <span>Add Contact</span>
+              <Users className="w-4 h-4" />
+              Add Contact
             </Button>
             <Button 
-              variant="outline" 
-              className="p-6 h-auto flex-col gap-2"
-              onClick={() => onNavigate('documents')}
+              onClick={() => onNavigate("documents")} 
+              className="flex items-center gap-2 h-12"
+              variant="outline"
             >
-              <FileText className="w-6 h-6" />
-              <span>Documents</span>
+              <FileText className="w-4 h-4" />
+              Upload Doc
             </Button>
             <Button 
-              variant="outline" 
-              className="p-6 h-auto flex-col gap-2"
-              onClick={() => onNavigate('trade-lifecycle')}
+              onClick={() => onNavigate("reports")} 
+              className="flex items-center gap-2 h-12"
+              variant="outline"
             >
-              <Workflow className="w-6 h-6" />
-              <span>Lifecycle</span>
+              <BarChart3 className="w-4 h-4" />
+              Analytics
             </Button>
           </div>
         </CardContent>

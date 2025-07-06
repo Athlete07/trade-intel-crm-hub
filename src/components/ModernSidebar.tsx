@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   LayoutDashboard, 
@@ -21,7 +20,8 @@ import {
   LogOut,
   Workflow,
   Ship,
-  Package
+  Package,
+  Target
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { User as SupabaseUser } from '@supabase/supabase-js';
@@ -36,22 +36,22 @@ interface ModernSidebarProps {
 export function ModernSidebar({ currentView, onViewChange, user, onLogout }: ModernSidebarProps) {
   const [isDocumentsExpanded, setIsDocumentsExpanded] = useState(false);
   const [isComplianceExpanded, setIsComplianceExpanded] = useState(false);
-  const [isTradeExpanded, setIsTradeExpanded] = useState(false);
+  const [isLifecycleExpanded, setIsLifecycleExpanded] = useState(false);
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "tasks", label: "Tasks", icon: CheckSquare },
+    { id: "deals", label: "Deals", icon: Handshake },
     { 
-      id: "trade", 
-      label: "Trade Management", 
-      icon: Workflow,
+      id: "lifecycle", 
+      label: "Lifecycle Management", 
+      icon: Target,
       hasSubmenu: true,
       submenu: [
-        { id: "trade-lifecycle", label: "Trade Lifecycle", icon: Workflow },
-        { id: "deals", label: "Deals", icon: Handshake },
-        { id: "logistics", label: "Logistics & Shipping", icon: Ship }
+        { id: "sales-lifecycle", label: "Sales Lifecycle", icon: Target },
+        { id: "trade-lifecycle", label: "Trade Lifecycle", icon: Globe }
       ]
     },
-    { id: "tasks", label: "Tasks", icon: CheckSquare },
     { id: "companies", label: "Companies", icon: Building },
     { id: "contacts", label: "Contacts", icon: Users },
     { 
@@ -65,6 +65,7 @@ export function ModernSidebar({ currentView, onViewChange, user, onLogout }: Mod
         { id: "exim-bills", label: "EXIM Documents", icon: Globe }
       ]
     },
+    { id: "logistics", label: "Logistics & Shipping", icon: MessageSquare },
     { 
       id: "compliance", 
       label: "Compliance", 
@@ -86,8 +87,8 @@ export function ModernSidebar({ currentView, onViewChange, user, onLogout }: Mod
       setIsDocumentsExpanded(!isDocumentsExpanded);
     } else if (itemId === "compliance") {
       setIsComplianceExpanded(!isComplianceExpanded);
-    } else if (itemId === "trade") {
-      setIsTradeExpanded(!isTradeExpanded);
+    } else if (itemId === "lifecycle") {
+      setIsLifecycleExpanded(!isLifecycleExpanded);
     } else {
       onViewChange(itemId);
     }
@@ -117,7 +118,7 @@ export function ModernSidebar({ currentView, onViewChange, user, onLogout }: Mod
                   currentView === item.id || 
                   (item.hasSubmenu && item.id === "documents" && (currentView === "documents" || currentView === "bills" || currentView === "exim-bills")) ||
                   (item.hasSubmenu && item.id === "compliance" && currentView === "compliance") ||
-                  (item.hasSubmenu && item.id === "trade" && (currentView === "trade-lifecycle" || currentView === "deals" || currentView === "logistics"))
+                  (item.hasSubmenu && item.id === "lifecycle" && (currentView === "sales-lifecycle" || currentView === "trade-lifecycle"))
                     ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl"
                     : "text-gray-700 hover:bg-gray-100"
                 }`}
@@ -129,7 +130,7 @@ export function ModernSidebar({ currentView, onViewChange, user, onLogout }: Mod
                   <div className="ml-auto">
                     {(item.id === "documents" && isDocumentsExpanded) || 
                      (item.id === "compliance" && isComplianceExpanded) ||
-                     (item.id === "trade" && isTradeExpanded) ? (
+                     (item.id === "lifecycle" && isLifecycleExpanded) ? (
                       <ChevronDown className="w-4 h-4" />
                     ) : (
                       <ChevronRight className="w-4 h-4" />
@@ -178,7 +179,7 @@ export function ModernSidebar({ currentView, onViewChange, user, onLogout }: Mod
                 </div>
               )}
 
-              {item.hasSubmenu && item.id === "trade" && isTradeExpanded && (
+              {item.hasSubmenu && item.id === "lifecycle" && isLifecycleExpanded && (
                 <div className="ml-8 mt-2 space-y-1">
                   {item.submenu?.map((subItem) => (
                     <Button
