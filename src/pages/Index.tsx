@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -125,13 +124,13 @@ export default function Index() {
     // Add task editing logic here
   };
 
-  const handleAddEmployee = (employeeData: any) => {
-    console.log('Add employee:', employeeData);
+  const handleAddEmployee = () => {
+    console.log('Add employee');
     // Add employee creation logic here
   };
 
-  const handleEditEmployee = (employeeId: string, employeeData: any) => {
-    console.log('Edit employee:', employeeId, employeeData);
+  const handleEditEmployee = (employeeId: string) => {
+    console.log('Edit employee:', employeeId);
     // Add employee editing logic here
   };
 
