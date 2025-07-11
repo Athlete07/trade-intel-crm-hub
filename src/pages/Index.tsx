@@ -1,309 +1,217 @@
 import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ModernSidebar } from "@/components/ModernSidebar";
 import { ModernDashboard } from "@/components/ModernDashboard";
-import { TaskManager } from "@/components/TaskManager";
-import { DealManager } from "@/components/DealManager";
 import { EnhancedDealManager } from "@/components/EnhancedDealManager";
+import { SalesLifecycle } from "@/components/SalesLifecycle";
+import { TradeLifecycle } from "@/components/TradeLifecycle";
+import { EnterpriseLifecycleManager } from "@/components/EnterpriseLifecycleManager";
+import { InternationalStandardsCompliance } from "@/components/InternationalStandardsCompliance";
+import { AuthPage } from "@/components/AuthPage";
+import { TaskBoard } from "@/components/TaskBoard";
 import { ContactManager } from "@/components/ContactManager";
+import { CompaniesManager } from "@/components/CompaniesManager";
 import { DocumentManager } from "@/components/DocumentManager";
 import { BillGenerator } from "@/components/BillGenerator";
 import { EximBillGenerator } from "@/components/EximBillGenerator";
-import { CompanyAdmin } from "@/components/CompanyAdmin";
-import { CompanyProfile } from "@/components/CompanyProfile";
-import { ReportGenerator } from "@/components/ReportGenerator";
-import { RealTimeNotificationCenter } from "@/components/RealTimeNotificationCenter";
-import { ComplianceManager } from "@/components/ComplianceManager";
 import { LogisticsManager } from "@/components/LogisticsManager";
+import { ComplianceManager } from "@/components/ComplianceManager";
+import { CompanyAdmin } from "@/components/CompanyAdmin";
+import { EnhancedReportGenerator } from "@/components/EnhancedReportGenerator";
+import { RealTimeNotificationCenter } from "@/components/RealTimeNotificationCenter";
 import { AIInsights } from "@/components/AIInsights";
 import { InteractionLogger } from "@/components/InteractionLogger";
-import { EmployeeForm } from "@/components/EmployeeForm";
-import { ModernSidebar } from "@/components/ModernSidebar";
-import { CompaniesManager } from "@/components/CompaniesManager";
-import { AuthPage } from "@/components/AuthPage";
 import { UserProfile } from "@/components/UserProfile";
-import { CompanyHolistic } from "@/components/CompanyHolistic";
-import { LogisticsAnalytics } from "@/components/LogisticsAnalytics";
-import { WebsiteLayout } from "@/components/website/WebsiteLayout";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from '@supabase/supabase-js';
-import { TradeLifecycle } from "@/components/TradeLifecycle";
-import { SalesLifecycle } from "@/components/SalesLifecycle";
-
-type ViewType = 
-  | "dashboard" 
-  | "tasks" 
-  | "deals" 
-  | "contacts" 
-  | "documents" 
-  | "bills" 
-  | "exim-bills"
-  | "company-admin" 
-  | "companies"
-  | "create-deal"
-  | "add-company"
-  | "add-contact"
-  | "edit-contact"
-  | "add-task"
-  | "edit-task"
-  | "add-document"
-  | "edit-document"
-  | "reports" 
-  | "notifications" 
-  | "ai-insights" 
-  | "interactions"
-  | "add-employee"
-  | "edit-employee"
-  | "deal-details"
-  | "interaction-details"
-  | "compliance"
-  | "logistics"
-  | "profile"
-  | "company-holistic"
-  | "logistics-analytics"
-  | "trade-lifecycle"
-  | "sales-lifecycle";
 
 export default function Index() {
-  const [currentView, setCurrentView] = useState<ViewType>("dashboard");
-  const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
+  const [currentView, setCurrentView] = useState("dashboard");
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showWebsite, setShowWebsite] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check for existing session on mount
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      setIsLoading(false);
-      // If user is already authenticated, go directly to app
-      if (session?.user) {
-        setShowWebsite(false);
-      }
-    };
-    
-    checkSession();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user ?? null);
-        setIsLoading(false);
-        // If user authenticates, hide website and show app
-        if (session?.user) {
-          setShowWebsite(false);
-        }
-      }
-    );
-
-    return () => subscription.unsubscribe();
+    checkAuth();
   }, []);
 
-  const handleAuthSuccess = (authenticatedUser: User) => {
-    setUser(authenticatedUser);
-    setCurrentView("dashboard");
-    setShowWebsite(false);
+  const checkAuth = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+    } catch (error) {
+      console.error('Auth check error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
     setCurrentView("dashboard");
-    setShowWebsite(true);
   };
 
-  const handleEnterApp = () => {
-    setShowWebsite(false);
-  };
-
-  const handleViewChange = (view: ViewType) => {
-    setCurrentView(view);
-  };
-
-  const handleDashboardNavigate = (view: ViewType) => {
-    setCurrentView(view);
-  };
-
-  const handleCompanyAdminNavigate = (view: ViewType) => {
-    setCurrentView(view);
-  };
-
-  const handleAddEmployee = () => {
-    setSelectedEmployee(null);
-    setCurrentView("add-employee");
-  };
-
-  const handleEditEmployee = (employee: any) => {
-    setSelectedEmployee(employee);
-    setCurrentView("edit-employee");
-  };
-
-  const handleSaveEmployee = (employee: any) => {
-    // Handle employee save logic here
-    console.log("Saving employee:", employee);
-    setCurrentView("company-admin");
-  };
-
-  const handleBackToDashboard = () => {
-    setCurrentView("dashboard");
-  };
-
-  const handleCompanySelect = (companyId: string) => {
-    setSelectedCompanyId(companyId);
-    setCurrentView("company-holistic");
-  };
-
-  // New handlers for lifecycle navigation
-  const handleNavigateToSalesLifecycle = (dealId?: string) => {
-    if (dealId) {
-      // Store the deal ID for context
-      localStorage.setItem('currentDealId', dealId);
-    }
+  const handleNavigateToSalesLifecycle = (dealId: string) => {
+    setSelectedDealId(dealId);
     setCurrentView("sales-lifecycle");
   };
 
-  const handleNavigateToTradeLifecycle = (dealId?: string) => {
-    if (dealId) {
-      // Store the deal ID for context
-      localStorage.setItem('currentDealId', dealId);
-    }
+  const handleNavigateToTradeLifecycle = (dealId: string) => {
+    setSelectedDealId(dealId);
     setCurrentView("trade-lifecycle");
   };
 
-  const renderView = () => {
+  const handleNavigateToEnterpriseLifecycle = (dealId: string) => {
+    setSelectedDealId(dealId);
+    setCurrentView("enterprise-lifecycle");
+  };
+
+  const handleSalesLifecycleCompleted = (dealId: string) => {
+    setSelectedDealId(dealId);
+    setCurrentView("trade-lifecycle");
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthPage />;
+  }
+
+  const renderContent = () => {
     switch (currentView) {
       case "dashboard":
-        return <ModernDashboard onNavigate={handleDashboardNavigate} />;
-      case "tasks":
-        return <TaskManager />;
+        return <ModernDashboard onNavigate={setCurrentView} />;
+      
       case "deals":
-        return <EnhancedDealManager 
-          onNavigateToSalesLifecycle={handleNavigateToSalesLifecycle}
-          onNavigateToTradeLifecycle={handleNavigateToTradeLifecycle}
-        />;
+        return (
+          <EnhancedDealManager
+            onNavigateToSalesLifecycle={handleNavigateToSalesLifecycle}
+            onNavigateToTradeLifecycle={handleNavigateToTradeLifecycle}
+          />
+        );
+      
+      case "sales-lifecycle":
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="outline"
+                onClick={() => setCurrentView("deals")}
+              >
+                ← Back to Deals
+              </Button>
+              <Button
+                onClick={() => selectedDealId && handleNavigateToEnterpriseLifecycle(selectedDealId)}
+                className="bg-gradient-to-r from-purple-600 to-blue-600"
+              >
+                Enterprise View
+              </Button>
+            </div>
+            <SalesLifecycle
+              onBack={() => setCurrentView("deals")}
+              onCompleted={handleSalesLifecycleCompleted}
+              dealId={selectedDealId || undefined}
+            />
+          </div>
+        );
+      
+      case "trade-lifecycle":
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="outline"
+                onClick={() => setCurrentView("deals")}
+              >
+                ← Back to Deals
+              </Button>
+              <Button
+                onClick={() => selectedDealId && handleNavigateToEnterpriseLifecycle(selectedDealId)}
+                className="bg-gradient-to-r from-purple-600 to-blue-600"
+              >
+                Enterprise View
+              </Button>
+            </div>
+            <TradeLifecycle
+              onBack={() => setCurrentView("deals")}
+              dealId={selectedDealId || undefined}
+            />
+          </div>
+        );
+
+      case "enterprise-lifecycle":
+        return selectedDealId ? (
+          <EnterpriseLifecycleManager
+            dealId={selectedDealId}
+            onBack={() => setCurrentView("deals")}
+          />
+        ) : (
+          <div className="text-center p-8">
+            <p>No deal selected for enterprise lifecycle management.</p>
+            <Button onClick={() => setCurrentView("deals")} className="mt-4">
+              Return to Deals
+            </Button>
+          </div>
+        );
+
+      case "compliance":
+        return (
+          <div className="space-y-6">
+            <InternationalStandardsCompliance />
+            <ComplianceManager />
+          </div>
+        );
+      
+      case "tasks":
+        return <TaskBoard />;
       case "contacts":
         return <ContactManager />;
+      case "companies":
+        return <CompaniesManager />;
       case "documents":
         return <DocumentManager />;
       case "bills":
         return <BillGenerator />;
       case "exim-bills":
         return <EximBillGenerator />;
+      case "logistics":
+        return <LogisticsManager />;
       case "company-admin":
-        return (
-          <CompanyAdmin 
-            onNavigate={handleCompanyAdminNavigate}
-            onAddEmployee={handleAddEmployee}
-            onEditEmployee={handleEditEmployee}
-          />
-        );
-      case "companies":
-        return (
-          <CompaniesManager 
-            onSelectCompany={handleCompanySelect}
-          />
-        );
+        return <CompanyAdmin />;
       case "reports":
-        return <ReportGenerator onBack={handleBackToDashboard} />;
+        return <EnhancedReportGenerator />;
       case "notifications":
-        return <RealTimeNotificationCenter onBack={handleBackToDashboard} />;
+        return <RealTimeNotificationCenter />;
       case "ai-insights":
         return <AIInsights />;
       case "interactions":
         return <InteractionLogger />;
-      case "compliance":
-        return <ComplianceManager />;
-      case "logistics":
-        return <LogisticsManager />;
       case "profile":
-        return <UserProfile user={user} onBack={handleBackToDashboard} onLogout={handleLogout} />;
-      case "add-employee":
-        return (
-          <EmployeeForm 
-            onBack={() => setCurrentView("company-admin")}
-            onSave={handleSaveEmployee}
-          />
-        );
-      case "edit-employee":
-        return (
-          <EmployeeForm 
-            onBack={() => setCurrentView("company-admin")}
-            onSave={handleSaveEmployee}
-            employee={selectedEmployee}
-          />
-        );
-      case "company-holistic":
-        return (
-          <CompanyHolistic 
-            companyId={selectedCompanyId || "default"}
-            onBack={() => setCurrentView("companies")}
-          />
-        );
-      case "logistics-analytics":
-        return (
-          <LogisticsAnalytics 
-            onBack={() => setCurrentView("logistics")}
-          />
-        );
-      case "trade-lifecycle":
-        return (
-          <TradeLifecycle 
-            onBack={handleBackToDashboard}
-            dealId={localStorage.getItem('currentDealId') || undefined}
-          />
-        );
-      case "sales-lifecycle":
-        return (
-          <SalesLifecycle 
-            onBack={handleBackToDashboard}
-            onCompleted={(dealId) => {
-              // Automatically transition to trade lifecycle when sales is completed
-              handleNavigateToTradeLifecycle(dealId);
-            }}
-            dealId={localStorage.getItem('currentDealId') || undefined}
-          />
-        );
+        return <UserProfile user={user} />;
+      
       default:
-        return <ModernDashboard onNavigate={handleDashboardNavigate} />;
+        return <ModernDashboard onNavigate={setCurrentView} />;
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-        <div className="text-center">
-          <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 animate-pulse">
-            <div className="w-10 h-10 bg-white rounded-lg"></div>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Loading EXIM CRM</h2>
-          <p className="text-gray-600">Preparing your international trade platform...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show website for non-authenticated users or when explicitly requested
-  if (showWebsite || !user) {
-    return <WebsiteLayout onEnterApp={handleEnterApp} />;
-  }
-
-  // Show auth page if no user but website is hidden (direct navigation to app)
-  if (!user && !showWebsite) {
-    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
-  }
-
   return (
-    <div className="flex h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      <ModernSidebar 
-        currentView={currentView} 
-        onViewChange={handleViewChange}
+    <div className="flex min-h-screen bg-gray-50 w-full">
+      <ModernSidebar
+        currentView={currentView}
+        onViewChange={setCurrentView}
         user={user}
         onLogout={handleLogout}
       />
-      <main className="flex-1 overflow-hidden">
-        <div className="h-full overflow-auto">
-          {renderView()}
-        </div>
+      <main className="flex-1 p-6 overflow-auto">
+        {renderContent()}
       </main>
     </div>
   );
