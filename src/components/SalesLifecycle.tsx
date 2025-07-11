@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,54 +32,74 @@ interface SalesLifecycleProps {
   dealId?: string;
 }
 
+type StepStatus = 'pending' | 'completed';
+type PhaseStatus = 'pending' | 'completed';
+
+interface SalesStep {
+  id: string;
+  name: string;
+  status: StepStatus;
+  description: string;
+}
+
+interface SalesPhase {
+  id: string;
+  name: string;
+  description: string;
+  status: PhaseStatus;
+  progress: number;
+  steps: SalesStep[];
+  completedAt?: string;
+}
+
 export function SalesLifecycle({ onBack, onCompleted, dealId }: SalesLifecycleProps) {
-  const [salesPhases, setSalesPhases] = useState([
+  const [salesPhases, setSalesPhases] = useState<SalesPhase[]>([
     {
       id: 'lead-qualification',
       name: 'Lead Qualification',
       description: 'Verify lead potential and fit',
-      status: 'pending' as const,
+      status: 'pending' as PhaseStatus,
       progress: 0,
       steps: [
-        { id: 'identify-needs', name: 'Identify Needs', status: 'pending' as const, description: 'Understand client requirements' },
-        { id: 'verify-budget', name: 'Verify Budget', status: 'pending' as const, description: 'Confirm budget availability' },
-        { id: 'assess-timeline', name: 'Assess Timeline', status: 'pending' as const, description: 'Check project timeline' }
+        { id: 'identify-needs', name: 'Identify Needs', status: 'pending' as StepStatus, description: 'Understand client requirements' },
+        { id: 'verify-budget', name: 'Verify Budget', status: 'pending' as StepStatus, description: 'Confirm budget availability' },
+        { id: 'assess-timeline', name: 'Assess Timeline', status: 'pending' as StepStatus, description: 'Check project timeline' }
       ]
     },
     {
       id: 'needs-analysis',
       name: 'Needs Analysis',
       description: 'Deep dive into client needs',
-      status: 'pending' as const,
+      status: 'pending' as PhaseStatus,
       progress: 0,
       steps: [
-        { id: 'collect-data', name: 'Collect Data', status: 'pending' as const, description: 'Gather detailed data' },
-        { id: 'analyze-requirements', name: 'Analyze Requirements', status: 'pending' as const, description: 'Analyze specific requirements' },
-        { id: 'propose-solutions', name: 'Propose Solutions', status: 'pending' as const, description: 'Offer tailored solutions' }
+        { id: 'collect-data', name: 'Collect Data', status: 'pending' as StepStatus, description: 'Gather detailed data' },
+        { id: 'analyze-requirements', name: 'Analyze Requirements', status: 'pending' as StepStatus, description: 'Analyze specific requirements' },
+        { id: 'propose-solutions', name: 'Propose Solutions', status: 'pending' as StepStatus, description: 'Offer tailored solutions' }
       ]
     },
     {
       id: 'proposal',
       name: 'Proposal',
       description: 'Present formal proposal',
-      status: 'pending' as const,
+      status: 'pending' as PhaseStatus,
       progress: 0,
       steps: [
-        { id: 'prepare-offer', name: 'Prepare Offer', status: 'pending' as const, description: 'Create detailed offer' },
-        { id: 'present-proposal', name: 'Present Proposal', status: 'pending' as const, description: 'Present to client' },
-        { id: 'address-questions', name: 'Address Questions', status: 'pending' as const, description: 'Answer client questions' }
+        { id: 'prepare-offer', name: 'Prepare Offer', status: 'pending' as StepStatus, description: 'Create detailed offer' },
+        { id: 'present-proposal', name: 'Present Proposal', status: 'pending' as StepStatus, description: 'Present to client' },
+        { id: 'address-questions', name: 'Address Questions', status: 'pending' as StepStatus, description: 'Answer client questions' }
       ]
     },
     {
       id: 'negotiation',
       name: 'Negotiation',
       description: 'Finalize terms and conditions',
-      status: 'pending' as const,
+      status: 'pending' as PhaseStatus,
       progress: 0,
       steps: [
-        { id: 'discuss-terms', name: 'Discuss Terms', status: 'pending' as const, description: 'Discuss contract terms' },
-        { id: 'address-concerns', name: 'Address Concerns', status: 'pending' as const, description: 'Resolve client concerns' },
-        { id: 'finalize-agreement', name: 'Finalize Agreement', status: 'pending' as const, description: 'Reach final agreement' }
+        { id: 'discuss-terms', name: 'Discuss Terms', status: 'pending' as StepStatus, description: 'Discuss contract terms' },
+        { id: 'address-concerns', name: 'Address Concerns', status: 'pending' as StepStatus, description: 'Resolve client concerns' },
+        { id: 'finalize-agreement', name: 'Finalize Agreement', status: 'pending' as StepStatus, description: 'Reach final agreement' }
       ]
     }
   ]);
@@ -149,14 +170,14 @@ export function SalesLifecycle({ onBack, onCompleted, dealId }: SalesLifecyclePr
   const handleCompletePhase = async (phaseId: string) => {
     const updatedPhases = salesPhases.map(phase => {
       if (phase.id === phaseId) {
-        const completedSteps = phase.steps.filter(step => 
+        const completedStepsInPhase = phase.steps.filter(step => 
           completedSteps.includes(step.id) || step.status === 'completed'
         ).length;
         const totalSteps = phase.steps.length;
         
         return {
           ...phase,
-          status: 'completed' as const,
+          status: 'completed' as PhaseStatus,
           completedAt: new Date().toISOString(),
           progress: 100
         };

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,66 +26,84 @@ interface TradeLifecycleProps {
   dealId?: string;
 }
 
+type StepStatus = 'pending' | 'completed';
+type PhaseStatus = 'pending' | 'completed';
+
+interface TradeStep {
+  id: string;
+  name: string;
+  status: StepStatus;
+}
+
+interface TradePhase {
+  id: string;
+  name: string;
+  status: PhaseStatus;
+  progress: number;
+  steps: TradeStep[];
+  completedAt?: string;
+}
+
 export function TradeLifecycle({ onBack, dealId }: TradeLifecycleProps) {
-  const [tradePhases, setTradePhases] = useState([
+  const [tradePhases, setTradePhases] = useState<TradePhase[]>([
     {
       id: 'contract',
       name: 'Contract Execution',
-      status: 'pending' as const,
+      status: 'pending' as PhaseStatus,
       progress: 0,
       steps: [
-        { id: 'draft', name: 'Draft Contract', status: 'pending' as const },
-        { id: 'review', name: 'Review Legal Terms', status: 'pending' as const },
-        { id: 'negotiate', name: 'Negotiate Terms', status: 'pending' as const },
-        { id: 'sign', name: 'Sign Contract', status: 'pending' as const }
+        { id: 'draft', name: 'Draft Contract', status: 'pending' as StepStatus },
+        { id: 'review', name: 'Review Legal Terms', status: 'pending' as StepStatus },
+        { id: 'negotiate', name: 'Negotiate Terms', status: 'pending' as StepStatus },
+        { id: 'sign', name: 'Sign Contract', status: 'pending' as StepStatus }
       ]
     },
     {
       id: 'documentation',
       name: 'Documentation',
-      status: 'pending' as const,
+      status: 'pending' as PhaseStatus,
       progress: 0,
       steps: [
-        { id: 'prepare', name: 'Prepare Documents', status: 'pending' as const },
-        { id: 'lc', name: 'Issue Letter of Credit', status: 'pending' as const },
-        { id: 'insurance', name: 'Arrange Insurance', status: 'pending' as const },
-        { id: 'customs', name: 'Customs Clearance Prep', status: 'pending' as const }
+        { id: 'prepare', name: 'Prepare Documents', status: 'pending' as StepStatus },
+        { id: 'lc', name: 'Issue Letter of Credit', status: 'pending' as StepStatus },
+        { id: 'insurance', name: 'Arrange Insurance', status: 'pending' as StepStatus },
+        { id: 'customs', name: 'Customs Clearance Prep', status: 'pending' as StepStatus }
       ]
     },
     {
       id: 'production',
       name: 'Production',
-      status: 'pending' as const,
+      status: 'pending' as PhaseStatus,
       progress: 0,
       steps: [
-        { id: 'plan', name: 'Production Planning', status: 'pending' as const },
-        { id: 'manufacture', name: 'Manufacturing', status: 'pending' as const },
-        { id: 'inspect', name: 'Quality Inspection', status: 'pending' as const },
-        { id: 'package', name: 'Packaging', status: 'pending' as const }
+        { id: 'plan', name: 'Production Planning', status: 'pending' as StepStatus },
+        { id: 'manufacture', name: 'Manufacturing', status: 'pending' as StepStatus },
+        { id: 'inspect', name: 'Quality Inspection', status: 'pending' as StepStatus },
+        { id: 'package', name: 'Packaging', status: 'pending' as StepStatus }
       ]
     },
     {
       id: 'shipment',
       name: 'Shipment',
-      status: 'pending' as const,
+      status: 'pending' as PhaseStatus,
       progress: 0,
       steps: [
-        { id: 'book', name: 'Book Shipment', status: 'pending' as const },
-        { id: 'load', name: 'Load Goods', status: 'pending' as const },
-        { id: 'transport', name: 'Transport to Port', status: 'pending' as const },
-        { id: 'export', name: 'Export Clearance', status: 'pending' as const }
+        { id: 'book', name: 'Book Shipment', status: 'pending' as StepStatus },
+        { id: 'load', name: 'Load Goods', status: 'pending' as StepStatus },
+        { id: 'transport', name: 'Transport to Port', status: 'pending' as StepStatus },
+        { id: 'export', name: 'Export Clearance', status: 'pending' as StepStatus }
       ]
     },
     {
       id: 'delivery',
       name: 'Delivery',
-      status: 'pending' as const,
+      status: 'pending' as PhaseStatus,
       progress: 0,
       steps: [
-        { id: 'track', name: 'Track Shipment', status: 'pending' as const },
-        { id: 'import', name: 'Import Clearance', status: 'pending' as const },
-        { id: 'deliver', name: 'Final Delivery', status: 'pending' as const },
-        { id: 'payment', name: 'Final Payment', status: 'pending' as const }
+        { id: 'track', name: 'Track Shipment', status: 'pending' as StepStatus },
+        { id: 'import', name: 'Import Clearance', status: 'pending' as StepStatus },
+        { id: 'deliver', name: 'Final Delivery', status: 'pending' as StepStatus },
+        { id: 'payment', name: 'Final Payment', status: 'pending' as StepStatus }
       ]
     }
   ]);
@@ -130,7 +149,7 @@ export function TradeLifecycle({ onBack, dealId }: TradeLifecycleProps) {
             ...phase,
             steps: phase.steps.map(step => {
               if (step.id === stepId) {
-                return { ...step, status: completed ? 'completed' : 'pending' };
+                return { ...step, status: completed ? 'completed' as StepStatus : 'pending' as StepStatus };
               }
               return step;
             })
@@ -150,14 +169,14 @@ export function TradeLifecycle({ onBack, dealId }: TradeLifecycleProps) {
   const handleCompletePhase = async (phaseId: string) => {
     const updatedPhases = tradePhases.map(phase => {
       if (phase.id === phaseId) {
-        const completedSteps = phase.steps.filter(step => 
+        const completedStepsInPhase = phase.steps.filter(step => 
           completedSteps.includes(step.id) || step.status === 'completed'
         ).length;
         const totalSteps = phase.steps.length;
         
         return {
           ...phase,
-          status: 'completed' as const,
+          status: 'completed' as PhaseStatus,
           completedAt: new Date().toISOString(),
           progress: 100
         };
