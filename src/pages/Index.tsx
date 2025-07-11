@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,38 @@ export default function Index() {
   const [loading, setLoading] = useState(true);
   const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
 
+  // Mock data for tasks
+  const mockTasks = [
+    {
+      id: "1",
+      title: "Review contract terms",
+      status: "pending",
+      priority: "High",
+      assignee: "John Doe",
+      company: "ABC Corp",
+      dueDate: "2024-01-15",
+      actualHours: 4,
+      estimatedHours: 6,
+      progress: 65,
+      riskLevel: "Medium",
+      tags: ["Contract", "Review"]
+    },
+    {
+      id: "2", 
+      title: "Prepare shipping documents",
+      status: "in-progress",
+      priority: "Critical",
+      assignee: "Jane Smith",
+      company: "XYZ Ltd",
+      dueDate: "2024-01-12",
+      actualHours: 8,
+      estimatedHours: 10,
+      progress: 80,
+      riskLevel: "High",
+      tags: ["Shipping", "Documents"]
+    }
+  ];
+
   useEffect(() => {
     checkAuth();
   }, []);
@@ -45,6 +78,10 @@ export default function Index() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAuthSuccess = (user: User) => {
+    setUser(user);
   };
 
   const handleLogout = async () => {
@@ -73,6 +110,31 @@ export default function Index() {
     setCurrentView("trade-lifecycle");
   };
 
+  const handleSelectCompany = (companyId: string) => {
+    console.log('Selected company:', companyId);
+    // Add company selection logic here
+  };
+
+  const handleViewTask = (taskId: string) => {
+    console.log('View task:', taskId);
+    // Add task viewing logic here
+  };
+
+  const handleEditTask = (taskId: string) => {
+    console.log('Edit task:', taskId);
+    // Add task editing logic here
+  };
+
+  const handleAddEmployee = (employeeData: any) => {
+    console.log('Add employee:', employeeData);
+    // Add employee creation logic here
+  };
+
+  const handleEditEmployee = (employeeId: string, employeeData: any) => {
+    console.log('Edit employee:', employeeId, employeeData);
+    // Add employee editing logic here
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -82,7 +144,7 @@ export default function Index() {
   }
 
   if (!user) {
-    return <AuthPage />;
+    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
   }
 
   const renderContent = () => {
@@ -171,11 +233,18 @@ export default function Index() {
         );
       
       case "tasks":
-        return <TaskBoard />;
+        return (
+          <TaskBoard 
+            tasks={mockTasks}
+            onBack={() => setCurrentView("dashboard")}
+            onViewTask={handleViewTask}
+            onEditTask={handleEditTask}
+          />
+        );
       case "contacts":
         return <ContactManager />;
       case "companies":
-        return <CompaniesManager />;
+        return <CompaniesManager onSelectCompany={handleSelectCompany} />;
       case "documents":
         return <DocumentManager />;
       case "bills":
@@ -185,17 +254,29 @@ export default function Index() {
       case "logistics":
         return <LogisticsManager />;
       case "company-admin":
-        return <CompanyAdmin />;
+        return (
+          <CompanyAdmin 
+            onNavigate={setCurrentView}
+            onAddEmployee={handleAddEmployee}
+            onEditEmployee={handleEditEmployee}
+          />
+        );
       case "reports":
-        return <EnhancedReportGenerator />;
+        return <EnhancedReportGenerator onBack={() => setCurrentView("dashboard")} />;
       case "notifications":
-        return <RealTimeNotificationCenter />;
+        return <RealTimeNotificationCenter onBack={() => setCurrentView("dashboard")} />;
       case "ai-insights":
         return <AIInsights />;
       case "interactions":
         return <InteractionLogger />;
       case "profile":
-        return <UserProfile user={user} />;
+        return (
+          <UserProfile 
+            user={user} 
+            onBack={() => setCurrentView("dashboard")}
+            onLogout={handleLogout}
+          />
+        );
       
       default:
         return <ModernDashboard onNavigate={setCurrentView} />;
